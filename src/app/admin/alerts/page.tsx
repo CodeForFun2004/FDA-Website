@@ -1,0 +1,1 @@
+export { default } from '@/migrated/flood-dashboard/main/admin/alerts/page';

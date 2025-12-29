@@ -32,3 +32,20 @@ export default async function DashboardLayout({
     </KBar>
   );
 }
+
+// import type { Metadata } from 'next';
+// import AdminLayout from '@/migrated/flood-dashboard/main/admin/layout';
+
+// export const metadata: Metadata = {
+//   title: 'FDA Dashboard',
+//   description: 'Dashboard UI migrated from flood_dashboard'
+// };
+
+// export default function DashboardLayout({
+//   children
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   return <AdminLayout>{children}</AdminLayout>;
+// }
+

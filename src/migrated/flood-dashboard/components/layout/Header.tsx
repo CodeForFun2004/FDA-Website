@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Menu, Sun, Moon, Bell, Search, User, LogOut } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
 import { Button, Input } from '../ui/common';
+import { clearSessionCookie } from '@/helpers/auth-session';
 
 export const Header = () => {
   const { toggleSidebar, theme, setTheme, currentUser, logout } = useAppStore();
@@ -18,16 +19,13 @@ export const Header = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-   const handleLogout = async () => {
-    // 1) clear migrated store
-    logout();
 
-    // 2) sign out Clerk (quan trọng nhất)
-    await signOut({ redirectUrl: '/auth/sign-in' });
 
-    // (optional) nếu bạn không dùng redirectUrl:
-    // router.replace('/auth/sign-in');
-  };
+const handleLogout = () => {
+  logout();               // clear zustand store
+  clearSessionCookie();   // clear cookie fda_session
+  router.replace("/authenticate/login");
+};
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center gap-4 border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">

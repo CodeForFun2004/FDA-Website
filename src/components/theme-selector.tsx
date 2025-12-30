@@ -16,11 +16,11 @@ import {
 const DEFAULT_THEMES = [
   {
     name: 'Default',
-    value: 'default'
+    value: 'blue'
   },
   {
-    name: 'Blue',
-    value: 'blue'
+    name: 'Grey',
+    value: 'default'
   },
   {
     name: 'Green',

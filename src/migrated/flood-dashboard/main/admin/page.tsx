@@ -51,6 +51,8 @@ const StatCard = ({ title, value, icon: Icon, colorClass, bgClass }: any) => (
   </Card>
 );
 
+
+
 export default function DashboardPage() {
   const { totalDevices, offlineDevices, activeAlerts, monitoredZones } =
     useDashboardStats();
@@ -58,6 +60,22 @@ export default function DashboardPage() {
   const { data: alerts, isLoading: isLoadingAlerts } = useAlerts();
 
   if (isLoadingSensors || isLoadingAlerts) return <LoadingState />;
+
+  const WaterTooltip = ({ active, label, payload }: any) => {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="rounded-xl border bg-background px-4 py-3 shadow-md">
+      <div className="text-sm font-medium text-foreground">
+        {formatDate(label)}
+      </div>
+      <div className="text-sm text-primary">
+        value : {payload[0].value}
+      </div>
+    </div>
+  );
+};
+
 
   return (
     <div className="space-y-8">
@@ -152,14 +170,16 @@ export default function DashboardPage() {
                     tickLine={false}
                     tickMargin={10}
                   />
-                  <Tooltip
+                  {/* <Tooltip
                     contentStyle={{
                       borderRadius: "12px",
                       border: "none",
                       boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     }}
                     labelFormatter={(t) => formatDate(t)}
-                  />
+                  /> */}
+                  <Tooltip content={<WaterTooltip />} />
+F
                   <Area
                     type="monotone"
                     dataKey="value"

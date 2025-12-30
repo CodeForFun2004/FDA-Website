@@ -74,7 +74,7 @@ export default function LoginViewPage() {
             <Input
               id='email'
               type='email'
-              placeholder='name@example.com'
+              placeholder='nguyenvana@gmail.com'
               className='pl-9'
               required
             />
@@ -142,7 +142,7 @@ export default function LoginViewPage() {
       <p className='text-muted-foreground text-center text-sm'>
         Don&apos;t have an account?{' '}
         <Link
-          href='/auth/register'
+          href='/authenticate/register'
           className='text-primary font-semibold hover:underline'
         >
           Sign up

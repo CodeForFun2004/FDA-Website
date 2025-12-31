@@ -16,8 +16,8 @@ import {
   Droplets
 } from 'lucide-react';
 
-import { useAppStore } from '@/migrated/flood-dashboard/lib/store';
-import { cn } from '@/migrated/flood-dashboard/lib/utils';
+import { useAppStore } from '@/lib/store';
+import { cn } from '@/lib/utils';
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, exact: true },

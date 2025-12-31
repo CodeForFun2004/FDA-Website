@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "@/migrated/flood-dashboard/lib/router";
+import { useRouter } from "@/lib/router";
 import Link from "next/link";
-import { useAppStore } from "@/migrated/flood-dashboard/lib/store";
-import { Button, Input } from "@/migrated/flood-dashboard/components/ui/common";
+import { useAppStore } from "@/lib/store";
+import { Button, Input } from '../../components/ui/common';
 import { Mail, Lock, User as UserIcon, ArrowRight, Loader2 } from "lucide-react";
-import type { User } from "@/migrated/flood-dashboard/lib/types";
+import type { User } from "@/lib/types";
 import { setSessionCookie } from "@/helpers/auth-session";
 
 export default function RegisterViewPage() {

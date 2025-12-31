@@ -1,17 +1,16 @@
 import type { Metadata } from 'next';
-import AdminLayout from '@/migrated/flood-dashboard/main/admin/layout';
-import ReactQueryProvider from '@/migrated/flood-dashboard/components/providers';
-
+import AdminShell from '@/features/admin/AdminShell';
+import AdminProviders from './providers';
 
 export const metadata: Metadata = {
   title: 'FDA Admin',
-  description: 'Admin UI migrated from flood_dashboard'
+  description: 'Admin UI'
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <ReactQueryProvider>
-      <AdminLayout>{children}</AdminLayout>
-    </ReactQueryProvider>
+    <AdminProviders>
+      <AdminShell>{children}</AdminShell>
+    </AdminProviders>
   );
 }

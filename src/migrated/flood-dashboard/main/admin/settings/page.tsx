@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '../../../components/ui/common';
+import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '@/components/ui/common';
 
 export default function SettingsPage() {
   return (

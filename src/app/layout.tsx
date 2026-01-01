@@ -1,5 +1,5 @@
 import Providers from '@/components/layout/providers';
-import { Toaster } from '@/components/ui/sonner';
+
 import { fontVariables } from '@/lib/font';
 import ThemeProvider from '@/components/layout/ThemeToggle/theme-provider';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,7 @@ import NextTopLoader from 'nextjs-toploader';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import './globals.css';
 import './theme.css';
+import { Toaster } from 'sonner';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -66,7 +67,7 @@ export default async function RootLayout({
             enableColorScheme
           >
             <Providers activeThemeValue={activeThemeValue as string}>
-              <Toaster />
+                <Toaster position="top-right" richColors />
               {children}
             </Providers>
           </ThemeProvider>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import AdminShell from '@/features/admin/AdminShell';
 import AdminProviders from './providers';
 
+
 export const metadata: Metadata = {
   title: 'FDA Admin',
   description: 'Admin UI'

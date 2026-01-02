@@ -7,7 +7,9 @@ import { Button, Input } from '../../components/ui/common';
 import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { setSessionCookie } from '@/helpers/auth-session';
-import { toast } from 'sonner'; // ✅ FIX BUG: import toast
+import { toast } from 'sonner'; 
+import { initGoogleOAuthApi } from "@/lib/api/auth";
+
 
 export default function LoginViewPage() {
   const router = useRouter();
@@ -71,12 +73,51 @@ export default function LoginViewPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
+   const handleGoogleLogin = async () => {
     clearError();
-    toast.warning(
-      'Google Sign-In hiện chưa được triển khai. Vui lòng đăng nhập bằng Email/Password.'
-    );
+
+    try {
+      // callback FE (bạn đang dùng route prefix /authenticate)
+      const returnUrl = `${window.location.origin}/authenticate/google/callback`;
+
+      // nếu bạn muốn support “next=...”
+      const next =
+        new URLSearchParams(window.location.search).get("next") ?? "";
+      if (next) sessionStorage.setItem("post_login_redirect", next);
+
+      const { authorizationUrl, state } = await initGoogleOAuthApi({ returnUrl });
+
+      sessionStorage.setItem("google_oauth_state", state);
+
+      // redirect sang Google consent
+      window.location.href = authorizationUrl;
+    } catch (e: any) {
+      toast.error(e?.message ?? "Không thể bắt đầu Google Sign-In.");
+    }
   };
+
+
+
+
+
+
+
+
+// Trang /auth/callback
+useEffect(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  const state = urlParams.get('state');
+  if (code && state && state === localStorage.getItem('oauth_state')) {
+    fetch(`/api/v1/auth/google/callback?code=${code}&state=${state}`)
+      .then(res => res.json())
+      .then(data => {
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.removeItem('oauth_state');
+        window.location.href = '/';
+      });
+  }
+}, []);
 
   return (
     <div className='space-y-6'>
@@ -201,3 +242,4 @@ export default function LoginViewPage() {
     </div>
   );
 }
+

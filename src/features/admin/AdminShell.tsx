@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { Header } from '@/components/layout/Header'; // <-- bạn sẽ chỉnh lại chỗ Header
+import { Header } from '@/components/layout/Header'; 
 import { useAppStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 

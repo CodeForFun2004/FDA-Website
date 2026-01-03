@@ -8,7 +8,9 @@ import { useAuthStore } from '@/stores/auth-store';
 
 import { Button, Input } from '../../components/ui/common';
 import { clearSessionCookie } from '@/helpers/auth-session';
-import { ProfileMenu } from '@/components/layout/ProfileMenu';
+import { toast } from "sonner";
+import { updateUserProfileApi, changePasswordApi } from "@/lib/api/user-profile";
+import { ProfileMenu } from './ProfileMenu';
 
 export const Header = () => {
   const { toggleSidebar, theme, setTheme } = useAppStore();
@@ -40,7 +42,7 @@ export const Header = () => {
     name: displayName,
     email: authUser?.email || 'unknown@local',
     role: displayRole,
-    avatarUrl: authUser?.avatarUrl ?? undefined, // ✅ null -> undefined
+    avatarUrl: authUser?.avatarUrl ?? undefined // ✅ null -> undefined
     // phone: authUser?.phone,
     // location: authUser?.location,
     // organization: authUser?.organization
@@ -89,10 +91,37 @@ export const Header = () => {
           <ProfileMenu
             user={userForMenu}
             onLogout={handleLogout}
-            onSaveProfile={async (next) => {
-              // TODO: bạn nối API update profile sau (PUT /me...)
-              // hiện tại update UI local theo store tuỳ bạn
-              console.log('save profile', next);
+            onSaveProfile={async (payload) => {
+              // payload: { fullName, avatarFile?, avatarUrl? }
+              const fd = new FormData();
+              if (payload.fullName) fd.append('fullName', payload.fullName);
+              if (payload.avatarFile)
+                fd.append('avatarFile', payload.avatarFile);
+              if (payload.avatarUrl) fd.append('avatarUrl', payload.avatarUrl);
+
+              const res = await updateUserProfileApi(fd);
+
+              // ✅ update auth-store để Header/Avatar đổi ngay
+              useAuthStore.setState((s) => ({
+                user: s.user
+                  ? {
+                      ...s.user,
+                      fullName: res.profile.fullName,
+                      avatarUrl: res.profile.avatarUrl,
+                      phoneNumber: res.profile.phoneNumber
+                    }
+                  : s.user
+              }));
+
+              toast.success(res.message || 'Cập nhật hồ sơ thành công');
+            }}
+            onChangePassword={async (payload) => {
+              if (payload.newPassword !== payload.confirmPassword) {
+                toast.error('Mật khẩu mới và xác nhận không khớp');
+                return;
+              }
+              const res = await changePasswordApi(payload);
+              toast.success(res.message || 'Đổi mật khẩu thành công');
             }}
           />
         </div>

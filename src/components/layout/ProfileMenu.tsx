@@ -2,10 +2,20 @@
 
 import * as React from "react";
 import { User, LogOut, Settings, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/common";
 import { cn } from "@/lib/utils";
-import { ProfileModal, UserProfile } from "@/components/modal/profile-modal";
+
+// ✅ ProfileModal mới (đã đồng bộ API) export: ProfileModal, UserProfile, ProfileUpdatePayload, ChangePasswordPayload
+import {
+  ProfileModal,
+  type UserProfile,
+  type ProfileUpdatePayload,
+  type ChangePasswordPayload,
+} from "@/components/modal/profile-modal";
+
+import { getUserProfileApi } from "@/lib/api/user-profile";
 
 function useOnClickOutside<T extends HTMLElement>(
   ref: React.RefObject<T | null>,
@@ -28,7 +38,13 @@ function useOnClickOutside<T extends HTMLElement>(
   }, [ref, handler]);
 }
 
-function AvatarMini({ name, avatarUrl }: { name: string; avatarUrl?: string }) {
+function AvatarMini({
+  name,
+  avatarUrl,
+}: {
+  name: string;
+  avatarUrl?: string | null;
+}) {
   const initials =
     name
       ?.split(" ")
@@ -52,17 +68,75 @@ function AvatarMini({ name, avatarUrl }: { name: string; avatarUrl?: string }) {
 }
 
 type ProfileMenuProps = {
-  user: UserProfile;
+  /**
+   * user nhẹ để hiển thị menu (từ auth-store / header)
+   * ProfileModal sẽ fetch profile đầy đủ qua GET /user-profile
+   */
+  user: {
+    name: string;
+    email: string;
+    avatarUrl?: string | null;
+    role?: string;
+  };
+
   onLogout?: () => void;
-  onSaveProfile?: (next: UserProfile) => Promise<void> | void;
+
+  /**
+   * Nối API PUT /user-profile (multipart) ở parent (Header)
+   * payload mới: { fullName, avatarFile?, avatarUrl? }
+   */
+  onSaveProfile?: (payload: ProfileUpdatePayload) => Promise<void> | void;
+
+  /**
+   * Nối API POST /auth/change-password ở parent (Header)
+   */
+  onChangePassword?: (payload: ChangePasswordPayload) => Promise<void> | void;
 };
 
-export function ProfileMenu({ user, onLogout, onSaveProfile }: ProfileMenuProps) {
+export function ProfileMenu({
+  user,
+  onLogout,
+  onSaveProfile,
+  onChangePassword,
+}: ProfileMenuProps) {
   const [open, setOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
 
+  const [loadingProfile, setLoadingProfile] = React.useState(false);
+  const [profile, setProfile] = React.useState<UserProfile | null>(null);
+
+  const ref = React.useRef<HTMLDivElement>(null);
   useOnClickOutside(ref, () => setOpen(false));
+
+  const loadProfile = React.useCallback(async () => {
+    setLoadingProfile(true);
+    try {
+      const res = await getUserProfileApi();
+      setProfile(res.profile);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Không lấy được hồ sơ.");
+      // giữ fallback tối thiểu để modal vẫn mở được
+      setProfile((prev) =>
+        prev ??
+        ({
+          id: "—",
+          email: user.email,
+          fullName: user.name,
+          phoneNumber: null,
+          avatarUrl: user.avatarUrl ?? null,
+          roles: user.role ? [user.role] : ["USER"],
+        } as UserProfile)
+      );
+    } finally {
+      setLoadingProfile(false);
+    }
+  }, [user.email, user.name, user.avatarUrl, user.role]);
+
+  const openProfileModal = async () => {
+    setOpen(false);
+    setProfileOpen(true);
+    await loadProfile();
+  };
 
   return (
     <div className="relative" ref={ref}>
@@ -91,7 +165,9 @@ export function ProfileMenu({ user, onLogout, onSaveProfile }: ProfileMenuProps)
               <AvatarMini name={user.name} avatarUrl={user.avatarUrl} />
               <div className="min-w-0">
                 <div className="text-sm font-semibold truncate">{user.name}</div>
-                <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </div>
               </div>
             </div>
           </div>
@@ -100,13 +176,13 @@ export function ProfileMenu({ user, onLogout, onSaveProfile }: ProfileMenuProps)
             <button
               type="button"
               className="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-sm hover:bg-muted transition"
-              onClick={() => {
-                setOpen(false);
-                setProfileOpen(true);
-              }}
+              onClick={openProfileModal}
             >
               <User className="h-4 w-4" />
               Profile
+              {loadingProfile ? (
+                <span className="ml-auto text-xs text-muted-foreground">...</span>
+              ) : null}
             </button>
 
             <button
@@ -135,12 +211,28 @@ export function ProfileMenu({ user, onLogout, onSaveProfile }: ProfileMenuProps)
         </div>
       )}
 
-      <ProfileModal
-        open={profileOpen}
-        onOpenChange={setProfileOpen}
-        user={user}
-        onSave={onSaveProfile}
-      />
+      {/* Modal: chỉ render khi mở */}
+      {profileOpen && profile && (
+        <ProfileModal
+          open={profileOpen}
+          onOpenChange={(v) => {
+            setProfileOpen(v);
+            if (!v) {
+              // optional: clear profile state nếu muốn
+              // setProfile(null);
+            }
+          }}
+          user={profile}
+          onSaveProfile={async (payload) => {
+            if (!onSaveProfile) return;
+
+            await onSaveProfile(payload);
+            // reload lại để reflect UI từ backend
+            await loadProfile();
+          }}
+          onChangePassword={onChangePassword}
+        />
+      )}
     </div>
   );
 }

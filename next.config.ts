@@ -9,7 +9,9 @@ const baseConfig: NextConfig = {
         protocol: 'https',
         hostname: 'api.slingacademy.com',
         port: ''
-      }
+      },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+    { protocol: "https", hostname: "www.gstatic.com" },
     ]
   },
   transpilePackages: ['geist']

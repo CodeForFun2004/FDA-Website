@@ -1,7 +1,14 @@
+// src/stores/auth-store.ts
+"use client";
+
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { loginApi, type AuthUser, type Role, googleCallbackApi } from "@/lib/api/auth";
-
+import {
+  loginApi,
+  type AuthUser,
+  type Role,
+  googleCallbackApi,
+} from "@/lib/api/auth";
 
 type AuthStatus = "idle" | "loading" | "authenticated" | "unauthenticated";
 
@@ -15,23 +22,25 @@ type AuthState = {
 
   error: string | null;
 
-  loginWithPassword: (email: string, password: string) => Promise<void>;
+  // ✅ NEW flow
+  loginWithPassword: (identifier: string, password: string) => Promise<void>;
+  loginWithOtp: (identifier: string, otpCode: string) => Promise<void>;
+
+  // Google callback
   loginWithGoogleCallback: (code: string, state: string) => Promise<void>;
 
-    setSession: (payload: {
+  setSession: (payload: {
     user: AuthUser;
     accessToken: string;
     refreshToken: string;
     expiresAt: string;
   }) => void;
 
-
   logout: () => void;
   clearError: () => void;
 
-  // helpers cho role
   hasRole: (role: Role) => boolean;
-  isAdminLike: () => boolean; // ADMIN or SUPER_ADMIN
+  isAdminLike: () => boolean;
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -44,14 +53,23 @@ export const useAuthStore = create<AuthState>()(
       expiresAt: null,
       error: null,
 
-      loginWithPassword: async (email, password) => {
+      // ✅ Password login: dùng identifier thay vì email
+      loginWithPassword: async (identifier, password) => {
         set({ status: "loading", error: null });
 
         try {
-          const res = await loginApi({ email, password });
+          const res = await loginApi({
+            identifier,
+            password,
+            otpCode: null,
+            deviceInfo: null,
+          });
 
           if (!res.success) {
-            set({ status: "unauthenticated", error: res.message || "Login failed" });
+            set({
+              status: "unauthenticated",
+              error: res.message || "Login failed",
+            });
             return;
           }
 
@@ -76,11 +94,51 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-            setSession: ({ user, accessToken, refreshToken, expiresAt }) => {
-        // normalize avatarUrl null -> undefined nếu cần ở UI khác
+      // ✅ NEW: OTP login
+      loginWithOtp: async (identifier, otpCode) => {
+        set({ status: "loading", error: null });
+
+        try {
+          const res = await loginApi({
+            identifier,
+            otpCode,
+            password: null,
+            deviceInfo: null,
+          });
+
+          if (!res.success) {
+            set({
+              status: "unauthenticated",
+              error: res.message || "Login failed",
+            });
+            return;
+          }
+
+          set({
+            status: "authenticated",
+            user: res.user,
+            accessToken: res.accessToken,
+            refreshToken: res.refreshToken,
+            expiresAt: res.expiresAt,
+            error: null,
+          });
+        } catch (e: any) {
+          set({
+            status: "unauthenticated",
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            expiresAt: null,
+            error: e?.message ?? "Login failed",
+          });
+          throw e;
+        }
+      },
+
+      setSession: ({ user, accessToken, refreshToken, expiresAt }) => {
         const safeUser: AuthUser = {
           ...user,
-          avatarUrl: user.avatarUrl ?? null, // giữ đúng type của bạn là string | null
+          avatarUrl: user.avatarUrl ?? null, // giữ đúng type string | null
         };
 
         set({
@@ -93,17 +151,15 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-
-            loginWithGoogleCallback: async (code, state) => {
+      loginWithGoogleCallback: async (code, state) => {
         set({ status: "loading", error: null });
 
         try {
           const res = await googleCallbackApi({ code, state });
 
-          // normalize avatarUrl để tránh null (bạn từng bị lỗi TS avatarUrl null)
           const safeUser: AuthUser = {
             ...res.user,
-            avatarUrl: (res.user as any)?.avatarUrl ?? undefined,
+            avatarUrl: (res.user as any)?.avatarUrl ?? null,
           };
 
           set({
@@ -126,8 +182,6 @@ export const useAuthStore = create<AuthState>()(
           throw e;
         }
       },
-
-
 
       logout: () => {
         set({
@@ -161,5 +215,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
-
-

@@ -53,10 +53,7 @@ if (!process.env.NEXT_PUBLIC_SENTRY_DISABLED) {
     // Disable Sentry telemetry
     telemetry: false
   });
-  
 }
 
 const nextConfig = configWithPlugins;
 export default nextConfig;
-
-

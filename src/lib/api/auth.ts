@@ -11,7 +11,65 @@ export type AuthUser = {
   roles: Role[];
 };
 
-export type LoginRequest = { email: string; password: string };
+/**
+ * ===== New Auth Flow =====
+ * 1) POST /auth/check-identifier  { identifier }
+ * 2) POST /auth/send-otp         { identifier }
+ * 3) POST /auth/login            { identifier, otpCode?, password?, deviceInfo? }
+ */
+
+export type CheckIdentifierRequest = {
+  identifier: string; // email or phone
+};
+
+export type CheckIdentifierResponse = {
+  success: boolean;
+  message: string;
+
+  identifierType?: string; // e.g. "email" | "phone"
+  accountExists?: boolean;
+  hasPassword?: boolean;
+  requiredMethod?: string; // e.g. "OTP" | "PASSWORD"
+};
+
+export function checkIdentifierApi(payload: CheckIdentifierRequest) {
+  return apiFetch<CheckIdentifierResponse>("/auth/check-identifier", {
+    method: "POST",
+    auth: false,
+    body: JSON.stringify(payload),
+  });
+}
+
+export type SendOtpRequest = {
+  identifier: string; // email or phone
+};
+
+export type SendOtpResponse = {
+  success: boolean;
+  message: string;
+
+  // dev only in swagger (prod thường không trả)
+  otpCode?: string;
+
+  expiresAt?: string; // ISO
+  identifierType?: string | null;
+};
+
+export function sendOtpApi(payload: SendOtpRequest) {
+  return apiFetch<SendOtpResponse>("/auth/send-otp", {
+    method: "POST",
+    auth: false,
+    body: JSON.stringify(payload),
+  });
+}
+
+// ✅ login dùng identifier + (otpCode | password)
+export type LoginRequest = {
+  identifier: string;
+  otpCode: string | null;
+  password: string | null;
+  deviceInfo?: any | null;
+};
 
 export type LoginResponse = {
   success: boolean;
@@ -30,7 +88,14 @@ export function loginApi(payload: LoginRequest) {
   });
 }
 
-// ===== Google OAuth =====
+/**
+ * ===== Google OAuth =====
+ * dùng apiFetch cho đồng bộ baseURL + error handling
+ *
+ * GET /auth/google?returnUrl=...
+ * GET /auth/google/callback?code=...&state=...
+ */
+
 export type GoogleInitResponse = {
   success: boolean;
   message?: string;
@@ -44,35 +109,27 @@ export type GoogleCallbackResponse = {
   accessToken: string;
   refreshToken: string;
   expiresAt: string;
-  user: AuthUser; // backend trả user giống login thường
+  user: AuthUser;
 };
 
-export async function initGoogleOAuthApi(params: { returnUrl: string }) {
-  // TODO: sửa baseURL theo style bạn đang dùng trong loginApi (fetch/axios)
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`);
-  url.searchParams.set("returnUrl", params.returnUrl);
+export function initGoogleOAuthApi(params: { returnUrl: string }) {
+  const qs = new URLSearchParams({ returnUrl: params.returnUrl }).toString();
 
-  const res = await fetch(url.toString(), { method: "GET" });
-  if (!res.ok) throw new Error("Init Google OAuth failed");
-
-  const data = (await res.json()) as GoogleInitResponse;
-  if (!data.success) throw new Error(data.message ?? "Init Google OAuth failed");
-
-  return data;
+  // giả định apiFetch tự ghép baseURL + prefix /api/v1
+  return apiFetch<GoogleInitResponse>(`/auth/google?${qs}`, {
+    method: "GET",
+    auth: false,
+  });
 }
 
-export async function googleCallbackApi(params: { code: string; state: string }) {
-  const url = new URL(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google/callback`
-  );
-  url.searchParams.set("code", params.code);
-  url.searchParams.set("state", params.state);
+export function googleCallbackApi(params: { code: string; state: string }) {
+  const qs = new URLSearchParams({
+    code: params.code,
+    state: params.state,
+  }).toString();
 
-  const res = await fetch(url.toString(), { method: "GET" });
-  if (!res.ok) throw new Error("Google callback failed");
-
-  const data = (await res.json()) as GoogleCallbackResponse;
-  if (!data.success) throw new Error(data.message ?? "Google callback failed");
-
-  return data;
+  return apiFetch<GoogleCallbackResponse>(`/auth/google/callback?${qs}`, {
+    method: "GET",
+    auth: false,
+  });
 }

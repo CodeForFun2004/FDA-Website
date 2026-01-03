@@ -35,26 +35,62 @@ export default function LoginViewPage() {
     router.push(getRedirectPath());
   };
 
+  // const handleGoogleLogin = async () => {
+  //   clearError();
+  //   setGoogleLoading(true);
+
+  //   try {
+  //     const returnUrl = `${window.location.origin}/authenticate/google/callback`;
+  //     console.log("Check Return URL:", returnUrl);
+
+  //     const next = new URLSearchParams(window.location.search).get("next") ?? "";
+  //     if (next) sessionStorage.setItem("post_login_redirect", next);
+
+  //     const { authorizationUrl, state } = await initGoogleOAuthApi({ returnUrl });
+
+  //     sessionStorage.setItem("google_oauth_state", state);
+  //     window.location.href = authorizationUrl;
+  //   } catch (e: any) {
+  //     toast.error(e?.message ?? "Không thể bắt đầu Google Sign-In.");
+  //   } finally {
+  //     setGoogleLoading(false);
+  //   }
+  // };
+
+
   const handleGoogleLogin = async () => {
-    clearError();
-    setGoogleLoading(true);
+  clearError();
+  setGoogleLoading(true);
 
-    try {
-      const returnUrl = `${window.location.origin}/authenticate/google/callback`;
+  try {
+    const next =
+      new URLSearchParams(window.location.search).get("next") || "/";
 
-      const next = new URLSearchParams(window.location.search).get("next") ?? "";
-      if (next) sessionStorage.setItem("post_login_redirect", next);
+    // returnUrl phải là trang sau login (path nội bộ)
+    const returnUrl = next.startsWith("/") ? next : "/dashboard";
 
-      const { authorizationUrl, state } = await initGoogleOAuthApi({ returnUrl });
+    // callback FE theo flow mới
+    const callbackUrl = `${window.location.origin}/auth/callback`;
 
-      sessionStorage.setItem("google_oauth_state", state);
-      window.location.href = authorizationUrl;
-    } catch (e: any) {
-      toast.error(e?.message ?? "Không thể bắt đầu Google Sign-In.");
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+    console.log("callbackUrl:", callbackUrl);
+    console.log("returnUrl:", returnUrl);
+
+    // nếu bạn còn dùng post_login_redirect thì ok, nhưng flow mới đã có return_url
+    // sessionStorage.setItem("post_login_redirect", returnUrl);
+
+    const { authorizationUrl } = await initGoogleOAuthApi({
+      returnUrl,
+      callbackUrl, // có thể BE không cần, nhưng gửi cũng không hại nếu BE ignore
+    });
+
+    window.location.assign(authorizationUrl);
+  } catch (e: any) {
+    toast.error(e?.message ?? "Không thể bắt đầu Google Sign-In.");
+  } finally {
+    setGoogleLoading(false);
+  }
+};
+
 
   return (
     <div className="space-y-6">

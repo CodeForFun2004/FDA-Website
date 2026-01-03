@@ -87,15 +87,7 @@ export function loginApi(payload: LoginRequest) {
     body: JSON.stringify(payload),
   });
 }
-
-/**
- * ===== Google OAuth =====
- * dùng apiFetch cho đồng bộ baseURL + error handling
- *
- * GET /auth/google?returnUrl=...
- * GET /auth/google/callback?code=...&state=...
- */
-
+ //===== Google OAuth =====
 export type GoogleInitResponse = {
   success: boolean;
   message?: string;
@@ -109,27 +101,90 @@ export type GoogleCallbackResponse = {
   accessToken: string;
   refreshToken: string;
   expiresAt: string;
-  user: AuthUser;
+  user: AuthUser; // backend trả user giống login thường
 };
 
-export function initGoogleOAuthApi(params: { returnUrl: string }) {
-  const qs = new URLSearchParams({ returnUrl: params.returnUrl }).toString();
 
-  // giả định apiFetch tự ghép baseURL + prefix /api/v1
-  return apiFetch<GoogleInitResponse>(`/auth/google?${qs}`, {
-    method: "GET",
-    auth: false,
-  });
+
+export async function initGoogleOAuthApi(params: {
+  returnUrl: string;
+  callbackUrl?: string;
+}) {
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!base) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL");
+
+  const url = new URL(`${base}/auth/google`);
+
+  // BE mới thường dùng snake_case
+  url.searchParams.set("return_url", params.returnUrl);
+  // giữ thêm camelCase phòng BE đang đọc kiểu này
+  url.searchParams.set("returnUrl", params.returnUrl);
+
+  if (params.callbackUrl) {
+    // optional: chỉ cần nếu BE build authUrl dựa vào callback FE
+    url.searchParams.set("callback_url", params.callbackUrl);
+    url.searchParams.set("callbackUrl", params.callbackUrl);
+  }
+
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), 15000);
+
+  let res: Response;
+  try {
+    res = await fetch(url.toString(), {
+      method: "GET",
+      cache: "no-store",
+      credentials: "omit",
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+  } catch (e: any) {
+    if (e?.name === "AbortError") {
+      throw new Error("Init Google OAuth timeout (BE không phản hồi trong 15s)");
+    }
+    throw e;
+  } finally {
+    clearTimeout(t);
+  }
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Init Google OAuth failed: ${res.status} ${text}`);
+  }
+
+  const data = (await res.json()) as GoogleInitResponse;
+  if (!data.success) throw new Error(data.message ?? "Init Google OAuth failed");
+  return data;
 }
 
-export function googleCallbackApi(params: { code: string; state: string }) {
-  const qs = new URLSearchParams({
-    code: params.code,
-    state: params.state,
-  }).toString();
 
-  return apiFetch<GoogleCallbackResponse>(`/auth/google/callback?${qs}`, {
-    method: "GET",
-    auth: false,
-  });
+export async function googleCallbackApi(params: { code: string; state: string }) {
+  const url = new URL(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google/callback`
+  );
+  url.searchParams.set("code", params.code);
+  url.searchParams.set("state", params.state);
+
+  const res = await fetch(url.toString(), { method: "GET" });
+  if (!res.ok) throw new Error("Google callback failed");
+
+  const data = (await res.json()) as GoogleCallbackResponse;
+  if (!data.success) throw new Error(data.message ?? "Google callback failed");
+
+  return data;
 }
+
+
+// export async function initGoogleOAuthApi(params: { returnUrl: string }) {
+//   // TODO: sửa baseURL theo style bạn đang dùng trong loginApi (fetch/axios)
+//   const url = new URL(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`);
+//   url.searchParams.set("returnUrl", params.returnUrl);
+
+//   const res = await fetch(url.toString(), { method: "GET" });
+//   if (!res.ok) throw new Error("Init Google OAuth failed");
+
+//   const data = (await res.json()) as GoogleInitResponse;
+//   if (!data.success) throw new Error(data.message ?? "Init Google OAuth failed");
+
+//   return data;
+// }

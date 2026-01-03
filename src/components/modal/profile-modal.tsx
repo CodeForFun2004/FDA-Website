@@ -605,7 +605,7 @@ export function ProfileModal({
           </div>
 
           {/* footer */}
-          <div className="px-5 py-4 border-t border-input flex items-center justify-between">
+          {/* <div className="px-5 py-4 border-t border-input flex items-center justify-between">
             <div className="text-xs text-muted-foreground">
               *Avatar upload đang preview tại UI. Nối API multipart/form-data ở <code>onSaveProfile</code>.
             </div>
@@ -616,7 +616,7 @@ export function ProfileModal({
             >
               Đóng
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

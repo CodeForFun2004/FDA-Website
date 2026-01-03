@@ -15,6 +15,10 @@ const BASE = process.env.NEXT_PUBLIC_API_BASE_URL; // https://fda.id.vn/api/v1
 
 type ApiOptions = RequestInit & { auth?: boolean };
 
+function isFormData(body: any): body is FormData {
+  return typeof FormData !== "undefined" && body instanceof FormData;
+}
+
 export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
   if (!BASE) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL");
 
@@ -23,13 +27,22 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
   const needAuth = options.auth !== false;
   const token = needAuth ? useAuthStore.getState().accessToken : null;
 
+  // Build headers safely
+  const headers = new Headers(options.headers ?? {});
+
+  // ✅ Only set JSON content-type when body is NOT FormData AND caller hasn't set it
+  if (!isFormData(options.body)) {
+    if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  } else {
+    // ✅ Let browser set boundary for multipart
+    headers.delete("Content-Type");
+  }
+
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
   const res = await fetch(url, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers ?? {}),
-    },
+    headers,
     cache: "no-store",
   });
 
@@ -40,7 +53,10 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
 
   if (!res.ok) {
     const msg =
-      (typeof data === "object" && data && "message" in (data as any) && String((data as any).message)) ||
+      (typeof data === "object" &&
+        data &&
+        "message" in (data as any) &&
+        String((data as any).message)) ||
       `Request failed (${res.status})`;
     throw new ApiError(msg, res.status, data);
   }

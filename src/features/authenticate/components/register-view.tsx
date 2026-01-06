@@ -79,7 +79,7 @@ export default function RegisterViewPage() {
 
       // UX: chuyển về login
       setTimeout(() => {
-        router.push('/authenticate/login');
+        router.push('/auth/login');
       }, 1500);
     } finally {
       setIsLoading(false);
@@ -229,7 +229,7 @@ export default function RegisterViewPage() {
           type='button'
           variant='outline'
           className='h-11 w-full'
-          onClick={() => router.push('/authenticate/login')}
+          onClick={() => router.push('/auth/login')}
         >
           Go to Sign In
         </Button>
@@ -264,7 +264,7 @@ export default function RegisterViewPage() {
       <p className='text-muted-foreground text-center text-sm'>
         Already have an account?{' '}
         <Link
-          href='/authenticate/login'
+          href='/auth/login'
           className='text-primary font-semibold hover:underline'
         >
           Sign in

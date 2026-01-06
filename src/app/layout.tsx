@@ -61,13 +61,13 @@ export default async function RootLayout({
         <NuqsAdapter>
           <ThemeProvider
             attribute='class'
-            defaultTheme='system'
-            enableSystem
+            defaultTheme='light'
+            enableSystem={false}
             disableTransitionOnChange
             enableColorScheme
           >
             <Providers activeThemeValue={activeThemeValue as string}>
-                <Toaster position="top-right" richColors />
+              <Toaster position='top-right' richColors />
               {children}
             </Providers>
           </ThemeProvider>

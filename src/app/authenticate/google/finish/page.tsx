@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "@/lib/router";
 import { toast } from "sonner";
-import { useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/features/authenticate/store/auth-store";
 import { setSessionCookie } from "@/helpers/auth-session";
 
 function parseHash() {

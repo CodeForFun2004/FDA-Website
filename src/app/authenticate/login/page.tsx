@@ -1,5 +1,5 @@
 
-import LoginViewPage from "@/features/authenticate/login-view";
+import LoginViewPage from "@/features/authenticate/components/login-view";
 import { Metadata } from "next";
 
 export const metadata: Metadata ={

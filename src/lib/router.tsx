@@ -1,33 +1,3 @@
-// import React from 'react';
-// import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
-
-// // Mimic next/navigation useRouter
-// export const useRouter = () => {
-//   const navigate = useNavigate();
-//   return {
-//     push: (path: string) => navigate(path),
-//     replace: (path: string) => navigate(path, { replace: true }),
-//     back: () => navigate(-1),
-//     forward: () => navigate(1),
-//     refresh: () => window.location.reload(),
-//   };
-// };
-
-// // Mimic next/navigation usePathname
-// export const usePathname = () => {
-//   const location = useLocation();
-//   return location.pathname;
-// };
-
-// // Mimic next/link
-// export const Link = ({ href, children, className, ...props }: any) => {
-//   return (
-//     <RouterLink to={href} className={className} {...props}>
-//       {children}
-//     </RouterLink>
-//   );
-// };
-
 'use client';
 
 import React from 'react';

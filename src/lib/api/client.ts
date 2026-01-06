@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/features/authenticate/store/auth-store";
 
 export class ApiError extends Error {
   status: number;

@@ -13,9 +13,9 @@ import {
   type UserProfile,
   type ProfileUpdatePayload,
   type ChangePasswordPayload,
-} from "@/components/modal/profile-modal";
+} from "@/features/profile/components/profile-modal";
 
-import { getUserProfileApi } from "@/lib/api/user-profile";
+import { getUserProfileApi } from "@/features/profile/api/user-profile";
 
 function useOnClickOutside<T extends HTMLElement>(
   ref: React.RefObject<T | null>,

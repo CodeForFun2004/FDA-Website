@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import AdminShell from '@/features/admin/AdminShell';
+import AdminShell from '@/features/admin/components/AdminShell';
 import AdminProviders from './providers';
 
 

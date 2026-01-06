@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "@/lib/router";
-import { useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/features/authenticate/store/auth-store";
 
 function safeDecode(v: string) {
   try {

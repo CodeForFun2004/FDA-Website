@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AdminShell from '@/features/admin/components/AdminShell';
-import AdminProviders from './providers';
+import AdminProviders from '../admin/providers';
 
 export const metadata: Metadata = {
-  title: 'FDA Admin',
-  description: 'Admin UI'
+  title: 'FDA Super Admin',
+  description: 'Super Admin UI'
 };
 
-export default async function Layout({
+export default async function SuperAdminLayout({
   children
 }: {
   children: React.ReactNode;

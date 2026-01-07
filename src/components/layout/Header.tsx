@@ -27,12 +27,13 @@ export const Header = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  const displayName =
-    authUser?.fullName?.trim() ||
-    authUser?.email ||
-    (authStatus === 'authenticated' ? 'User' : 'Guest');
-
-  const displayRole = authUser?.roles?.[0] || 'Viewer';
+  // src/components/layout/Header.tsx
+  const displayName = authUser?.fullName?.trim() || authUser?.email || null;
+  const displayRole = authUser?.roles?.[0] || null;
+  // Nếu không có user → không render ProfileMenu
+  if (!displayName || !displayRole) {
+    return null; // hoặc redirect
+  }
 
   const handleLogout = () => {
     authLogout(); // clear auth zustand (token/user)

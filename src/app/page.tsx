@@ -12,14 +12,13 @@
 //   }
 // }
 
-
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export default async function Page() {
   const cookieStore = await cookies();
-  const session = cookieStore.get("fda_session")?.value;
+  const session = cookieStore.get('fda_session')?.value;
 
-  if (!session) redirect("/authenticate/login");
-  redirect("/admin");
+  if (!session) redirect('/auth/login');
+  redirect('/admin');
 }

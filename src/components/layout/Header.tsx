@@ -4,12 +4,15 @@ import { useRouter } from 'next/navigation';
 import { Menu, Sun, Moon, Bell, Search } from 'lucide-react';
 
 import { useAppStore } from '../../lib/store';
-import { useAuthStore } from '@/stores/auth-store';
+import { useAuthStore } from '@/features/authenticate/store/auth-store';
 
 import { Button, Input } from '../../components/ui/common';
 import { clearSessionCookie } from '@/helpers/auth-session';
-import { toast } from "sonner";
-import { updateUserProfileApi, changePasswordApi } from "@/lib/api/user-profile";
+import { toast } from 'sonner';
+import {
+  updateUserProfileApi,
+  changePasswordApi
+} from '@/features/profile/api/user-profile';
 import { ProfileMenu } from './ProfileMenu';
 
 export const Header = () => {
@@ -24,17 +27,18 @@ export const Header = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  const displayName =
-    authUser?.fullName?.trim() ||
-    authUser?.email ||
-    (authStatus === 'authenticated' ? 'User' : 'Guest');
-
-  const displayRole = authUser?.roles?.[0] || 'Viewer';
+  // src/components/layout/Header.tsx
+  const displayName = authUser?.fullName?.trim() || authUser?.email || null;
+  const displayRole = authUser?.roles?.[0] || null;
+  // Nếu không có user → không render ProfileMenu
+  if (!displayName || !displayRole) {
+    return null; // hoặc redirect
+  }
 
   const handleLogout = () => {
     authLogout(); // clear auth zustand (token/user)
     clearSessionCookie(); // clear cookie fda_session (nếu bạn vẫn dùng)
-    router.replace('/authenticate/login');
+    router.replace('/auth/login');
   };
 
   // Map user sang shape của ProfileMenu/ProfileModal
@@ -98,6 +102,12 @@ export const Header = () => {
               if (payload.avatarFile)
                 fd.append('avatarFile', payload.avatarFile);
               if (payload.avatarUrl) fd.append('avatarUrl', payload.avatarUrl);
+
+              console.log(
+                'Updating profile with:',
+                payload.avatarFile,
+                payload.avatarUrl
+              );
 
               const res = await updateUserProfileApi(fd);
 

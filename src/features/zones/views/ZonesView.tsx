@@ -1,185 +1,254 @@
-// src/features/zones/views/ZonesView.tsx
-"use client";
+'use client';
 
-import React, { useMemo } from 'react';
-import { useZones, type Zone } from '../index';
-import { 
-  Card, CardContent, CardHeader, CardTitle, Badge, Button, LoadingState 
-} from '@/components/ui/common';
-import { Plus, MapPin, Users, Radio, AlertTriangle } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  GoogleMap,
+  useJsApiLoader,
+  Polygon,
+  Marker
+} from '@react-google-maps/api';
+import { useZones, useAlerts } from '@/lib/api';
+import { Card, LoadingState } from '@/components/ui/common';
+import { MapPin } from 'lucide-react';
+import { Zone } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { ZoneDetailCard } from '../components/ZoneDetailCard';
 
-// ===== Sub-components =====
+declare const google: any;
 
-type RiskBadgeProps = {
-  riskLevel: Zone['riskLevel'];
+const containerStyle = {
+  width: '100%',
+  height: '100%'
 };
 
-const RiskBadge = ({ riskLevel }: RiskBadgeProps) => {
-  const config = {
-    Safe: { variant: 'success' as const, className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-    Watch: { variant: 'secondary' as const, className: 'bg-orange-100 text-orange-700 border-orange-200' },
-    Flooded: { variant: 'destructive' as const, className: 'bg-red-100 text-red-700 border-red-200' },
+// Da Nang Center - Adjusted to see all districts
+const center = {
+  lat: 16.06,
+  lng: 108.17
+};
+
+const mapOptions = {
+  disableDefaultUI: true,
+  zoomControl: false,
+  styles: [
+    {
+      featureType: 'poi',
+      elementType: 'labels',
+      stylers: [{ visibility: 'off' }]
+    },
+    {
+      featureType: 'transit',
+      elementType: 'labels',
+      stylers: [{ visibility: 'off' }]
+    }
+  ]
+};
+
+// Custom Styles for Risk Levels
+const getZoneOptions = (riskLevel: string) => {
+  let fillColor = '#10b981'; // Safe (Emerald)
+  let strokeColor = '#059669';
+
+  if (riskLevel === 'Watch') {
+    fillColor = '#f97316'; // Orange
+    strokeColor = '#c2410c';
+  } else if (riskLevel === 'Flooded') {
+    fillColor = '#ef4444'; // Red
+    strokeColor = '#b91c1c';
+  }
+
+  return {
+    fillColor,
+    fillOpacity: 0.35,
+    strokeColor,
+    strokeWeight: 2,
+    clickable: true
   };
-  
-  return (
-    <Badge className={config[riskLevel].className}>
-      {riskLevel}
-    </Badge>
+};
+
+export default function ZonesPage() {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: '' // ENTER YOUR API KEY HERE
+  });
+
+  const { data: zones } = useZones();
+  const { data: alerts } = useAlerts();
+
+  const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
+  const [forecastHour, setForecastHour] = useState(1);
+
+  // Separate zones into Polygons (Districts) and Hotspots (Points)
+  const districts = useMemo(
+    () => zones?.filter((z) => z.type === 'District') || [],
+    [zones]
   );
-};
+  const hotspots = useMemo(
+    () => zones?.filter((z) => z.type === 'Custom') || [],
+    [zones]
+  );
 
-type ZoneCardProps = {
-  zone: Zone;
-  onViewZone?: (zone: Zone) => void;
-};
-
-const ZoneCard = ({ zone, onViewZone }: ZoneCardProps) => (
-  <Card 
-    className={`cursor-pointer hover:shadow-md transition-shadow ${
-      zone.riskLevel === 'Flooded' ? 'border-red-200 dark:border-red-900' :
-      zone.riskLevel === 'Watch' ? 'border-orange-200 dark:border-orange-900' :
-      ''
-    }`}
-    onClick={() => onViewZone?.(zone)}
-  >
-    <CardHeader className="pb-2">
-      <div className="flex items-center justify-between">
-        <CardTitle className="text-lg">{zone.name}</CardTitle>
-        <RiskBadge riskLevel={zone.riskLevel} />
-      </div>
-      <Badge variant="outline" className="w-fit">{zone.type}</Badge>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-2 text-sm">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Radio className="h-4 w-4" />
-          <span>{zone.deviceCount} devices</span>
-        </div>
-        {zone.population && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Users className="h-4 w-4" />
-            <span>{zone.population.toLocaleString()} residents</span>
-          </div>
-        )}
-        {zone.details && (
-          <p className="text-muted-foreground mt-2 line-clamp-2">{zone.details}</p>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
-
-// ===== Main View Component =====
-
-export type ZonesViewProps = {
-  onAddZone?: () => void;
-  onViewZone?: (zone: Zone) => void;
-};
-
-export function ZonesView({ onAddZone, onViewZone }: ZonesViewProps) {
-  const { data: zones, isLoading } = useZones();
-
-  // Business logic: group and calculate statistics
-  const { districts, hotspots, stats } = useMemo(() => {
-    const districts = zones?.filter(z => z.type === 'District') ?? [];
-    const hotspots = zones?.filter(z => z.type === 'Custom') ?? [];
-    
-    return {
-      districts,
-      hotspots,
-      stats: {
-        total: zones?.length ?? 0,
-        safe: zones?.filter(z => z.riskLevel === 'Safe').length ?? 0,
-        watch: zones?.filter(z => z.riskLevel === 'Watch').length ?? 0,
-        flooded: zones?.filter(z => z.riskLevel === 'Flooded').length ?? 0,
-        totalDevices: zones?.reduce((sum, z) => sum + z.deviceCount, 0) ?? 0,
-        totalPopulation: zones?.reduce((sum, z) => sum + (z.population ?? 0), 0) ?? 0,
-      }
-    };
-  }, [zones]);
-
-  if (isLoading) return <LoadingState />;
+  if (!isLoaded) return <LoadingState />;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <MapPin className="h-6 w-6 text-emerald-500" />
-            Monitored Zones
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {stats.total} zones • {stats.totalDevices} devices • {stats.totalPopulation.toLocaleString()} residents covered
-          </p>
+    <div className='relative h-[calc(100vh-5rem)] w-full overflow-hidden rounded-2xl border bg-slate-100 shadow-sm'>
+      {/* Google Map Background */}
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={11}
+        options={mapOptions}
+        onClick={() => setSelectedZone(null)}
+      >
+        {/* Render District Polygons */}
+        {districts.map((zone) => (
+          <Polygon
+            key={zone.id}
+            paths={zone.coordinates?.map((c) => ({ lat: c[0], lng: c[1] }))}
+            options={getZoneOptions(zone.riskLevel)}
+            onClick={() => setSelectedZone(zone)}
+          />
+        ))}
+
+        {/* Render Hotspot Markers */}
+        {hotspots.map(
+          (zone) =>
+            zone.center && (
+              <Marker
+                key={zone.id}
+                position={{ lat: zone.center[0], lng: zone.center[1] }}
+                onClick={() => setSelectedZone(zone)}
+                icon={{
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: 8,
+                  fillColor:
+                    zone.riskLevel === 'Flooded' ? '#ef4444' : '#f97316',
+                  fillOpacity: 1,
+                  strokeColor: '#ffffff',
+                  strokeWeight: 2
+                }}
+                animation={
+                  zone.riskLevel === 'Flooded'
+                    ? google.maps.Animation.BOUNCE
+                    : undefined
+                }
+              />
+            )
+        )}
+
+        {/* Selected Zone Highlight Marker */}
+        {selectedZone &&
+          selectedZone.center &&
+          selectedZone.type === 'Custom' && (
+            <Marker
+              position={{
+                lat: selectedZone.center[0],
+                lng: selectedZone.center[1]
+              }}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 12,
+                fillColor: '#2563eb',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 3
+              }}
+            />
+          )}
+      </GoogleMap>
+
+      {/* --- TOP CENTER: Search Bar --- */}
+      <div className='pointer-events-none absolute top-4 right-4 left-4 z-10 flex justify-center'>
+        <div className='pointer-events-auto flex w-full max-w-sm items-center rounded-2xl border border-slate-100 bg-white/95 p-3 shadow-lg backdrop-blur'>
+          <MapPin className='mr-3 h-5 w-5 text-blue-500' />
+          <input
+            className='w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400'
+            placeholder='Tìm kiếm quận, huyện...'
+          />
         </div>
-        <Button onClick={onAddZone}>
-          <Plus className="mr-2 h-4 w-4" /> Add Zone
-        </Button>
       </div>
 
-      {/* Flooded Zones Alert */}
-      {stats.flooded > 0 && (
-        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg p-4 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-500" />
-          <p className="text-sm text-red-700 dark:text-red-400">
-            <strong>{stats.flooded} zone(s)</strong> are currently flooded
-          </p>
-        </div>
+      {/* --- TOP RIGHT: Zone Detail Card --- */}
+      {selectedZone && (
+        <ZoneDetailCard
+          zone={selectedZone}
+          onClose={() => setSelectedZone(null)}
+        />
       )}
 
-      {/* Risk Summary */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-emerald-700 font-medium">Safe Zones</p>
-              <p className="text-2xl font-bold text-emerald-800">{stats.safe}</p>
-            </div>
-            <MapPin className="h-8 w-8 text-emerald-500" />
-          </CardContent>
-        </Card>
-        <Card className="bg-orange-50 dark:bg-orange-950/20 border-orange-200">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-orange-700 font-medium">Watch Zones</p>
-              <p className="text-2xl font-bold text-orange-800">{stats.watch}</p>
-            </div>
-            <AlertTriangle className="h-8 w-8 text-orange-500" />
-          </CardContent>
-        </Card>
-        <Card className="bg-red-50 dark:bg-red-950/20 border-red-200">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-red-700 font-medium">Flooded Zones</p>
-              <p className="text-2xl font-bold text-red-800">{stats.flooded}</p>
-            </div>
-            <AlertTriangle className="h-8 w-8 text-red-500" />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Districts */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Districts</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {districts.map(zone => (
-            <ZoneCard key={zone.id} zone={zone} onViewZone={onViewZone} />
-          ))}
-        </div>
-      </div>
-
-      {/* Flood Hotspots */}
-      {hotspots.length > 0 && (
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Flood Hotspots</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {hotspots.map(zone => (
-              <ZoneCard key={zone.id} zone={zone} onViewZone={onViewZone} />
-            ))}
+      {/* --- BOTTOM CENTER: Forecast Slider --- */}
+      <div className='pointer-events-none absolute right-4 bottom-6 left-4 z-10 flex justify-center'>
+        <Card className='animate-in slide-in-from-bottom-4 pointer-events-auto w-full max-w-sm rounded-2xl border-none bg-white/95 p-4 shadow-xl backdrop-blur-md duration-500'>
+          <div className='mb-3 flex items-center justify-between'>
+            <h3 className='text-sm font-bold text-slate-800'>
+              Thời gian dự báo
+            </h3>
+            <span className='text-xs font-bold text-blue-600'>
+              +{forecastHour} giờ
+            </span>
           </div>
-        </div>
-      )}
+
+          {/* Custom Range Slider UI */}
+          <div className='relative flex h-6 items-center select-none'>
+            {/* Track */}
+            <div className='absolute h-1.5 w-full overflow-hidden rounded-full bg-slate-200'>
+              <div
+                className='h-full bg-blue-500 transition-all duration-300'
+                style={{ width: `${(forecastHour / 3) * 100}%` }}
+              ></div>
+            </div>
+
+            {/* Thumb */}
+            <div
+              className='absolute z-20 h-5 w-5 cursor-grab rounded-full border-2 border-blue-500 bg-white shadow-md transition-all duration-300'
+              style={{ left: `calc(${(forecastHour / 3) * 100}% - 10px)` }}
+            ></div>
+          </div>
+
+          {/* Labels */}
+          <div className='mt-3 flex justify-between text-[10px] font-semibold tracking-wide text-slate-400 uppercase'>
+            <span
+              onClick={() => setForecastHour(0)}
+              className={cn(
+                'cursor-pointer',
+                forecastHour === 0 && 'text-blue-600'
+              )}
+            >
+              Hiện tại
+            </span>
+            <span
+              onClick={() => setForecastHour(1)}
+              className={cn(
+                'cursor-pointer',
+                forecastHour === 1 && 'text-blue-600'
+              )}
+            >
+              +1 giờ
+            </span>
+            <span
+              onClick={() => setForecastHour(2)}
+              className={cn(
+                'cursor-pointer',
+                forecastHour === 2 && 'text-blue-600'
+              )}
+            >
+              +2 giờ
+            </span>
+            <span
+              onClick={() => setForecastHour(3)}
+              className={cn(
+                'cursor-pointer',
+                forecastHour === 3 && 'text-blue-600'
+              )}
+            >
+              +3 giờ
+            </span>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
+
+// Named export for compatibility
+export { ZonesPage as ZonesView };

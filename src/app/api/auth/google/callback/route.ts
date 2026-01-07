@@ -199,6 +199,7 @@ export async function GET(request: NextRequest) {
     callbackUrl.hash =
       `access_token=${encodeURIComponent(data.accessToken)}` +
       `&refresh_token=${encodeURIComponent(data.refreshToken)}` +
+      `&expires_at=${encodeURIComponent(data.expiresAt || '')}` +
       `&return_url=${encodeURIComponent(returnUrl)}` +
       `&user=${userStr}`;
 

@@ -67,6 +67,9 @@ export default function GoogleCallbackPage() {
       localStorage.getItem('refresh_token') ??
       '';
 
+    // ✅ Parse expiresAt from hash
+    const expiresAt = params.get('expires_at') ?? params.get('expiresAt') ?? '';
+
     const returnUrl = getSafeReturnUrl(
       params.get('return_url') ?? params.get('returnUrl')
     );
@@ -86,13 +89,14 @@ export default function GoogleCallbackPage() {
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', refreshToken);
 
-      // ✅ HYDRATE zustand store để fda_auth không còn null
+      // ✅ HYDRATE zustand store với expiresAt
       useAuthStore.setState(
         (prev: any) => ({
           ...prev,
           status: 'authenticated',
           accessToken,
           refreshToken,
+          expiresAt: expiresAt || null, // ✅ Include expiresAt
           user
         }),
         false

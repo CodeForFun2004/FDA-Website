@@ -1,155 +1,339 @@
-// src/features/routes/views/RoutesView.tsx
-"use client";
+'use client';
 
-import React, { useMemo } from 'react';
-import { useRoutes, type Route } from '../index';
-import { 
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow, 
-  Badge, Button, Card, CardContent, LoadingState 
-} from '@/components/ui/common';
-import { formatDate } from '@/lib/utils';
-import { Plus, Navigation, MapPin, AlertTriangle, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  GoogleMap,
+  useJsApiLoader,
+  DirectionsRenderer,
+  Marker,
+  Polyline
+} from '@react-google-maps/api';
+import { LoadingState } from '@/components/ui/common';
+import { analyzeRouteWithGemini, mockGeocode } from '@/lib/api';
+import { RouteAnalysis } from '@/lib/types';
+import { FloatingInputPanel } from '../components/FloatingInputPanel';
+import { RouteResultCards } from '../components/RouteResultCards';
 
-// ===== Sub-components =====
+declare const google: any;
 
-type RouteStatusBadgeProps = {
-  status: Route['status'];
+const containerStyle = {
+  width: '100%',
+  height: '100%'
 };
 
-const RouteStatusBadge = ({ status }: RouteStatusBadgeProps) => {
-  const config = {
-    Open: { variant: 'success' as const, icon: CheckCircle, label: 'Open' },
-    Risky: { variant: 'secondary' as const, icon: AlertTriangle, label: 'Risky' },
-    Blocked: { variant: 'destructive' as const, icon: AlertTriangle, label: 'Blocked' },
-  };
-  
-  const { variant, icon: Icon, label } = config[status];
-  
-  return (
-    <Badge variant={variant} className="flex items-center gap-1 w-fit">
-      <Icon className="h-3 w-3" />
-      {label}
-    </Badge>
+const defaultCenter = {
+  lat: 16.03,
+  lng: 108.22
+};
+
+const mapOptions = {
+  disableDefaultUI: true,
+  zoomControl: false
+};
+
+export default function RoutesPage() {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: '' // ENTER YOUR GOOGLE MAPS API KEY HERE
+  });
+
+  // State - Defaulting to the requested demo route
+  const [origin, setOrigin] = useState('FPT Software Đà Nẵng');
+  const [destination, setDestination] = useState('Co.opmart Đà Nẵng');
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasAutoSearched, setHasAutoSearched] = useState(false);
+
+  // Locations
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [startPoint, setStartPoint] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [endPoint, setEndPoint] = useState<{ lat: number; lng: number } | null>(
+    null
   );
-};
 
-type RouteRowProps = {
-  route: Route;
-  onViewRoute?: (route: Route) => void;
-  onEditRoute?: (route: Route) => void;
-};
+  // Directions
+  const [directionsResponse, setDirectionsResponse] = useState<any>(null);
+  const [aiResults, setAiResults] = useState<RouteAnalysis[] | null>(null);
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState<number>(0);
 
-const RouteRow = ({ route, onViewRoute, onEditRoute }: RouteRowProps) => (
-  <TableRow>
-    <TableCell className="font-medium">{route.name}</TableCell>
-    <TableCell>
-      <div className="flex items-center gap-1">
-        <MapPin className="h-4 w-4 text-emerald-500" />
-        {route.startPoint}
-      </div>
-    </TableCell>
-    <TableCell>
-      <div className="flex items-center gap-1">
-        <MapPin className="h-4 w-4 text-red-500" />
-        {route.endPoint}
-      </div>
-    </TableCell>
-    <TableCell>
-      <RouteStatusBadge status={route.status} />
-    </TableCell>
-    <TableCell>{formatDate(route.lastUpdated)}</TableCell>
-    <TableCell>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => onViewRoute?.(route)}>
-          <Navigation className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => onEditRoute?.(route)}>
-          Edit
-        </Button>
-      </div>
-    </TableCell>
-  </TableRow>
-);
+  // Function to handle route search
+  const handleSearch = async (
+    overrideOrigin?: string,
+    overrideDest?: string
+  ) => {
+    const searchOrigin = overrideOrigin || origin;
+    const searchDest = overrideDest || destination;
 
-// ===== Main View Component =====
+    if (!searchDest) return;
+    setIsSearching(true);
+    setAiResults(null);
+    setDirectionsResponse(null);
 
-export type RoutesViewProps = {
-  onAddRoute?: () => void;
-  onViewRoute?: (route: Route) => void;
-  onEditRoute?: (route: Route) => void;
-};
+    try {
+      // 1. Resolve Coordinates
+      let startCoords = startPoint;
+      if (
+        !startCoords ||
+        (searchOrigin && searchOrigin !== 'Vị trí hiện tại của bạn')
+      ) {
+        startCoords = await mockGeocode(searchOrigin);
+      }
 
-export function RoutesView({ onAddRoute, onViewRoute, onEditRoute }: RoutesViewProps) {
-  const { data: routes, isLoading } = useRoutes();
+      let endCoords = await mockGeocode(searchDest);
 
-  // Business logic: calculate statistics
-  const stats = useMemo(() => ({
-    total: routes?.length ?? 0,
-    open: routes?.filter(r => r.status === 'Open').length ?? 0,
-    risky: routes?.filter(r => r.status === 'Risky').length ?? 0,
-    blocked: routes?.filter(r => r.status === 'Blocked').length ?? 0,
-  }), [routes]);
+      // Update state to reflect resolved coords so markers show up
+      if (startCoords) setStartPoint(startCoords);
+      if (endCoords) setEndPoint(endCoords);
 
-  if (isLoading) return <LoadingState />;
+      if (startCoords && endCoords && typeof google !== 'undefined') {
+        const directionsService = new google.maps.DirectionsService();
+
+        // 2. Request Directions (With Alternatives)
+        directionsService.route(
+          {
+            origin: startCoords,
+            destination: endCoords,
+            travelMode: google.maps.TravelMode.DRIVING,
+            provideRouteAlternatives: true // IMPORTANT: Get multiple routes
+          },
+          async (result: any, status: any) => {
+            if (status === google.maps.DirectionsStatus.OK) {
+              setDirectionsResponse(result);
+
+              // 3. Prepare data for Gemini
+              const availableRoutes = result.routes.map((r: any) => ({
+                summary: r.summary,
+                distance: r.legs[0].distance.text,
+                duration: r.legs[0].duration.text
+              }));
+
+              // 4. Call Gemini AI with Real Routes
+              const results = await analyzeRouteWithGemini(
+                searchOrigin,
+                searchDest,
+                availableRoutes
+              );
+              setAiResults(results);
+
+              const safest = results.find((r) => r.type === 'Safest');
+              setSelectedRouteIndex(safest ? safest.routeIndex : 0);
+            } else {
+              // API Key missing or other error -> Trigger Mock Mode
+              console.warn(
+                'Directions request failed (possibly no API key). Using Mock Fallback.'
+              );
+              setDirectionsResponse(null);
+
+              // Generate Mock AI Results
+              const mockResults = await analyzeRouteWithGemini(
+                searchOrigin,
+                searchDest,
+                []
+              );
+              setAiResults(mockResults);
+              setSelectedRouteIndex(0);
+            }
+            setIsSearching(false);
+          }
+        );
+      } else {
+        setIsSearching(false);
+      }
+    } catch (error) {
+      console.error('Search failed', error);
+      setIsSearching(false);
+    }
+  };
+
+  // Auto-trigger search on mount when map loads
+  useEffect(() => {
+    if (isLoaded && !hasAutoSearched && origin && destination) {
+      handleSearch();
+      setHasAutoSearched(true);
+    }
+  }, [isLoaded, hasAutoSearched]);
+
+  // Optional: Get User Location in background
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const loc = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setUserLocation(loc);
+        },
+        (error) => console.error('Error getting location', error)
+      );
+    }
+  }, []);
+
+  const handleMapClick = (e: any) => {
+    // Manual pin drop logic
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+
+    // If we don't have a specific flow, assume setting Destination if Start exists
+    if (startPoint && !endPoint) {
+      setEndPoint({ lat, lng });
+      setDestination(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+    } else if (!startPoint) {
+      setStartPoint({ lat, lng });
+      setOrigin(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+    } else {
+      // Reset if both exist and clicked again? Or maybe just update destination
+      setEndPoint({ lat, lng });
+      setDestination(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+    }
+  };
+
+  const resetSearch = () => {
+    setDestination('');
+    setEndPoint(null);
+    setDirectionsResponse(null);
+    setAiResults(null);
+    // Keep start point as user location usually
+    if (userLocation) {
+      setStartPoint(userLocation);
+      setOrigin('Vị trí hiện tại của bạn');
+    } else {
+      setOrigin('');
+      setStartPoint(null);
+    }
+  };
+
+  const handleUseMyLocation = () => {
+    if (userLocation) {
+      setStartPoint(userLocation);
+      setOrigin('Vị trí hiện tại của bạn');
+    }
+  };
+
+  if (!isLoaded) return <LoadingState />;
+
+  const currentRouteAnalysis = aiResults?.find(
+    (r) => r.routeIndex === selectedRouteIndex
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Navigation className="h-6 w-6 text-blue-500" />
-            Safe Routes
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {stats.total} routes • 
-            <span className="text-emerald-600"> {stats.open} open</span> • 
-            <span className="text-orange-500"> {stats.risky} risky</span> • 
-            <span className="text-red-600"> {stats.blocked} blocked</span>
-          </p>
-        </div>
-        <Button onClick={onAddRoute}>
-          <Plus className="mr-2 h-4 w-4" /> Add Route
-        </Button>
-      </div>
+    <div className='relative h-[calc(100vh-5rem)] w-full overflow-hidden rounded-2xl border bg-slate-100 font-sans shadow-sm'>
+      {/* Map Background */}
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={userLocation || defaultCenter}
+        zoom={13}
+        options={mapOptions}
+        onClick={handleMapClick}
+      >
+        {/* Scenario 1: Real API Directions with Highlighting */}
+        {directionsResponse && (
+          <DirectionsRenderer
+            key={selectedRouteIndex} // CRITICAL: Forces re-render when route selection changes to update color
+            directions={directionsResponse}
+            routeIndex={selectedRouteIndex}
+            options={{
+              polylineOptions: {
+                strokeColor:
+                  currentRouteAnalysis?.riskLevel === 'Low'
+                    ? '#10b981'
+                    : currentRouteAnalysis?.riskLevel === 'Medium'
+                      ? '#f59e0b'
+                      : '#ef4444',
+                strokeWeight: 7,
+                strokeOpacity: 0.9,
+                zIndex: 50 // Ensure on top
+              },
+              suppressMarkers: false // Show standard A/B markers
+            }}
+          />
+        )}
 
-      {/* Blocked Routes Alert */}
-      {stats.blocked > 0 && (
-        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg p-4 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-500" />
-          <p className="text-sm text-red-700 dark:text-red-400">
-            <strong>{stats.blocked} route(s)</strong> are currently blocked due to flooding
-          </p>
-        </div>
+        {/* Scenario 2: Fallback Mock Line (If API fails or no key) */}
+        {!directionsResponse && startPoint && endPoint && aiResults && (
+          <Polyline
+            path={[startPoint, endPoint]}
+            options={{
+              strokeColor:
+                currentRouteAnalysis?.riskLevel === 'Low'
+                  ? '#10b981'
+                  : '#f97316',
+              strokeWeight: 6,
+              strokeOpacity: 0.8,
+              geodesic: true,
+              icons: [
+                {
+                  icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW },
+                  offset: '100%',
+                  repeat: '20px'
+                }
+              ]
+            }}
+          />
+        )}
+
+        {/* Custom Start Marker (If not suppressed or fallback) */}
+        {!directionsResponse && startPoint && (
+          <Marker
+            position={startPoint}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: '#2563eb', // Blue
+              fillOpacity: 1,
+              strokeColor: 'white',
+              strokeWeight: 3
+            }}
+            label={{ text: 'A', color: 'white', fontWeight: 'bold' }}
+          />
+        )}
+
+        {/* Custom End Marker (If not suppressed or fallback) */}
+        {!directionsResponse && endPoint && (
+          <Marker
+            position={endPoint}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: '#ef4444', // Red
+              fillOpacity: 1,
+              strokeColor: 'white',
+              strokeWeight: 3
+            }}
+            animation={google.maps.Animation.DROP}
+            label={{ text: 'B', color: 'white', fontWeight: 'bold' }}
+          />
+        )}
+      </GoogleMap>
+
+      {/* --- FLOATING INPUT PANEL (Top Left) --- */}
+      <FloatingInputPanel
+        origin={origin}
+        destination={destination}
+        isSearching={isSearching}
+        onOriginChange={setOrigin}
+        onDestinationChange={setDestination}
+        onSearch={() => handleSearch()}
+        onReset={resetSearch}
+        onUseMyLocation={handleUseMyLocation}
+      />
+
+      {/* --- RESULT CARDS (Bottom) --- */}
+      {aiResults && (
+        <RouteResultCards
+          routes={aiResults}
+          selectedRouteIndex={selectedRouteIndex}
+          onSelectRoute={setSelectedRouteIndex}
+        />
       )}
-
-      {/* Routes Table */}
-      <Card>
-        <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Route Name</TableHead>
-                <TableHead>Start Point</TableHead>
-                <TableHead>End Point</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {routes?.map((route) => (
-                <RouteRow 
-                  key={route.id} 
-                  route={route}
-                  onViewRoute={onViewRoute}
-                  onEditRoute={onEditRoute}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </div>
   );
 }
+
+// Named export for compatibility
+export { RoutesPage as RoutesView };

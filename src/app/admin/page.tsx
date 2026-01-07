@@ -1,22 +1,24 @@
-"use client";
+'use client';
 
-import { DashboardView } from "@/features/dashboard";
+import { DashboardView } from '@/features/dashboard';
 
 export default function DashboardPage() {
   const handleCreateAlert = () => {
     // TODO: Implement create alert modal
-    console.log("Create alert clicked");
+    console.log('Create alert clicked');
   };
 
   const handleAddDevice = () => {
     // TODO: Implement add device modal
-    console.log("Add device clicked");
+    console.log('Add device clicked');
   };
 
   return (
-    <DashboardView 
-      onCreateAlert={handleCreateAlert} 
-      onAddDevice={handleAddDevice} 
-    />
+    <div className='space-y-6'>
+      <DashboardView
+        onCreateAlert={handleCreateAlert}
+        onAddDevice={handleAddDevice}
+      />
+    </div>
   );
 }

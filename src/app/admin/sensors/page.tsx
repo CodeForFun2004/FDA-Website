@@ -1,14 +1,12 @@
-"use client";
+'use client';
 
-import { SensorsView } from "@/features/sensors";
+import { SensorsView } from '@/features/sensors';
 
 export default function SensorsPage() {
   const handleRefresh = () => {
     // Optional: Additional refresh logic
-    console.log("Sensors data refreshed");
+    console.log('Sensors data refreshed');
   };
 
-  return (
-    <SensorsView onRefresh={handleRefresh} />
-  );
+  return <SensorsView />;
 }

@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from '@/lib/router';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import { setSessionCookie } from '@/helpers/auth-session';
 
 function safeDecode(v: string) {
   try {
@@ -101,6 +102,9 @@ export default function GoogleCallbackPage() {
         }),
         false
       );
+
+      // ✅ Set session cookie để layout có thể check
+      setSessionCookie();
 
       // Xoá hash khỏi URL để sạch (tránh lưu token trong history)
       window.history.replaceState(

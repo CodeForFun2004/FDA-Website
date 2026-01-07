@@ -3,6 +3,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { useUsers, type User } from '../index';
+import type { UseUsersParams } from '../hooks/useUsers';
+import { CreateUserDialog } from '../components';
 import {
   Table,
   TableBody,
@@ -130,71 +132,71 @@ export function UsersView({
   onEditUser,
   onDeleteUser
 }: UsersViewProps) {
-  const { data: users, isLoading } = useUsers();
+  // State for Create User dialog
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-  // State for filters
+  // State for filters & pagination (server-side)
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter users by search and role
-  const filteredUsers = useMemo(() => {
-    if (!users) return [];
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1); // Reset to first page when search changes
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-    let result = users;
+  // Build API params
+  const apiParams: UseUsersParams = useMemo(
+    () => ({
+      pageNumber: currentPage,
+      pageSize: USERS_PER_PAGE,
+      searchTerm: debouncedSearch || undefined,
+      role: roleFilter !== 'all' ? roleFilter : undefined
+    }),
+    [currentPage, debouncedSearch, roleFilter]
+  );
 
-    // Filter by search
-    if (search.trim()) {
-      const searchLower = search.toLowerCase();
-      result = result.filter(
-        (u) =>
-          u.name.toLowerCase().includes(searchLower) ||
-          u.email.toLowerCase().includes(searchLower)
-      );
-    }
+  // Fetch users from API with server-side pagination
+  const { data, isLoading } = useUsers(apiParams);
 
-    // Filter by role
-    if (roleFilter !== 'all') {
-      result = result.filter((u) => u.role === roleFilter);
-    }
+  // Extract users and totalCount from API response
+  const users = data?.users ?? [];
+  const totalCount = data?.totalCount ?? 0;
 
-    return result;
-  }, [users, search, roleFilter]);
+  // Calculate total pages from server totalCount
+  const totalPages = Math.ceil(totalCount / USERS_PER_PAGE);
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
-  const paginatedUsers = useMemo(() => {
-    const start = (currentPage - 1) * USERS_PER_PAGE;
-    const end = start + USERS_PER_PAGE;
-    return filteredUsers.slice(start, end);
-  }, [filteredUsers, currentPage]);
-
-  // Reset to page 1 when filters change
+  // Handle filter changes
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setCurrentPage(1);
   };
 
   const handleRoleFilterChange = (value: string) => {
     setRoleFilter(value);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handleClearFilters = () => {
     setSearch('');
+    setDebouncedSearch('');
     setRoleFilter('all');
     setCurrentPage(1);
   };
 
-  // Statistics
+  // Statistics (from API data)
   const stats = useMemo(
     () => ({
-      total: users?.length ?? 0,
-      active: users?.filter((u) => u.status === 'Active').length ?? 0,
-      inactive: users?.filter((u) => u.status === 'Inactive').length ?? 0,
-      filtered: filteredUsers.length
+      total: totalCount,
+      active: users.filter((u) => u.status === 'Active').length,
+      inactive: users.filter((u) => u.status === 'Inactive').length,
+      currentPageCount: users.length
     }),
-    [users, filteredUsers]
+    [users, totalCount]
   );
 
   const hasActiveFilters = search.trim() || roleFilter !== 'all';
@@ -212,7 +214,7 @@ export function UsersView({
             inactive
           </p>
         </div>
-        <Button onClick={onCreateUser} className='gap-2'>
+        <Button onClick={() => setCreateDialogOpen(true)} className='gap-2'>
           <Plus className='h-4 w-4' /> Create User
         </Button>
       </div>
@@ -268,7 +270,7 @@ export function UsersView({
             <div className='text-muted-foreground mt-3 flex items-center gap-2 text-sm'>
               <Users className='h-4 w-4' />
               <span>
-                Hiển thị {stats.filtered} / {stats.total} users
+                Hiển thị {stats.currentPageCount} / {stats.total} users
                 {search && ` • Tìm kiếm: "${search}"`}
                 {roleFilter !== 'all' &&
                   ` • Role: ${ROLE_OPTIONS.find((r) => r.value === roleFilter)?.label}`}
@@ -291,7 +293,7 @@ export function UsersView({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedUsers.map((user) => (
+                {users.map((user) => (
                   <UserRow
                     key={user.id}
                     user={user}
@@ -304,7 +306,7 @@ export function UsersView({
           </div>
 
           {/* Empty State */}
-          {filteredUsers.length === 0 && (
+          {users.length === 0 && (
             <div className='flex flex-col items-center justify-center py-12 text-center'>
               <div className='bg-muted mb-4 flex h-16 w-16 items-center justify-center rounded-full'>
                 <Users className='text-muted-foreground h-8 w-8' />
@@ -321,12 +323,12 @@ export function UsersView({
           )}
 
           {/* Pagination */}
-          {filteredUsers.length > 0 && totalPages > 1 && (
+          {totalCount > 0 && totalPages > 1 && (
             <div className='mt-6 flex items-center justify-between border-t pt-4'>
               <p className='text-muted-foreground text-sm'>
                 Hiển thị {(currentPage - 1) * USERS_PER_PAGE + 1} -{' '}
-                {Math.min(currentPage * USERS_PER_PAGE, filteredUsers.length)}{' '}
-                trong {filteredUsers.length} users
+                {Math.min(currentPage * USERS_PER_PAGE, totalCount)} trong{' '}
+                {totalCount} users
               </p>
               <Pagination
                 page={currentPage}
@@ -337,13 +339,22 @@ export function UsersView({
           )}
 
           {/* Single Page Info */}
-          {filteredUsers.length > 0 && totalPages === 1 && (
+          {totalCount > 0 && totalPages === 1 && (
             <div className='text-muted-foreground mt-4 text-center text-sm'>
-              Hiển thị tất cả {filteredUsers.length} users
+              Hiển thị tất cả {totalCount} users
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Create User Dialog */}
+      <CreateUserDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={() => {
+          onCreateUser?.();
+        }}
+      />
     </div>
   );
 }

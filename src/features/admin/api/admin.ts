@@ -24,6 +24,7 @@ export function getAdminUsersApi(params: {
   searchTerm?: string;
   role?: string;
   status?: string;
+  createdBy?: string;
 }) {
   const searchParams = new URLSearchParams();
   searchParams.set('pageNumber', String(params.pageNumber));
@@ -31,6 +32,7 @@ export function getAdminUsersApi(params: {
   if (params.searchTerm) searchParams.set('searchTerm', params.searchTerm);
   if (params.role) searchParams.set('role', params.role);
   if (params.status) searchParams.set('status', params.status);
+  if (params.createdBy) searchParams.set('createdBy', params.createdBy);
 
   const url = `/admin/users?${searchParams.toString()}`;
   console.log('[getAdminUsersApi] Calling URL:', url);
@@ -100,7 +102,7 @@ export function updateUserRolesApi(userId: string, roles: string[]) {
  */
 export function updateUserStatusApi(
   userId: string,
-  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'banned'
 ) {
   return apiFetch<UpdateUserResponse>(`/admin/users/${userId}/status`, {
     method: 'PUT',

@@ -17,6 +17,7 @@ function mapAdminUserToUser(adminUser: AdminUser): User {
     email: adminUser.email,
     role: mapRoleFromBackend(adminUser.roles),
     status: mapStatusFromBackend(adminUser.status),
+    isAdminCreated: adminUser.isAdminCreated,
     createdAt: adminUser.createdAt,
     lastLogin: adminUser.lastLoginAt || adminUser.createdAt
   };
@@ -56,9 +57,15 @@ function mapRoleFromBackend(
 /**
  * Map backend status to frontend status
  */
-function mapStatusFromBackend(status: string): 'Active' | 'Inactive' {
+function mapStatusFromBackend(
+  status: string
+): 'Active' | 'Inactive' | 'Banned' {
   const activeStatuses = ['ACTIVE', 'Active', 'active'];
-  return activeStatuses.includes(status) ? 'Active' : 'Inactive';
+  const bannedStatuses = ['banned', 'Banned', 'BANNED'];
+
+  if (activeStatuses.includes(status)) return 'Active';
+  if (bannedStatuses.includes(status)) return 'Banned';
+  return 'Inactive';
 }
 
 // ===== Hooks =====
@@ -69,6 +76,7 @@ export type UseUsersParams = {
   searchTerm?: string;
   role?: string;
   status?: string;
+  createdBy?: string;
 };
 
 export type UseUsersResult = {
@@ -80,17 +88,33 @@ export type UseUsersResult = {
  * Hook to fetch users from API with server-side pagination and filtering
  */
 export const useUsers = (params: UseUsersParams = {}) => {
-  const { pageNumber = 1, pageSize = 10, searchTerm, role, status } = params;
+  const {
+    pageNumber = 1,
+    pageSize = 10,
+    searchTerm,
+    role,
+    status,
+    createdBy
+  } = params;
 
   return useQuery({
-    queryKey: ['users', pageNumber, pageSize, searchTerm, role, status],
+    queryKey: [
+      'users',
+      pageNumber,
+      pageSize,
+      searchTerm,
+      role,
+      status,
+      createdBy
+    ],
     queryFn: async (): Promise<UseUsersResult> => {
       const response = await getAdminUsersApi({
         pageNumber,
         pageSize,
         searchTerm: searchTerm || undefined,
         role: role && role !== 'all' ? role : undefined,
-        status: status || undefined
+        status: status || undefined,
+        createdBy: createdBy || undefined
       });
 
       return {

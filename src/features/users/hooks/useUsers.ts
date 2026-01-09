@@ -24,27 +24,33 @@ function mapAdminUserToUser(adminUser: AdminUser): User {
 
 /**
  * Map backend roles array to single Role for display
- * Takes the first role or defaults to 'Viewer'
+ * Takes the first role or defaults to 'USER'
  */
 function mapRoleFromBackend(
   roles: string[]
-): 'Admin' | 'Operator' | 'Viewer' | 'Mobile' {
-  if (!roles || roles.length === 0) return 'Viewer';
+): 'ADMIN' | 'USER' | 'SUPER_ADMIN' | 'AUTHORITY' {
+  if (!roles || roles.length === 0) return 'USER';
 
   // Map backend role names to frontend Role type
-  const roleMap: Record<string, 'Admin' | 'Operator' | 'Viewer' | 'Mobile'> = {
-    Admin: 'Admin',
-    ADMIN: 'Admin',
-    Operator: 'Operator',
-    OPERATOR: 'Operator',
-    Viewer: 'Viewer',
-    VIEWER: 'Viewer',
-    Mobile: 'Mobile',
-    MOBILE: 'Mobile',
-    User: 'Viewer' // Default mapping for 'User' role
+  const roleMap: Record<
+    string,
+    'ADMIN' | 'USER' | 'SUPER_ADMIN' | 'AUTHORITY'
+  > = {
+    ADMIN: 'ADMIN',
+    Admin: 'ADMIN',
+    admin: 'ADMIN',
+    USER: 'USER',
+    User: 'USER',
+    user: 'USER',
+    SUPER_ADMIN: 'SUPER_ADMIN',
+    SuperAdmin: 'SUPER_ADMIN',
+    'Super Admin': 'SUPER_ADMIN',
+    AUTHORITY: 'AUTHORITY',
+    Authority: 'AUTHORITY',
+    authority: 'AUTHORITY'
   };
 
-  return roleMap[roles[0]] || 'Viewer';
+  return roleMap[roles[0]] || 'USER';
 }
 
 /**

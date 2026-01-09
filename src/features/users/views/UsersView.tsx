@@ -35,10 +35,10 @@ const USERS_PER_PAGE = 5;
 
 const ROLE_OPTIONS = [
   { value: 'all', label: 'Tất cả Role' },
-  { value: 'Admin', label: 'Admin' },
-  { value: 'Operator', label: 'Operator' },
-  { value: 'Viewer', label: 'Viewer' },
-  { value: 'Mobile', label: 'Mobile' }
+  { value: 'ADMIN', label: 'Admin' },
+  { value: 'USER', label: 'User' },
+  { value: 'SUPER_ADMIN', label: 'Super Admin' },
+  { value: 'AUTHORITY', label: 'Authority' }
 ];
 
 // ===== Sub-components =====
@@ -66,16 +66,18 @@ const UserRow = ({ user, onEdit, onDelete }: UserRowProps) => (
       <Badge
         variant='outline'
         className={
-          user.role === 'Admin'
-            ? 'border-purple-500 bg-purple-50 text-purple-600'
-            : user.role === 'Operator'
-              ? 'border-blue-500 bg-blue-50 text-blue-600'
-              : user.role === 'Viewer'
-                ? 'border-green-500 bg-green-50 text-green-600'
-                : 'border-orange-500 bg-orange-50 text-orange-600'
+          user.role === 'SUPER_ADMIN'
+            ? 'border-red-500 bg-red-50 text-red-600'
+            : user.role === 'ADMIN'
+              ? 'border-purple-500 bg-purple-50 text-purple-600'
+              : user.role === 'AUTHORITY'
+                ? 'border-blue-500 bg-blue-50 text-blue-600'
+                : 'border-green-500 bg-green-50 text-green-600'
         }
       >
-        {user.role}
+        {user.role === 'SUPER_ADMIN'
+          ? 'Super Admin'
+          : user.role.charAt(0) + user.role.slice(1).toLowerCase()}
       </Badge>
     </TableCell>
     <TableCell>

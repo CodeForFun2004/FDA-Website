@@ -43,10 +43,10 @@ export type CreateUserDialogProps = {
 
 // Available roles for selection
 const ROLE_OPTIONS = [
-  { value: 'User', label: 'User' },
-  { value: 'Admin', label: 'Admin' },
-  { value: 'Operator', label: 'Operator' },
-  { value: 'Viewer', label: 'Viewer' }
+  { value: 'USER', label: 'User' },
+  { value: 'ADMIN', label: 'Admin' },
+  { value: 'SUPER_ADMIN', label: 'Super Admin' },
+  { value: 'AUTHORITY', label: 'Authority' }
 ];
 
 // ===== Component =====
@@ -63,7 +63,7 @@ export function CreateUserDialog({
     password: '',
     fullName: '',
     phoneNumber: '',
-    role: 'User'
+    role: 'USER'
   });
 
   // Form errors
@@ -105,7 +105,7 @@ export function CreateUserDialog({
       password: '',
       fullName: '',
       phoneNumber: '',
-      role: 'User'
+      role: 'USER'
     });
     setErrors({});
   };

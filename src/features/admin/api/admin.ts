@@ -1,41 +1,44 @@
 // src/features/admin/api/admin.ts
-import { apiFetch } from "@/lib/api/client";
+import { apiFetch } from '@/lib/api/client';
 import type {
-    Role,
-    GetUsersResponse,
-    GetUserByIdResponse,
-    CreateUserRequest,
-    UpdateUserRequest,
-    UpdateUserResponse,
-    DeleteUserResponse,
-    GetAdminStatsResponse
-} from "../types/admin.type";
-
+  GetUsersResponse,
+  GetUserByIdResponse,
+  CreateUserRequest,
+  CreateUserResponse,
+  UpdateUserRequest,
+  UpdateUserResponse,
+  DeleteUserResponse,
+  GetAdminStatsResponse
+} from '../types/admin.type';
 
 // ===== API Functions =====
 
 /**
  * GET /admin/users
- * Lấy danh sách tất cả users (chỉ ADMIN/SUPER_ADMIN)
+ * Lấy danh sách tất cả users (chỉ ADMIN)
+ * Params: searchTerm, role, status, pageNumber (required), pageSize (required)
  */
-export function getAdminUsersApi(params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    role?: Role;
-    status?: string;
+export function getAdminUsersApi(params: {
+  pageNumber: number;
+  pageSize: number;
+  searchTerm?: string;
+  role?: string;
+  status?: string;
 }) {
-    const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.set("page", String(params.page));
-    if (params?.limit) searchParams.set("limit", String(params.limit));
-    if (params?.search) searchParams.set("search", params.search);
-    if (params?.role) searchParams.set("role", params.role);
-    if (params?.status) searchParams.set("status", params.status);
+  const searchParams = new URLSearchParams();
+  searchParams.set('pageNumber', String(params.pageNumber));
+  searchParams.set('pageSize', String(params.pageSize));
+  if (params.searchTerm) searchParams.set('searchTerm', params.searchTerm);
+  if (params.role) searchParams.set('role', params.role);
+  if (params.status) searchParams.set('status', params.status);
 
-    const query = searchParams.toString();
-    return apiFetch<GetUsersResponse>(`/admin/users${query ? `?${query}` : ""}`, {
-        method: "GET",
-    });
+  const url = `/admin/users?${searchParams.toString()}`;
+  console.log('[getAdminUsersApi] Calling URL:', url);
+  console.log('[getAdminUsersApi] Params:', params);
+
+  return apiFetch<GetUsersResponse>(url, {
+    method: 'GET'
+  });
 }
 
 /**
@@ -43,31 +46,31 @@ export function getAdminUsersApi(params?: {
  * Lấy thông tin chi tiết user
  */
 export function getAdminUserByIdApi(userId: string) {
-    return apiFetch<GetUserByIdResponse>(`/admin/users/${userId}`, {
-        method: "GET",
-    });
+  return apiFetch<GetUserByIdResponse>(`/admin/users/${userId}`, {
+    method: 'GET'
+  });
 }
 
 /**
  * POST /admin/users
- * Tạo user mới (chỉ SUPER_ADMIN)
+ * Tạo user mới (chỉ ADMIN)
  */
 export function createAdminUserApi(payload: CreateUserRequest) {
-    return apiFetch<UpdateUserResponse>("/admin/users", {
-        method: "POST",
-        body: JSON.stringify(payload),
-    });
+  return apiFetch<CreateUserResponse>('/admin/users', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
 }
 
 /**
- * PUT /admin/users/:id
- * Cập nhật thông tin user
+ * PATCH /admin/users/:id
+ * Cập nhật thông tin user (chỉ ADMIN)
  */
 export function updateAdminUserApi(userId: string, payload: UpdateUserRequest) {
-    return apiFetch<UpdateUserResponse>(`/admin/users/${userId}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-    });
+  return apiFetch<UpdateUserResponse>(`/admin/users/${userId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  });
 }
 
 /**
@@ -75,20 +78,20 @@ export function updateAdminUserApi(userId: string, payload: UpdateUserRequest) {
  * Xóa user (chỉ SUPER_ADMIN)
  */
 export function deleteAdminUserApi(userId: string) {
-    return apiFetch<DeleteUserResponse>(`/admin/users/${userId}`, {
-        method: "DELETE",
-    });
+  return apiFetch<DeleteUserResponse>(`/admin/users/${userId}`, {
+    method: 'DELETE'
+  });
 }
 
 /**
  * PUT /admin/users/:id/roles
- * Cập nhật roles của user (chỉ SUPER_ADMIN)
+ * Cập nhật roles của user (chỉ ADMIN)
  */
-export function updateUserRolesApi(userId: string, roles: Role[]) {
-    return apiFetch<UpdateUserResponse>(`/admin/users/${userId}/roles`, {
-        method: "PUT",
-        body: JSON.stringify({ roles }),
-    });
+export function updateUserRolesApi(userId: string, roles: string[]) {
+  return apiFetch<UpdateUserResponse>(`/admin/users/${userId}/roles`, {
+    method: 'PUT',
+    body: JSON.stringify({ roles })
+  });
 }
 
 /**
@@ -96,13 +99,13 @@ export function updateUserRolesApi(userId: string, roles: Role[]) {
  * Cập nhật status của user (activate/deactivate/suspend)
  */
 export function updateUserStatusApi(
-    userId: string,
-    status: "ACTIVE" | "INACTIVE" | "SUSPENDED"
+  userId: string,
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
 ) {
-    return apiFetch<UpdateUserResponse>(`/admin/users/${userId}/status`, {
-        method: "PUT",
-        body: JSON.stringify({ status }),
-    });
+  return apiFetch<UpdateUserResponse>(`/admin/users/${userId}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status })
+  });
 }
 
 /**
@@ -110,7 +113,7 @@ export function updateUserStatusApi(
  * Lấy thống kê tổng quan cho admin dashboard
  */
 export function getAdminStatsApi() {
-    return apiFetch<GetAdminStatsResponse>("/admin/stats", {
-        method: "GET",
-    });
+  return apiFetch<GetAdminStatsResponse>('/admin/stats', {
+    method: 'GET'
+  });
 }

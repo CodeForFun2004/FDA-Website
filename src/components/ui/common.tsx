@@ -10,7 +10,7 @@ export {
   CardFooter,
   CardTitle,
   CardDescription,
-  CardContent,
+  CardContent
 } from './card';
 export {
   Table,
@@ -20,12 +20,22 @@ export {
   TableHead,
   TableRow,
   TableCell,
-  TableCaption,
+  TableCaption
 } from './table';
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+  SelectSeparator
+} from './select';
 
 // Loader Component (Custom)
 export const LoadingState = () => (
-  <div className="flex h-[200px] w-full items-center justify-center">
-    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  <div className='flex h-[200px] w-full items-center justify-center'>
+    <Loader2 className='text-primary h-8 w-8 animate-spin' />
   </div>
 );

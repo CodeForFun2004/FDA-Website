@@ -107,11 +107,12 @@ export async function apiFetch<T>(
   // Build headers safely
   const headers = new Headers(options.headers ?? {});
 
-  // ✅ Only set JSON content-type when body is NOT FormData AND caller hasn't set it
-  if (!isFormData(options.body)) {
+  // ✅ Only set JSON content-type when there's actually a body AND it's NOT FormData
+  // Don't set Content-Type for GET requests (no body) - some servers reject this
+  if (options.body && !isFormData(options.body)) {
     if (!headers.has('Content-Type'))
       headers.set('Content-Type', 'application/json');
-  } else {
+  } else if (isFormData(options.body)) {
     // ✅ Let browser set boundary for multipart
     headers.delete('Content-Type');
   }

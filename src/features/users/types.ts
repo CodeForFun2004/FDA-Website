@@ -6,7 +6,8 @@ export interface User {
   name: string;
   email: string;
   role: Role;
-  status: 'Active' | 'Inactive';
+  status: 'Active' | 'Inactive' | 'Banned';
+  isAdminCreated: boolean;
   createdAt: string;
   lastLogin: string;
 }

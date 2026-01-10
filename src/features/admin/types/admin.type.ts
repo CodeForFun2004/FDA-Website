@@ -16,6 +16,7 @@ export type AdminUser = {
   phoneNumber: string | null;
   avatarUrl: string | null;
   provider: string | null;
+  isAdminCreated: boolean;
   status: string;
   lastLoginAt: string | null;
   phoneVerifiedAt: string | null;

@@ -4,7 +4,7 @@
 import React, { useState, useMemo } from 'react';
 import { useUsers, type User } from '../index';
 import type { UseUsersParams } from '../hooks/useUsers';
-import { CreateUserDialog } from '../components';
+import { CreateUserDialog, EditUserDialog, BanUserDialog } from '../components';
 import {
   Table,
   TableBody,
@@ -28,7 +28,8 @@ import {
 } from '@/components/ui/common';
 import { Pagination } from '@/components/ui/pagination';
 import { formatDate } from '@/lib/utils';
-import { Search, Plus, Edit, Trash2, Filter, X, Users } from 'lucide-react';
+import { Search, Plus, Edit, Lock, Filter, X, Users } from 'lucide-react';
+import { toast } from 'sonner';
 
 // ===== Constants =====
 const USERS_PER_PAGE = 5;
@@ -46,10 +47,10 @@ const ROLE_OPTIONS = [
 type UserRowProps = {
   user: User;
   onEdit?: (user: User) => void;
-  onDelete?: (user: User) => void;
+  onBan?: (user: User) => void;
 };
 
-const UserRow = ({ user, onEdit, onDelete }: UserRowProps) => (
+const UserRow = ({ user, onEdit, onBan }: UserRowProps) => (
   <TableRow className='hover:bg-muted/50 transition-colors'>
     <TableCell className='font-medium'>
       <div className='flex items-center gap-3'>
@@ -86,11 +87,19 @@ const UserRow = ({ user, onEdit, onDelete }: UserRowProps) => (
         className={
           user.status === 'Active'
             ? 'bg-green-100 text-green-700'
-            : 'bg-gray-100 text-gray-600'
+            : user.status === 'Banned'
+              ? 'bg-red-100 text-red-700'
+              : 'bg-gray-100 text-gray-600'
         }
       >
         <span
-          className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${user.status === 'Active' ? 'bg-green-500' : 'bg-gray-400'}`}
+          className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${
+            user.status === 'Active'
+              ? 'bg-green-500'
+              : user.status === 'Banned'
+                ? 'bg-red-500'
+                : 'bg-gray-400'
+          }`}
         />
         {user.status}
       </Badge>
@@ -100,21 +109,29 @@ const UserRow = ({ user, onEdit, onDelete }: UserRowProps) => (
     </TableCell>
     <TableCell>
       <div className='flex items-center gap-1'>
+        {user.isAdminCreated && (
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => onEdit?.(user)}
+            className='h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600'
+            title='Chỉnh sửa user'
+          >
+            <Edit className='h-4 w-4' />
+          </Button>
+        )}
         <Button
           variant='ghost'
           size='sm'
-          onClick={() => onEdit?.(user)}
-          className='h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600'
+          onClick={() => onBan?.(user)}
+          className={
+            user.status === 'Banned'
+              ? 'h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600'
+              : 'h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600'
+          }
+          title={user.status === 'Banned' ? 'Mở khóa user' : 'Khóa user'}
         >
-          <Edit className='h-4 w-4' />
-        </Button>
-        <Button
-          variant='ghost'
-          size='sm'
-          onClick={() => onDelete?.(user)}
-          className='h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600'
-        >
-          <Trash2 className='h-4 w-4' />
+          <Lock className='h-4 w-4' />
         </Button>
       </div>
     </TableCell>
@@ -126,21 +143,25 @@ const UserRow = ({ user, onEdit, onDelete }: UserRowProps) => (
 export type UsersViewProps = {
   onCreateUser?: () => void;
   onEditUser?: (user: User) => void;
-  onDeleteUser?: (user: User) => void;
+  onBanUser?: (user: User) => void;
 };
 
 export function UsersView({
   onCreateUser,
   onEditUser,
-  onDeleteUser
+  onBanUser
 }: UsersViewProps) {
-  // State for Create User dialog
+  // State for dialogs
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // State for filters & pagination (server-side)
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [adminCreatedFilter, setAdminCreatedFilter] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Debounce search input
@@ -158,9 +179,10 @@ export function UsersView({
       pageNumber: currentPage,
       pageSize: USERS_PER_PAGE,
       searchTerm: debouncedSearch || undefined,
-      role: roleFilter !== 'all' ? roleFilter : undefined
+      role: roleFilter !== 'all' ? roleFilter : undefined,
+      createdBy: adminCreatedFilter ? 'admin' : undefined
     }),
-    [currentPage, debouncedSearch, roleFilter]
+    [currentPage, debouncedSearch, roleFilter, adminCreatedFilter]
   );
 
   // Fetch users from API with server-side pagination
@@ -187,7 +209,30 @@ export function UsersView({
     setSearch('');
     setDebouncedSearch('');
     setRoleFilter('all');
+    setAdminCreatedFilter(false);
     setCurrentPage(1);
+  };
+
+  // Handle edit user
+  const handleEditUser = (user: User) => {
+    // Frontend validation: Only allow editing admin-created users
+    if (!user.isAdminCreated) {
+      toast.error('Lỗi cập nhật user', {
+        description: 'Bạn chỉ có thể chỉnh sửa user được tạo bởi admin.'
+      });
+      return;
+    }
+
+    setSelectedUser(user);
+    setEditDialogOpen(true);
+    onEditUser?.(user);
+  };
+
+  // Handle ban user
+  const handleBanUser = (user: User) => {
+    setSelectedUser(user);
+    setBanDialogOpen(true);
+    onBanUser?.(user);
   };
 
   // Statistics (from API data)
@@ -196,12 +241,14 @@ export function UsersView({
       total: totalCount,
       active: users.filter((u) => u.status === 'Active').length,
       inactive: users.filter((u) => u.status === 'Inactive').length,
+      banned: users.filter((u) => u.status === 'Banned').length,
       currentPageCount: users.length
     }),
     [users, totalCount]
   );
 
-  const hasActiveFilters = search.trim() || roleFilter !== 'all';
+  const hasActiveFilters =
+    search.trim() || roleFilter !== 'all' || adminCreatedFilter;
 
   if (isLoading) return <LoadingState />;
 
@@ -244,8 +291,9 @@ export function UsersView({
               )}
             </div>
 
-            {/* Role Filter */}
+            {/* Filters */}
             <div className='flex items-center gap-3'>
+              {/* Role Filter */}
               <div className='flex items-center gap-2'>
                 <Filter className='text-muted-foreground h-4 w-4' />
                 <Select
@@ -264,6 +312,26 @@ export function UsersView({
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Admin Created Filter */}
+              <div className='flex items-center space-x-2 rounded-md border px-3 py-2'>
+                <input
+                  type='checkbox'
+                  id='adminCreated'
+                  checked={adminCreatedFilter}
+                  onChange={(e) => {
+                    setAdminCreatedFilter(e.target.checked);
+                    setCurrentPage(1);
+                  }}
+                  className='h-4 w-4 cursor-pointer rounded border-gray-300'
+                />
+                <label
+                  htmlFor='adminCreated'
+                  className='cursor-pointer text-sm font-medium select-none'
+                >
+                  Tạo bởi Admin
+                </label>
+              </div>
             </div>
           </div>
 
@@ -276,6 +344,7 @@ export function UsersView({
                 {search && ` • Tìm kiếm: "${search}"`}
                 {roleFilter !== 'all' &&
                   ` • Role: ${ROLE_OPTIONS.find((r) => r.value === roleFilter)?.label}`}
+                {adminCreatedFilter && ` • Tạo bởi Admin`}
               </span>
             </div>
           )}
@@ -299,8 +368,8 @@ export function UsersView({
                   <UserRow
                     key={user.id}
                     user={user}
-                    onEdit={onEditUser}
-                    onDelete={onDeleteUser}
+                    onEdit={handleEditUser}
+                    onBan={handleBanUser}
                   />
                 ))}
               </TableBody>
@@ -355,6 +424,26 @@ export function UsersView({
         onOpenChange={setCreateDialogOpen}
         onSuccess={() => {
           onCreateUser?.();
+        }}
+      />
+
+      {/* Edit User Dialog */}
+      <EditUserDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        user={selectedUser}
+        onSuccess={() => {
+          // Refresh handled by mutation
+        }}
+      />
+
+      {/* Ban User Dialog */}
+      <BanUserDialog
+        open={banDialogOpen}
+        onOpenChange={setBanDialogOpen}
+        user={selectedUser}
+        onSuccess={() => {
+          // Refresh handled by mutation
         }}
       />
     </div>

@@ -22,7 +22,7 @@ export async function getUserMapPreferences(
     // fallback
     return DEFAULT_MAP_PREFS;
   }
-  return sanitizePrefs(json.data);
+  return sanitizePrefs(json.data ?? json.settings);
 }
 
 export async function putUserMapPreferences(

@@ -52,6 +52,29 @@ export default function MapView({ prefs }: Props) {
         // overlays lần đầu
         applyOverlays(map, prefs, floodDataCacheRef.current);
       });
+
+      // Bind interactions
+      const FLOOD_LAYER_ID = 'flood-severity-circle';
+
+      const onClick = (e: any) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: [FLOOD_LAYER_ID]
+        });
+        if (features && features.length > 0) {
+          setSelectedFeature(features[0].properties);
+        }
+      };
+
+      const onMouseEnter = () => {
+        map.getCanvas().style.cursor = 'pointer';
+      };
+      const onMouseLeave = () => {
+        map.getCanvas().style.cursor = '';
+      };
+
+      map.on('click', FLOOD_LAYER_ID, onClick);
+      map.on('mouseenter', FLOOD_LAYER_ID, onMouseEnter);
+      map.on('mouseleave', FLOOD_LAYER_ID, onMouseLeave);
     }
 
     init();
@@ -107,8 +130,28 @@ export default function MapView({ prefs }: Props) {
     }
   });
 
-  return <div ref={containerRef} className='h-full w-full' />;
+  // Interaction state
+  const [selectedFeature, setSelectedFeature] = React.useState<any>(null);
+
+  // useEffect cũ đã được chuyển vào trong init() để đảm bảo có map instance.
+
+  return (
+    <div className='relative h-full w-full'>
+      <div ref={containerRef} className='h-full w-full' />
+      {selectedFeature && (
+        <div className='animate-in slide-in-from-left-4 fade-in absolute top-5 left-4 z-50 duration-300'>
+          <FloodDetailCard
+            properties={selectedFeature}
+            onClose={() => setSelectedFeature(null)}
+          />
+        </div>
+      )}
+    </div>
+  );
 }
+
+// Need to import FloodDetailCard
+import { FloodDetailCard } from '../FloodDetailCard';
 
 function applyOverlays(
   map: maplibregl.Map,

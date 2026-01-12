@@ -149,7 +149,7 @@ export function useMapPreferences() {
     }
 
     // logged-in: debounce PUT
-    debouncedSave(prefs, token!);
+    // debouncedSave(prefs, token!);
   }, [prefs, isAuthenticated, token, debouncedSave]);
 
   // retry pending when back online
@@ -174,7 +174,22 @@ export function useMapPreferences() {
     return () => window.removeEventListener('online', onOnline);
   }, [isAuthenticated, token]);
 
-  return { prefs, setPrefsPartial, syncState, isAuthenticated };
+  // Manual save function
+  const saveManual = React.useCallback(async () => {
+    if (!token) return;
+    try {
+      setSyncState('saving');
+      await putUserMapPreferences(token, prefs);
+      setSyncState('idle');
+    } catch {
+      setSyncState('unsynced');
+    }
+  }, [prefs, token]);
+
+  // Removed auto-save effect to rely on manual save as requested
+  // React.useEffect(() => { ... }, [prefs...]);
+
+  return { prefs, setPrefsPartial, syncState, isAuthenticated, saveManual };
 }
 
 function shallowEqualPrefs(a: MapLayerPrefs, b: MapLayerPrefs) {

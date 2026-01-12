@@ -13,13 +13,15 @@ type Props = {
   setPrefsPartial: (patch: Partial<MapLayerPrefs>) => void;
   syncState: 'idle' | 'saving' | 'unsynced' | 'offline' | 'error';
   isAuthenticated: boolean;
+  saveManual: () => Promise<void>;
 };
 
 export default function LayerPanel({
   prefs,
   setPrefsPartial,
   syncState,
-  isAuthenticated
+  isAuthenticated,
+  saveManual
 }: Props) {
   const syncLabel =
     syncState === 'idle'
@@ -53,9 +55,7 @@ export default function LayerPanel({
         <div className='flex gap-2'>
           <button
             className={`flex-1 rounded-xl border px-3 py-2 text-sm ${
-              prefs.baseMap === 'standard'
-                ? 'bg-foreground text-background'
-                : ''
+              prefs.baseMap === 'standard' ? 'bg-primary text-background' : ''
             }`}
             onClick={() => setPrefsPartial({ baseMap: 'standard' })}
           >
@@ -63,9 +63,7 @@ export default function LayerPanel({
           </button>
           <button
             className={`flex-1 rounded-xl border px-3 py-2 text-sm ${
-              prefs.baseMap === 'satellite'
-                ? 'bg-foreground text-background'
-                : ''
+              prefs.baseMap === 'satellite' ? 'bg-primary text-background' : ''
             }`}
             onClick={() => setPrefsPartial({ baseMap: 'satellite' })}
           >
@@ -125,8 +123,18 @@ export default function LayerPanel({
       </div>
 
       <div className='text-muted-foreground text-xs'>
-        Tip: Toggle liên tục sẽ được debounce khi lưu lên server.
+        Tip: Nhấn lưu để áp dụng cài đặt cho lần sau.
       </div>
+
+      {isAuthenticated && (
+        <button
+          onClick={() => saveManual()}
+          disabled={syncState === 'saving'}
+          className='bg-primary text-primary-foreground w-full rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50'
+        >
+          {syncState === 'saving' ? 'Đang lưu...' : 'Lưu cấu hình'}
+        </button>
+      )}
     </div>
   );
 }
@@ -144,15 +152,16 @@ function ToggleRow({
     <div className='flex items-center justify-between gap-3'>
       <div className='text-sm'>{label}</div>
       <button
-        className={`relative h-8 w-14 rounded-full border transition ${
-          value ? 'bg-foreground' : 'bg-background'
+        type='button'
+        className={`focus-visible:ring-ring focus-visible:ring-offset-background relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none ${
+          value ? 'bg-primary' : 'bg-input'
         }`}
         onClick={() => onChange(!value)}
         aria-pressed={value}
       >
         <span
-          className={`bg-background absolute top-1 left-1 h-6 w-6 rounded-full transition ${
-            value ? 'translate-x-6' : 'translate-x-0'
+          className={`bg-background pointer-events-none block h-5 w-5 rounded-full shadow-lg ring-0 transition-transform ${
+            value ? 'translate-x-[22px]' : 'translate-x-0.5'
           }`}
         />
       </button>
@@ -183,7 +192,7 @@ function OpacityRow({
         max={100}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className='w-full'
+        className='accent-primary h-2 w-full cursor-pointer'
       />
     </div>
   );

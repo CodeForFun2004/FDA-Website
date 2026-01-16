@@ -162,7 +162,10 @@ export function StationTable({
                     colSpan={columns.length}
                     className='h-24 text-center'
                   >
-                    No results.
+                    <img
+                      src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStPS9JVqfaTNagEnEvLeN-Ve92dzflAzBENw&s'
+                      alt='No results'
+                    />
                   </TableCell>
                 </TableRow>
               )}

@@ -77,23 +77,60 @@ export const columns: ColumnDef<Station>[] = [
     ),
     cell: ({ cell }) => {
       const status = String(cell.getValue() ?? '').toLowerCase();
-      const Icon =
-        status === 'active'
-          ? CheckCircle2
-          : status === 'maintenance'
-            ? Wrench
-            : XCircle;
+
+      // Determine badge variant and styling based on status
+      const getBadgeConfig = (status: string) => {
+        switch (status) {
+          case 'active':
+            return {
+              variant: 'default' as const,
+              className:
+                'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20 hover:bg-green-500/20',
+              icon: CheckCircle2,
+              iconClassName: 'text-green-600 dark:text-green-400'
+            };
+          case 'maintenance':
+            return {
+              variant: 'default' as const,
+              className:
+                'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20',
+              icon: Wrench,
+              iconClassName: 'text-yellow-600 dark:text-yellow-400'
+            };
+          case 'inactive':
+            return {
+              variant: 'default' as const,
+              className:
+                'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20 hover:bg-red-500/20',
+              icon: XCircle,
+              iconClassName: 'text-red-600 dark:text-red-400'
+            };
+          default:
+            return {
+              variant: 'outline' as const,
+              className: '',
+              icon: XCircle,
+              iconClassName: ''
+            };
+        }
+      };
+
+      const config = getBadgeConfig(status);
+      const Icon = config.icon;
 
       return (
-        <Badge variant='outline' className='gap-1 capitalize'>
-          <Icon className='h-4 w-4' />
+        <Badge
+          variant={config.variant}
+          className={`gap-1.5 font-medium capitalize ${config.className}`}
+        >
+          <Icon className={`h-3.5 w-3.5 ${config.iconClassName}`} />
           {status || 'unknown'}
         </Badge>
       );
     },
     enableColumnFilter: true,
     meta: {
-      label: 'status',
+      label: 'Status',
       variant: 'multiSelect',
       options: STATION_STATUS_OPTIONS
     }

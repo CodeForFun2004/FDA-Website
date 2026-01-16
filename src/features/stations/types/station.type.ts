@@ -55,4 +55,39 @@ export type StationListFilters = {
   page: number;
   perPage: number;
   name?: string | null; // search keyword
+  status?: string | null; // status filter
+};
+
+export type StationUpsertPayload = {
+  code: string;
+  name: string;
+  locationDesc: string | null;
+  latitude: number;
+  longitude: number;
+  roadName: string | null;
+  direction: string | null;
+  status: StationStatus;
+  thresholdWarning: number | null;
+  thresholdCritical: number | null;
+  installedAt: string | null;
+  lastSeenAt: string | null;
+};
+
+export type CreateStationResponse = {
+  success: boolean;
+  message: string;
+  statusCode: number;
+  data: Station;
+};
+
+export type UpdateStationResponse = {
+  success: boolean;
+  message: string;
+  statusCode: number;
+};
+
+export type DeleteStationResponse = {
+  success: boolean;
+  message: string;
+  statusCode: number;
 };

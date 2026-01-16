@@ -1,73 +1,97 @@
+// src/features/stations/components/station-form.tsx
 'use client';
 
-import { FormFileUpload } from '@/components/forms/form-file-upload';
 import { FormInput } from '@/components/forms/form-input';
 import { FormSelect } from '@/components/forms/form-select';
 import { FormTextarea } from '@/components/forms/form-textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { Product } from '@/constants/mock-api';
+import type { Station } from '@/features/stations/types/station.type';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useMemo } from 'react';
+import { useForm, Control } from 'react-hook-form';
 import * as z from 'zod';
 
-const MAX_FILE_SIZE = 5000000;
-const ACCEPTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp'
-];
+// Helpers
+const toNumberOrUndefined = (v: unknown) => {
+  if (v === '' || v === null || v === undefined) return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+};
 
 const formSchema = z.object({
-  image: z
-    .any()
-    .refine((files) => files?.length == 1, 'Image is required.')
-    .refine(
-      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Max file size is 5MB.`
-    )
-    .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      '.jpg, .jpeg, .png and .webp files are accepted.'
-    ),
-  name: z.string().min(2, {
-    message: 'Product name must be at least 2 characters.'
-  }),
-  category: z.string(),
-  price: z.number(),
-  description: z.string().min(10, {
-    message: 'Description must be at least 10 characters.'
-  })
+  code: z.string().min(2, { message: 'Code must be at least 2 characters.' }),
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  locationDesc: z.string().optional().nullable(),
+  roadName: z.string().optional().nullable(),
+  direction: z.string().optional().nullable(),
+
+  latitude: z
+    .preprocess((v) => toNumberOrUndefined(v), z.number().min(-90).max(90))
+    .optional(),
+  longitude: z
+    .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
+    .optional(),
+
+  status: z.enum(['active', 'inactive', 'maintenance']),
+  thresholdWarning: z
+    .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
+    .optional()
+    .nullable(),
+  thresholdCritical: z
+    .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
+    .optional()
+    .nullable(),
+
+  installedAt: z.string().optional().nullable()
 });
 
-export default function ProductForm({
+export type StationFormValues = z.infer<typeof formSchema>;
+
+export default function StationForm({
   initialData,
   pageTitle
 }: {
-  initialData: Product | null;
+  initialData: Station | null;
   pageTitle: string;
 }) {
-  const defaultValues = {
-    name: initialData?.name || '',
-    category: initialData?.category || '',
-    price: initialData?.price || undefined,
-    description: initialData?.description || ''
-  };
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: defaultValues
-  });
-
   const router = useRouter();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Form submission logic would be implemented here
-    console.log(values);
-    router.push('/dashboard/product');
+  const defaultValues = useMemo<StationFormValues>(
+    () => ({
+      code: initialData?.code ?? '',
+      name: initialData?.name ?? '',
+      locationDesc: initialData?.locationDesc ?? '',
+      roadName: initialData?.roadName ?? '',
+      direction: initialData?.direction ?? '',
+      latitude: initialData?.latitude ?? undefined,
+      longitude: initialData?.longitude ?? undefined,
+      status: (initialData?.status as StationFormValues['status']) ?? 'active',
+      thresholdWarning: initialData?.thresholdWarning ?? null,
+      thresholdCritical: initialData?.thresholdCritical ?? null,
+      installedAt: initialData?.installedAt ?? null
+    }),
+    [initialData]
+  );
+
+  const form = useForm({
+    resolver: zodResolver(formSchema) as any,
+    defaultValues
+  });
+
+  // Type-safe control
+  const formControl = form.control as unknown as Control<StationFormValues>;
+
+  async function onSubmit(values: StationFormValues) {
+    // TODO: wire create/update API
+    // if (initialData?.id) await stationsApi.updateStation(initialData.id, values)
+    // else await stationsApi.createStation(values)
+
+    console.log('submit station', values);
+    router.push('/admin/stations');
+    router.refresh();
   }
 
   return (
@@ -77,84 +101,124 @@ export default function ProductForm({
           {pageTitle}
         </CardTitle>
       </CardHeader>
+
       <CardContent>
         <Form
-          form={form}
-          onSubmit={form.handleSubmit(onSubmit)}
+          form={form as any}
+          onSubmit={form.handleSubmit(onSubmit as any)}
           className='space-y-8'
         >
-          <FormFileUpload
-            control={form.control}
-            name='image'
-            label='Product Image'
-            description='Upload a product image'
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+            <FormInput
+              control={formControl}
+              name='code'
+              label='Station Code'
+              placeholder='ST_DN_DRAGON_01'
+              required
+            />
+
+            <FormInput
+              control={formControl}
+              name='name'
+              label='Station Name'
+              placeholder='Trạm Quan Trắc Giao Thông Cầu Rồng'
+              required
+            />
+
+            <FormSelect
+              control={formControl}
+              name='status'
+              label='Status'
+              placeholder='Select status'
+              required
+              options={[
+                { label: 'Active', value: 'active' },
+                { label: 'Inactive', value: 'inactive' },
+                { label: 'Maintenance', value: 'maintenance' }
+              ]}
+            />
+
+            <FormInput
+              control={formControl}
+              name='roadName'
+              label='Road Name'
+              placeholder='Đường 2 tháng 9'
+            />
+          </div>
+
+          <FormTextarea
+            control={formControl}
+            name='locationDesc'
+            label='Location Description'
+            placeholder='Nằm ở phía Tây cầu Rồng, gần bảo tàng...'
             config={{
-              maxSize: 5 * 1024 * 1024,
-              maxFiles: 4
+              maxLength: 500,
+              showCharCount: true,
+              rows: 3
             }}
           />
 
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
             <FormInput
-              control={form.control}
-              name='name'
-              label='Product Name'
-              placeholder='Enter product name'
-              required
-            />
-
-            <FormSelect
-              control={form.control}
-              name='category'
-              label='Category'
-              placeholder='Select category'
-              required
-              options={[
-                {
-                  label: 'Beauty Products',
-                  value: 'beauty'
-                },
-                {
-                  label: 'Electronics',
-                  value: 'electronics'
-                },
-                {
-                  label: 'Home & Garden',
-                  value: 'home'
-                },
-                {
-                  label: 'Sports & Outdoors',
-                  value: 'sports'
-                }
-              ]}
+              control={formControl}
+              name='direction'
+              label='Direction'
+              placeholder='upstream / downstream / road section...'
             />
 
             <FormInput
-              control={form.control}
-              name='price'
-              label='Price'
-              placeholder='Enter price'
-              required
-              type='number'
-              min={0}
-              step='0.01'
+              control={formControl}
+              name='installedAt'
+              label='Installed At (ISO)'
+              placeholder='2026-01-13T10:00:00+00:00'
             />
           </div>
 
-          <FormTextarea
-            control={form.control}
-            name='description'
-            label='Description'
-            placeholder='Enter product description'
-            required
-            config={{
-              maxLength: 500,
-              showCharCount: true,
-              rows: 4
-            }}
-          />
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+            <FormInput
+              control={formControl}
+              name='latitude'
+              label='Latitude'
+              placeholder='16.061153'
+              type='number'
+              step='0.000001'
+            />
 
-          <Button type='submit'>Add Product</Button>
+            <FormInput
+              control={formControl}
+              name='longitude'
+              label='Longitude'
+              placeholder='108.221589'
+              type='number'
+              step='0.000001'
+            />
+          </div>
+
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+            <FormInput
+              control={formControl}
+              name='thresholdWarning'
+              label='Threshold Warning'
+              placeholder='0.5'
+              type='number'
+              step='0.0001'
+              min={0}
+            />
+
+            <FormInput
+              control={formControl}
+              name='thresholdCritical'
+              label='Threshold Critical'
+              placeholder='1.2'
+              type='number'
+              step='0.0001'
+              min={0}
+            />
+          </div>
+
+          <Button type='submit'>
+            {initialData?.id ? 'Update Station' : 'Create Station'}
+          </Button>
         </Form>
       </CardContent>
     </Card>

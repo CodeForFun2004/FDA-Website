@@ -8,30 +8,56 @@ import { columns } from './station-tables/columns';
 type StationListingPageProps = {};
 
 export default async function StationListingPage({}: StationListingPageProps) {
-  // Showcasing the use of search params cache in nested RSCs
+  // Fetch all stations from API with filters
   const page = searchParamsCache.get('page');
-  const search = searchParamsCache.get('name');
-  const pageLimit = searchParamsCache.get('perPage');
+  const perPage = searchParamsCache.get('perPage');
+  const search = searchParamsCache.get('name') ?? '';
+  const statusParam = searchParamsCache.get('status');
 
-  // (tuỳ bạn) sau này thêm filter status/category... nếu muốn
-  // const status = searchParamsCache.get('status');
+  // Transform status to capitalize first letter (e.g., "inactive" -> "Inactive")
+  // The API might expect capitalized status values
+  const status = statusParam
+    ? statusParam.charAt(0).toUpperCase() + statusParam.slice(1).toLowerCase()
+    : null;
 
-  // Backend hiện chưa chắc hỗ trợ phân trang/search query
-  // => gọi API vẫn ổn, UI vẫn làm server-table (querystring đổi -> request lại)
-  const data = await stationsApi.getStations({
+  console.log('📊 Station Listing Filters:', {
     page,
-    perPage: pageLimit,
-    name: search
+    perPage,
+    search,
+    statusRaw: statusParam,
+    statusTransformed: status,
+    statusType: typeof status
   });
 
-  const totalStations = data.totalCount;
-  const stations: Station[] = data.stations;
+  try {
+    const data = await stationsApi.getStations({
+      page,
+      perPage,
+      name: search,
+      status: status
+    });
 
-  return (
-    <StationTable
-      data={stations}
-      totalItems={totalStations}
-      columns={columns}
-    />
-  );
+    console.log('✅ API Response:', {
+      stationsCount: data.stations.length,
+      totalCount: data.totalCount
+    });
+
+    // Pass all stations to the client-side table
+    // The table will handle pagination on the client
+    return (
+      <StationTable
+        data={data.stations}
+        totalItems={data.stations.length}
+        columns={columns}
+      />
+    );
+  } catch (error: any) {
+    console.error('❌ API Error:', {
+      message: error.message,
+      status: error.status,
+      payload: error.payload,
+      filterUsed: { page, perPage, search, status }
+    });
+    throw error;
+  }
 }

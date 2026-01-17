@@ -13,16 +13,158 @@ import {
 } from '../../map/utils';
 import { useFloodSeverity } from '../../hooks/useFloodSeverity';
 
+import { FloodDetailCard } from '../FloodDetailCard';
+
+// ✅ Flood roads overlay (new)
+import {
+  ensureFloodRoadsOverlay,
+  removeFloodRoadsOverlay
+} from '../map/floodRoads';
+import type { FloodRoadFC } from '../../mocks/floodRoadMock';
+import { startMockFloodFeed } from '../../mocks/floodRoadMock';
+
 type Props = {
   prefs: MapLayerPrefs;
 };
+
+const FLOOD_LAYER_ID = 'flood-severity-circle';
+const FLOOD_ROADS_MOCK_URL = '/mock/fda_danang_flood_roads_mock.geojson';
+const ENABLE_FLOOD_ROADS_MOCK = true; // <-- đổi false nếu chưa muốn random realtime
 
 export default function MapView({ prefs }: Props) {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const mapRef = React.useRef<maplibregl.Map | null>(null);
 
-  // giữ cache flood data để rehydrate khi setStyle
+  // giữ cache flood severity geojson để rehydrate khi setStyle
   const floodDataCacheRef = React.useRef<any>(null);
+
+  // ✅ giữ cache flood roads geojson để rehydrate khi setStyle
+  const floodRoadsCacheRef = React.useRef<FloodRoadFC | null>(null);
+  const floodRoadsLoadingRef = React.useRef(false);
+  const stopFloodRoadsMockRef = React.useRef<null | (() => void)>(null);
+
+  // prefsRef để handler map.on('load') luôn dùng prefs mới nhất
+  const prefsRef = React.useRef(prefs);
+  React.useEffect(() => {
+    prefsRef.current = prefs;
+  }, [prefs]);
+
+  // Interaction state
+  const [selectedFeature, setSelectedFeature] = React.useState<any>(null);
+
+  async function loadFloodRoadsOnce(): Promise<FloodRoadFC | null> {
+    if (floodRoadsCacheRef.current) return floodRoadsCacheRef.current;
+    if (floodRoadsLoadingRef.current) return null;
+
+    floodRoadsLoadingRef.current = true;
+    try {
+      const res = await fetch(FLOOD_ROADS_MOCK_URL);
+      if (!res.ok) throw new Error('Failed to load flood roads mock');
+      const json = (await res.json()) as FloodRoadFC;
+      floodRoadsCacheRef.current = json;
+      return json;
+    } catch (e) {
+      console.error(e);
+      return null;
+    } finally {
+      floodRoadsLoadingRef.current = false;
+    }
+  }
+
+  function applyFloodRoads(map: maplibregl.Map, nextPrefs: MapLayerPrefs) {
+    // mapping: prefs.overlays.traffic === showFloodRoads
+    const enabled = nextPrefs.overlays.traffic;
+
+    if (!enabled) {
+      // stop mock if running
+      if (stopFloodRoadsMockRef.current) {
+        stopFloodRoadsMockRef.current();
+        stopFloodRoadsMockRef.current = null;
+      }
+      // remove overlay
+      removeFloodRoadsOverlay(map);
+      return;
+    }
+
+    // enabled: ensure overlay (sync if cached, else load async)
+    const cached = floodRoadsCacheRef.current;
+    if (cached) {
+      // insert below flood circles if they exist, otherwise default placement
+      const beforeId = map.getLayer(FLOOD_LAYER_ID)
+        ? FLOOD_LAYER_ID
+        : undefined;
+      ensureFloodRoadsOverlay(map, cached, { beforeLayerId: beforeId });
+    } else {
+      // load then ensure
+      void loadFloodRoadsOnce().then((data) => {
+        const m = mapRef.current;
+        if (!m || !data) return;
+        const beforeId = m.getLayer(FLOOD_LAYER_ID)
+          ? FLOOD_LAYER_ID
+          : undefined;
+        ensureFloodRoadsOverlay(m, data, { beforeLayerId: beforeId });
+      });
+    }
+
+    // start mock realtime (random) if wanted
+    if (ENABLE_FLOOD_ROADS_MOCK && !stopFloodRoadsMockRef.current) {
+      void loadFloodRoadsOnce().then((initial) => {
+        const m = mapRef.current;
+        if (!m || !initial) return;
+
+        // ensure once before starting
+        const beforeId = m.getLayer(FLOOD_LAYER_ID)
+          ? FLOOD_LAYER_ID
+          : undefined;
+        ensureFloodRoadsOverlay(m, initial, { beforeLayerId: beforeId });
+
+        stopFloodRoadsMockRef.current = startMockFloodFeed({
+          initial,
+          intervalMs: 2000,
+          changeRate: 0.12,
+          onUpdate: (next) => {
+            // update cache
+            floodRoadsCacheRef.current = next;
+
+            const mm = mapRef.current;
+            if (!mm) return;
+
+            // style reset có thể làm mất source/layer -> ensure lại trước khi setData
+            const bId = mm.getLayer(FLOOD_LAYER_ID)
+              ? FLOOD_LAYER_ID
+              : undefined;
+            ensureFloodRoadsOverlay(mm, next, { beforeLayerId: bId });
+          }
+        });
+      });
+    }
+  }
+
+  function applyOverlays(map: maplibregl.Map, nextPrefs: MapLayerPrefs) {
+    // ✅ Flood Roads (mapped to "Traffic" toggle)
+    applyFloodRoads(map, nextPrefs);
+
+    // Weather raster overlay (giữ nguyên)
+    const weatherTiles = process.env.NEXT_PUBLIC_WEATHER_TILE_URL;
+    if (nextPrefs.overlays.weather && weatherTiles) {
+      addOrUpdateRasterOverlay(map, {
+        id: 'weather',
+        tiles: [weatherTiles],
+        opacity: (nextPrefs.opacity?.weather ?? 70) / 100,
+        beforeLayerId: undefined
+      });
+      setOverlayVisibility(map, 'weather', true);
+      setOverlayOpacity(
+        map,
+        'weather',
+        (nextPrefs.opacity?.weather ?? 70) / 100
+      );
+    } else {
+      removeOverlay(map, 'weather');
+    }
+
+    // Flood severity layer add/update trong hook useFloodSeverity (giữ nguyên)
+  }
 
   // Init map
   React.useEffect(() => {
@@ -36,8 +178,8 @@ export default function MapView({ prefs }: Props) {
 
       const map = new maplibre.Map({
         container: containerRef.current,
-        style: getBaseStyle(prefs.baseMap),
-        center: [108.2022, 16.0544], // Đà Nẵng (default)
+        style: getBaseStyle(prefsRef.current.baseMap),
+        center: [108.2022, 16.0544], // Đà Nẵng
         zoom: 12
       });
 
@@ -49,13 +191,10 @@ export default function MapView({ prefs }: Props) {
       );
 
       map.on('load', () => {
-        // overlays lần đầu
-        applyOverlays(map, prefs, floodDataCacheRef.current);
+        applyOverlays(map, prefsRef.current);
       });
 
-      // Bind interactions
-      const FLOOD_LAYER_ID = 'flood-severity-circle';
-
+      // Bind interactions for Flood severity circles
       const onClick = (e: any) => {
         const features = map.queryRenderedFeatures(e.point, {
           layers: [FLOOD_LAYER_ID]
@@ -81,6 +220,10 @@ export default function MapView({ prefs }: Props) {
 
     return () => {
       mounted = false;
+      if (stopFloodRoadsMockRef.current) {
+        stopFloodRoadsMockRef.current();
+        stopFloodRoadsMockRef.current = null;
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -96,31 +239,30 @@ export default function MapView({ prefs }: Props) {
 
     const nextStyle = getBaseStyle(prefs.baseMap);
 
-    // setStyle sẽ reset layer/source => cần rehydrate sau style.load
     map.setStyle(nextStyle as any);
 
     const onStyleLoad = () => {
-      applyOverlays(map, prefs, floodDataCacheRef.current);
+      applyOverlays(map, prefsRef.current);
     };
 
     map.once('style.load', onStyleLoad);
-  }, [prefs.baseMap]); // chỉ khi đổi basemap
+  }, [prefs.baseMap]);
 
   // Apply overlay toggles + opacity (không cần setStyle)
   React.useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    applyOverlays(map, prefs, floodDataCacheRef.current);
+    applyOverlays(map, prefs);
   }, [
     prefs.overlays.flood,
-    prefs.overlays.traffic,
+    prefs.overlays.traffic, // ✅ traffic toggle => flood roads
     prefs.overlays.weather,
     prefs.opacity?.flood,
     prefs.opacity?.weather
   ]);
 
-  // Flood hook: fetch + update geojson source
+  // Flood severity hook: fetch + update geojson source
   useFloodSeverity({
     mapRef,
     enabled: prefs.overlays.flood,
@@ -129,11 +271,6 @@ export default function MapView({ prefs }: Props) {
       floodDataCacheRef.current = geojson;
     }
   });
-
-  // Interaction state
-  const [selectedFeature, setSelectedFeature] = React.useState<any>(null);
-
-  // useEffect cũ đã được chuyển vào trong init() để đảm bảo có map instance.
 
   return (
     <div className='relative h-full w-full'>
@@ -148,47 +285,4 @@ export default function MapView({ prefs }: Props) {
       )}
     </div>
   );
-}
-
-// Need to import FloodDetailCard
-import { FloodDetailCard } from '../FloodDetailCard';
-
-function applyOverlays(
-  map: maplibregl.Map,
-  prefs: MapLayerPrefs,
-  floodGeojson: any
-) {
-  // Traffic raster overlay (placeholder)
-  const trafficTiles = process.env.NEXT_PUBLIC_TRAFFIC_TILE_URL;
-  if (prefs.overlays.traffic && trafficTiles) {
-    addOrUpdateRasterOverlay(map, {
-      id: 'traffic',
-      tiles: [trafficTiles],
-      opacity: 1,
-      // traffic dưới flood
-      beforeLayerId: undefined
-    });
-    setOverlayVisibility(map, 'traffic', true);
-  } else {
-    removeOverlay(map, 'traffic');
-  }
-
-  // Weather raster overlay (placeholder)
-  const weatherTiles = process.env.NEXT_PUBLIC_WEATHER_TILE_URL;
-  if (prefs.overlays.weather && weatherTiles) {
-    addOrUpdateRasterOverlay(map, {
-      id: 'weather',
-      tiles: [weatherTiles],
-      opacity: (prefs.opacity?.weather ?? 70) / 100,
-      beforeLayerId: undefined
-    });
-    setOverlayVisibility(map, 'weather', true);
-    setOverlayOpacity(map, 'weather', (prefs.opacity?.weather ?? 70) / 100);
-  } else {
-    removeOverlay(map, 'weather');
-  }
-
-  // Flood layer được add/update trong hook useFloodSeverity.
-  // Nhưng khi style reset, nếu đã có cache geojson, hook sẽ setData sau.
-  // (Nếu bạn muốn rehydrate ngay lập tức, có thể để hook chạy theo enabled)
 }

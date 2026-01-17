@@ -9,22 +9,10 @@ import {
   Clock,
   Activity
 } from 'lucide-react';
-
-export type FloodProperties = {
-  stationId: string;
-  stationCode: string;
-  stationName: string;
-  waterLevel: number;
-  unit: string;
-  severity: 'normal' | 'caution' | 'warning' | 'critical';
-  severityLevel: number;
-  lastUpdated: string;
-  status: string;
-  [key: string]: any;
-};
+import type { FloodStationProperties } from '@/features/zones/api/floodSeverity';
 
 export type FloodFeatureProps = {
-  properties: FloodProperties;
+  properties: FloodStationProperties;
   onClose: () => void;
 };
 
@@ -71,8 +59,8 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
   const config = getSeverityConfig(properties.severityLevel ?? 0);
 
   // Format date
-  const formattedDate = properties.lastUpdated
-    ? new Date(properties.lastUpdated).toLocaleString('vi-VN', {
+  const formattedDate = properties.measuredAt
+    ? new Date(properties.measuredAt).toLocaleString('vi-VN', {
         hour: '2-digit',
         minute: '2-digit',
         day: '2-digit',
@@ -110,7 +98,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
                 </span>
                 <span className='text-[10px] text-slate-400'>•</span>
                 <span className='text-[10px] font-medium text-slate-500 uppercase'>
-                  {properties.status}
+                  {properties.stationStatus}
                 </span>
               </div>
             </div>
@@ -136,7 +124,9 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
                 <span className='text-3xl font-bold tracking-tight text-slate-800'>
                   {properties.waterLevel?.toFixed(2) ?? '--'}
                 </span>
-                <span className='text-xs font-semibold text-slate-500'>m</span>
+                <span className='text-xs font-semibold text-slate-500'>
+                  {properties.unit}
+                </span>
               </div>
             </div>
             <div className='flex flex-col justify-center'>

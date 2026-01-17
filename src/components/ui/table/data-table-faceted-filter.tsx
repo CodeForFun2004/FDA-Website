@@ -87,10 +87,10 @@ export function DataTableFacetedFilter<TData, TValue>({
               onClick={onReset}
               className='focus-visible:ring-ring rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-1 focus-visible:outline-none'
             >
-              <XCircle />
+              <XCircle className='mr-1 h-4 w-4' />
             </div>
           ) : (
-            <PlusCircle />
+            <PlusCircle className='mr-2 h-4 w-4' />
           )}
           {title}
           {selectedValues?.size > 0 && (

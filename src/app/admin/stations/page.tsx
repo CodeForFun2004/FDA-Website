@@ -33,14 +33,6 @@ export default async function Page(props: PageProps) {
       pageTitle='Stations'
       pageDescription='Manage stations (Server side table functionalities.)'
       // infoContent={stationInfoContent}
-      pageHeaderAction={
-        <Link
-          href='/admin/stations/new'
-          className={cn(buttonVariants(), 'text-xs md:text-sm')}
-        >
-          <IconPlus className='mr-2 h-4 w-4' /> Add New
-        </Link>
-      }
     >
       <Suspense
         fallback={

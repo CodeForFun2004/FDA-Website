@@ -73,7 +73,7 @@ export const columns: ColumnDef<Station>[] = [
     id: 'status',
     accessorKey: 'status',
     header: ({ column }: { column: Column<Station, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Status' />
+      <DataTableColumnHeader column={column} title=' Status' />
     ),
     cell: ({ cell }) => {
       const status = String(cell.getValue() ?? '').toLowerCase();

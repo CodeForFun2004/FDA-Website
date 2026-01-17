@@ -60,10 +60,11 @@ export default async function StationListingPage({}: StationListingPageProps) {
     });
 
     // Pass filtered stations to the client-side table
+    // Use API's totalCount for pagination, not filtered length
     return (
       <StationTable
         data={filteredStations}
-        totalItems={filteredStations.length}
+        totalItems={data.totalCount}
         columns={columns}
       />
     );

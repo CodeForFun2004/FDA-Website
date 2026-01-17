@@ -50,7 +50,7 @@ export function StationTable<TData, TValue>({
         open={openCreate}
         onOpenChange={setOpenCreate}
         onSuccess={() => {
-          router.refresh();
+          // No need for router.refresh() - React Query handles cache invalidation
         }}
       />
 

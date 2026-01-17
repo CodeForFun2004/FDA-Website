@@ -1,7 +1,7 @@
 import Providers from '@/components/layout/providers';
 
 import { fontVariables } from '@/lib/font';
-import ThemeProvider from '@/components/layout/ThemeToggle/theme-provider';
+import ThemeProvider from '@/components/layout/theme-toggle/theme-provider';
 import { cn } from '@/lib/utils';
 import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';

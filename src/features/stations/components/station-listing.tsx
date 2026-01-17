@@ -14,19 +14,23 @@ export default async function StationListingPage({}: StationListingPageProps) {
   const search = searchParamsCache.get('name') ?? '';
   const statusParam = searchParamsCache.get('status');
 
-  // Transform status to capitalize first letter (e.g., "inactive" -> "Inactive")
-  // The API might expect capitalized status values
-  const status = statusParam
-    ? statusParam.charAt(0).toUpperCase() + statusParam.slice(1).toLowerCase()
-    : null;
+  // Parse status - could be a single value or comma-separated values
+  const statusValues = statusParam
+    ? statusParam.split(',').map((s) => s.trim())
+    : [];
+
+  // Only send status to API if single value is selected
+  // API doesn't support multiple status values, so we'll filter client-side
+  const apiStatus = statusValues.length === 1 ? statusValues[0] : null;
 
   console.log('📊 Station Listing Filters:', {
     page,
     perPage,
     search,
-    statusRaw: statusParam,
-    statusTransformed: status,
-    statusType: typeof status
+    statusParam,
+    statusValues,
+    apiStatus,
+    willFilterClientSide: statusValues.length > 1
   });
 
   try {
@@ -34,20 +38,32 @@ export default async function StationListingPage({}: StationListingPageProps) {
       page,
       perPage,
       name: search,
-      status: status
+      status: apiStatus
     });
 
+    // Client-side filtering when multiple statuses are selected
+    let filteredStations = data.stations;
+    if (statusValues.length > 1) {
+      filteredStations = data.stations.filter((station) =>
+        statusValues.includes(station.status.toLowerCase())
+      );
+      console.log('🔍 Client-side filtered:', {
+        original: data.stations.length,
+        filtered: filteredStations.length,
+        statusValues
+      });
+    }
+
     console.log('✅ API Response:', {
-      stationsCount: data.stations.length,
+      stationsCount: filteredStations.length,
       totalCount: data.totalCount
     });
 
-    // Pass all stations to the client-side table
-    // The table will handle pagination on the client
+    // Pass filtered stations to the client-side table
     return (
       <StationTable
-        data={data.stations}
-        totalItems={data.stations.length}
+        data={filteredStations}
+        totalItems={filteredStations.length}
         columns={columns}
       />
     );
@@ -56,7 +72,7 @@ export default async function StationListingPage({}: StationListingPageProps) {
       message: error.message,
       status: error.status,
       payload: error.payload,
-      filterUsed: { page, perPage, search, status }
+      filterUsed: { page, perPage, search, statusParam, apiStatus }
     });
     throw error;
   }

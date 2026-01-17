@@ -18,6 +18,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 interface CellActionProps {
   data: Station;
 }
@@ -27,15 +29,29 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const onConfirm = async () => {
     try {
       setLoading(true);
-      const token = getAccessToken();
-      await stationsApi.deleteStation(data.id, token ?? undefined);
+      const token = await getAccessToken();
+
+      if (!token) {
+        toast.error('Authentication required', {
+          description: 'Please log in again to delete stations.'
+        });
+        setOpenDelete(false);
+        return;
+      }
+
+      await stationsApi.deleteStation(data.id, token);
+
+      // Invalidate and refetch stations query immediately
+      await queryClient.invalidateQueries({ queryKey: ['stations'] });
+
+      // Show success toast after UI updates
       toast.success('Station deleted successfully');
       setOpenDelete(false);
-      router.refresh();
     } catch (error: any) {
       toast.error('Failed to delete station', {
         description: error.message

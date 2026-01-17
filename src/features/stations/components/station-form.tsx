@@ -35,7 +35,7 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
 
-  status: z.enum(['active', 'inactive', 'maintenance']),
+  status: z.enum(['active', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
@@ -133,7 +133,7 @@ export default function StationForm({
               required
               options={[
                 { label: 'Active', value: 'active' },
-                { label: 'Inactive', value: 'inactive' },
+                { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
               ]}
             />

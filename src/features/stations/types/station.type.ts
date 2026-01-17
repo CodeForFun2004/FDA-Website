@@ -1,6 +1,6 @@
 // features/stations/types/station.type.ts
 
-export type StationStatus = 'active' | 'inactive' | 'maintenance' | string;
+export type StationStatus = 'active' | 'offline' | 'maintenance' | string;
 export type StationDirection =
   | 'upstream'
   | 'downstream'

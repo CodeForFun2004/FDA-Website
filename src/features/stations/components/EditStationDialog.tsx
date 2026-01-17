@@ -49,7 +49,7 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
 
-  status: z.enum(['active', 'inactive', 'maintenance']),
+  status: z.enum(['active', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
@@ -123,25 +123,36 @@ export function EditStationDialog({
 
   // Update station mutation
   const updateStationMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: StationUpsertPayload }) => {
-      const token = getAccessToken();
-      console.log(
-        '🔑 Token retrieved:',
-        token ? 'Token exists' : 'No token found'
-      );
+    mutationFn: async ({
+      id,
+      data
+    }: {
+      id: string;
+      data: StationUpsertPayload;
+    }) => {
+      const token = await getAccessToken();
+
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+
+      console.log('🔑 Token retrieved: Valid token obtained');
       console.log('📤 Updating station with ID:', id);
       console.log('📦 Payload:', data);
-      return stationsApi.updateStationFull(id, data, token ?? undefined);
+
+      return stationsApi.updateStationFull(id, data, token);
     },
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       if (response.success) {
+        // Invalidate and refetch stations query immediately
+        await queryClient.invalidateQueries({ queryKey: ['stations'] });
+
+        // Show success toast after UI updates
         toast.success('Station updated successfully!');
-        // Invalidate stations query to refetch
-        queryClient.invalidateQueries({ queryKey: ['stations'] });
+
         // Close dialog
         onOpenChange(false);
-        // Refresh the page
-        router.refresh();
+
         // Call onSuccess callback
         onSuccess?.();
       } else {
@@ -236,7 +247,7 @@ export function EditStationDialog({
               disabled={isLoading}
               options={[
                 { label: 'Active', value: 'active' },
-                { label: 'Inactive', value: 'inactive' },
+                { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
               ]}
             />

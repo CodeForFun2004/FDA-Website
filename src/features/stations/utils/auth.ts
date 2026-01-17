@@ -1,56 +1,67 @@
 // src/features/stations/utils/auth.ts
 
+import { useAuthStore } from '@/features/authenticate/store/auth-store';
+
 /**
- * Get access token from localStorage
- * Token is stored in 'fda_auth' key with Zustand persist structure
+ * Get access token from auth store
+ * Checks if token is expired and attempts to refresh if needed
  */
-export function getAccessToken(): string | null {
+export async function getAccessToken(): Promise<string | null> {
   if (typeof window === 'undefined') {
     console.log('🔒 Auth: Running on server, no token available');
     return null;
   }
 
   try {
-    const storageVal = localStorage.getItem('fda_auth');
-    console.log(
-      '🔍 Auth: localStorage fda_auth:',
-      storageVal ? 'exists' : 'not found'
-    );
+    const store = useAuthStore.getState();
+    const { accessToken, isTokenExpired, refreshSession } = store;
 
-    if (!storageVal) return null;
+    console.log('🔍 Auth: Checking token status');
+    console.log('✅ Auth: Token exists:', !!accessToken);
+    console.log('📏 Auth: Token length:', accessToken?.length);
 
-    const parsed = JSON.parse(storageVal);
+    if (!accessToken) {
+      console.warn('⚠️ Auth: No access token found');
+      return null;
+    }
 
-    // Log the full structure to help debug
-    console.log(
-      '📋 Auth: Full parsed structure:',
-      JSON.stringify(parsed, null, 2)
-    );
-    console.log(
-      '📋 Auth: Available keys in state:',
-      Object.keys(parsed?.state || {})
-    );
+    // Check if token is expired
+    if (isTokenExpired()) {
+      console.warn('⏰ Auth: Token is expired, attempting refresh...');
+      const refreshed = await refreshSession();
 
-    // Try different possible token locations
-    const possibleTokens = {
-      accessToken: parsed?.state?.accessToken,
-      access_token: parsed?.state?.access_token,
-      token: parsed?.state?.token,
-      jwt: parsed?.state?.jwt,
-      authToken: parsed?.state?.authToken
-    };
+      if (refreshed) {
+        const newToken = useAuthStore.getState().accessToken;
+        console.log('✅ Auth: Token refreshed successfully');
+        return newToken;
+      } else {
+        console.error('❌ Auth: Token refresh failed');
+        return null;
+      }
+    }
 
-    console.log('🔑 Auth: Possible token fields:', possibleTokens);
-
-    // Zustand persist structure: { state: { accessToken: ... }, version: ... }
-    const token = parsed?.state?.accessToken ?? null;
-    console.log('✅ Auth: Token retrieved:', token ? 'SUCCESS' : 'FAILED');
-    console.log('📏 Auth: Token length:', token?.length);
-    console.log('🎯 Auth: Token type:', typeof token);
-
-    return token;
+    console.log('✅ Auth: Token is valid');
+    return accessToken;
   } catch (error) {
-    console.error('❌ Auth: Error parsing fda_auth from localStorage', error);
+    console.error('❌ Auth: Error getting access token', error);
+    return null;
+  }
+}
+
+/**
+ * Synchronous version - gets token without checking expiration
+ * Use only when you can't use async (e.g., in React Query mutations)
+ */
+export function getAccessTokenSync(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const store = useAuthStore.getState();
+    return store.accessToken;
+  } catch (error) {
+    console.error('❌ Auth: Error getting access token sync', error);
     return null;
   }
 }

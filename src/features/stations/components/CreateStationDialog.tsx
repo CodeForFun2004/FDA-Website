@@ -46,7 +46,7 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
 
-  status: z.enum(['active', 'inactive', 'maintenance']),
+  status: z.enum(['active', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
@@ -99,23 +99,34 @@ export function CreateStationDialog({
 
   // Create station mutation
   const createStationMutation = useMutation({
-    mutationFn: (data: StationUpsertPayload) => {
-      const token = getAccessToken();
-      return stationsApi.createStation(data, token ?? undefined);
+    mutationFn: async (data: StationUpsertPayload) => {
+      const token = await getAccessToken();
+
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+
+      console.log('🔑 Token retrieved: Valid token obtained');
+      console.log('📤 Creating station with data:', data);
+
+      return stationsApi.createStation(data, token);
     },
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       if (response.success) {
+        // Invalidate and refetch stations query immediately
+        await queryClient.invalidateQueries({ queryKey: ['stations'] });
+
+        // Show success toast after UI updates
         toast.success('Station created successfully!', {
           description: `Station: ${response.data.name}`
         });
-        // Invalidate stations query to refetch
-        queryClient.invalidateQueries({ queryKey: ['stations'] });
+
         // Reset form
         form.reset();
+
         // Close dialog
         onOpenChange(false);
-        // Refresh the page
-        router.refresh();
+
         // Call onSuccess callback
         onSuccess?.();
       } else {
@@ -206,7 +217,7 @@ export function CreateStationDialog({
               disabled={isLoading}
               options={[
                 { label: 'Active', value: 'active' },
-                { label: 'Inactive', value: 'inactive' },
+                { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
               ]}
             />

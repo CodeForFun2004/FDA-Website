@@ -10,7 +10,7 @@ import { CellAction } from './cell-action';
 // options cho filter giống product
 export const STATION_STATUS_OPTIONS = [
   { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
+  { label: 'Offline', value: 'offline' },
   { label: 'Maintenance', value: 'maintenance' }
 ];
 
@@ -97,7 +97,7 @@ export const columns: ColumnDef<Station>[] = [
               icon: Wrench,
               iconClassName: 'text-yellow-600 dark:text-yellow-400'
             };
-          case 'inactive':
+          case 'offline':
             return {
               variant: 'default' as const,
               className:

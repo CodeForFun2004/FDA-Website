@@ -70,10 +70,10 @@ export const Sidebar = () => {
               key={item.href}
               href={item.href}
               className={cn(
-                'hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
+                'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-primary/20 shadow-md'
-                  : 'text-muted-foreground',
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
                 !isSidebarOpen && 'lg:justify-center lg:px-2'
               )}
             >

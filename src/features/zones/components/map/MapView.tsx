@@ -12,6 +12,7 @@ import {
   setOverlayVisibility
 } from '../../map/utils';
 import { useFloodSeverity } from '../../hooks/useFloodSeverity';
+import { useFloodStationsStore } from '../../store/flood-stations-store';
 
 import { FloodDetailCard } from '../FloodDetailCard';
 
@@ -51,6 +52,9 @@ export default function MapView({ prefs }: Props) {
 
   // Interaction state
   const [selectedFeature, setSelectedFeature] = React.useState<any>(null);
+  const setStationsFromGeojson = useFloodStationsStore(
+    (state) => state.setStationsFromGeojson
+  );
 
   async function loadFloodRoadsOnce(): Promise<FloodRoadFC | null> {
     if (floodRoadsCacheRef.current) return floodRoadsCacheRef.current;
@@ -269,6 +273,7 @@ export default function MapView({ prefs }: Props) {
     opacity: (prefs.opacity?.flood ?? 80) / 100,
     onData: (geojson) => {
       floodDataCacheRef.current = geojson;
+      setStationsFromGeojson(geojson);
     }
   });
 

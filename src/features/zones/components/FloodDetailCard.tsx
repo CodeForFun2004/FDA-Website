@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Card, Button } from '@/components/ui/common';
 import {
   AlertTriangle,
@@ -139,14 +140,28 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
             </div>
           </div>
 
-          <div className='flex items-center gap-2 text-xs text-slate-500'>
-            <Clock className='h-3.5 w-3.5' />
-            <span>
-              Cập nhật:{' '}
-              <span className='font-medium text-slate-700'>
-                {formattedDate}
+          <div className='flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500'>
+            <div className='flex items-center gap-2'>
+              <Clock className='h-3.5 w-3.5' />
+              <span>
+                Cập nhật:{' '}
+                <span className='font-medium text-slate-700'>
+                  {formattedDate}
+                </span>
               </span>
-            </span>
+            </div>
+            <Button
+              asChild
+              size='sm'
+              variant='outline'
+              className='h-7 rounded-lg border-blue-200 px-2 text-[10px] font-semibold text-blue-600 hover:bg-blue-50'
+            >
+              <Link
+                href={`/admin/flood-history?stationId=${properties.stationId}`}
+              >
+                View detail
+              </Link>
+            </Button>
           </div>
         </div>
       </Card>

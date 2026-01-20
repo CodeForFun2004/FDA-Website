@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,7 +29,8 @@ import { FloodDataQuality } from '@/features/flood-history/components/flood-data
 import { FloodHeatmap } from '@/features/flood-history/components/flood-heatmap';
 import { FloodBarChart } from '@/features/flood-history/components/flood-bar-chart';
 import { cn } from '@/lib/utils';
-import { mockStations, mockAreas } from '@/features/flood-history/mock';
+import { useFloodStationsStore } from '@/features/zones/store/flood-stations-store';
+import { mockAreas } from '@/features/flood-history/mock';
 import type {
   HistoryGranularity,
   PeriodPreset,
@@ -40,7 +42,7 @@ import { useFloodHistoryStore } from '@/features/flood-history/store/flood-histo
 export type ViewMode = 'trend' | 'detailed-history';
 
 export interface FloodFilterState {
-  stationId: UUID;
+  stationId: UUID | null;
   stationIds: UUID[];
   compare: boolean;
   period: PeriodPreset;
@@ -96,18 +98,24 @@ const getDateRangeFromPeriod = (period: PeriodPreset) => {
 };
 
 export default function FloodHistoryPage() {
+  const searchParams = useSearchParams();
   // Initialize with default values
   const [filters, setFilters] = useState<FloodFilterState>({
-    stationId: mockStations[0].id,
-    stationIds: [mockStations[0].id],
+    stationId: null,
+    stationIds: [],
     compare: false,
     period: 'last30days' as PeriodPreset,
     viewMode: 'trend' as ViewMode,
     compareWithPrevious: false,
-    selectedAreaId: mockAreas[0].id
+    selectedAreaId: mockAreas[0]?.id ?? null
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const {
+    stations: floodStations,
+    status: stationsStatus,
+    fetchStations
+  } = useFloodStationsStore();
   const {
     trendData,
     historyData,
@@ -117,11 +125,83 @@ export default function FloodHistoryPage() {
     fetchStatistics
   } = useFloodHistoryStore();
 
+  const stationIdsList = useMemo(
+    () => floodStations.map((station) => station.stationId),
+    [floodStations]
+  );
+
+  useEffect(() => {
+    if (stationsStatus === 'idle') {
+      fetchStations().catch(() => undefined);
+    }
+  }, [fetchStations, stationsStatus]);
+
+  useEffect(() => {
+    if (!floodStations.length) return;
+
+    setFilters((prev) => {
+      const preferredStationId =
+        prev.stationId && stationIdsList.includes(prev.stationId)
+          ? prev.stationId
+          : floodStations[0].stationId;
+
+      const nextStationIds = prev.stationIds.filter((id) =>
+        stationIdsList.includes(id)
+      );
+
+      const normalizedStationIds =
+        nextStationIds.length > 0 ? nextStationIds : [preferredStationId];
+
+      if (
+        prev.stationId === preferredStationId &&
+        prev.stationIds.length === normalizedStationIds.length &&
+        prev.stationIds.every((id) => normalizedStationIds.includes(id))
+      ) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        stationId: preferredStationId,
+        stationIds: normalizedStationIds
+      };
+    });
+  }, [floodStations, stationIdsList]);
+
+  useEffect(() => {
+    const stationIdParam = searchParams.get('stationId');
+    if (!stationIdParam || !floodStations.length) return;
+
+    const exists = floodStations.some(
+      (station) => station.stationId === stationIdParam
+    );
+    if (!exists) return;
+
+    setFilters((prev) => {
+      if (
+        prev.stationId === stationIdParam &&
+        prev.stationIds.includes(stationIdParam)
+      ) {
+        return prev;
+      }
+      return {
+        ...prev,
+        stationId: stationIdParam,
+        stationIds: [stationIdParam],
+        compare: false,
+        viewMode: prev.viewMode === 'trend' ? 'trend' : 'detailed-history'
+      };
+    });
+  }, [floodStations, searchParams]);
+
   const loadData = useCallback(async () => {
+    if (!filters.stationId && !filters.stationIds.length) return;
+
     setIsLoading(true);
     try {
       if (filters.viewMode === 'trend') {
         // Load trend data (single station only)
+        if (!filters.stationId) return;
         await fetchTrends({
           stationId: filters.stationId,
           period: filters.period,
@@ -130,9 +210,17 @@ export default function FloodHistoryPage() {
         });
       } else {
         // Load history data (single or compare)
+        const stationIds =
+          filters.stationIds.length > 0
+            ? filters.stationIds
+            : filters.stationId
+              ? [filters.stationId]
+              : [];
+        if (!stationIds.length) return;
+
         const dateRange = getDateRangeFromPeriod(filters.period);
         const historyArgs = filters.compare
-          ? { stationIds: filters.stationIds }
+          ? { stationIds }
           : { stationId: filters.stationId };
 
         await fetchHistory({
@@ -144,8 +232,16 @@ export default function FloodHistoryPage() {
       }
 
       // Load statistics
+      const statsStationIds =
+        filters.stationIds.length > 0
+          ? filters.stationIds
+          : filters.stationId
+            ? [filters.stationId]
+            : [];
+      if (!statsStationIds.length) return;
+
       const statsArgs = filters.compare
-        ? { stationIds: filters.stationIds }
+        ? { stationIds: statsStationIds }
         : { stationId: filters.stationId };
 
       await fetchStatistics({
@@ -196,24 +292,49 @@ export default function FloodHistoryPage() {
 
   const chartType = getChartType();
   // Get stations for selected area
-  const getStationsForArea = (areaId: UUID | null): typeof mockStations => {
-    if (!areaId) return mockStations;
-    const area = mockAreas.find((a) => a.id === areaId);
-    if (!area) return mockStations;
-    return mockStations.filter((station) =>
-      area.stationIds.includes(station.id)
+  const areas = useMemo(() => {
+    const knownIds = new Set(mockAreas.flatMap((area) => area.stationIds));
+    const unmatchedIds = floodStations
+      .map((station) => station.stationId)
+      .filter((id) => !knownIds.has(id));
+
+    if (!unmatchedIds.length) return mockAreas;
+
+    return [
+      ...mockAreas,
+      {
+        id: 'other-stations',
+        name: 'Other Stations',
+        stationIds: unmatchedIds
+      }
+    ];
+  }, [floodStations]);
+
+  const getStationsForArea = (areaId: UUID | null) => {
+    if (!areaId) return floodStations;
+    const area = areas.find((item) => item.id === areaId);
+    if (!area) return floodStations;
+    return floodStations.filter((station) =>
+      area.stationIds.includes(station.stationId)
     );
   };
 
   const selectedArea = useMemo(() => {
-    const area = mockAreas.find((a) => a.id === filters.selectedAreaId);
+    const area =
+      areas.find((item) => item.id === filters.selectedAreaId) ||
+      areas[0] ||
+      null;
     return area;
-  }, [filters.selectedAreaId]);
+  }, [areas, filters.selectedAreaId]);
 
   const areaStations = useMemo(() => {
     const stations = getStationsForArea(filters.selectedAreaId);
     return stations;
-  }, [filters.selectedAreaId]);
+  }, [filters.selectedAreaId, floodStations]);
+
+  const selectedAreaStationCount = selectedArea
+    ? areaStations.length
+    : floodStations.length;
 
   const showTrendGraph = chartType === 'line-trend';
   const showHistoryGraph = chartType === 'line-history';
@@ -242,26 +363,35 @@ export default function FloodHistoryPage() {
 
   const handleAreaClick = (areaId: UUID) => {
     const areaStations = getStationsForArea(areaId);
-    const defaultStationId = areaStations[0]?.id || mockStations[0].id;
+    const defaultStationId =
+      areaStations[0]?.stationId ?? floodStations[0]?.stationId ?? null;
     setFilters((prevFilters) => ({
       ...prevFilters,
       selectedAreaId: areaId,
       stationId: defaultStationId,
-      stationIds: [defaultStationId]
+      stationIds: defaultStationId ? [defaultStationId] : []
     }));
   };
 
   const getStationStatus = (stationId: UUID) => {
-    const station = mockStations.find((s) => s.id === stationId);
+    const station = floodStations.find((s) => s.stationId === stationId);
     const stats = statistics.find((s) => s.stationId === stationId);
 
     // First check station status from backend data
-    if (station?.status === 'offline') {
+    const rawStatus = station?.stationStatus?.toLowerCase();
+    if (rawStatus === 'offline') {
       return { status: 'Offline', variant: 'destructive' as const };
     }
-    if (station?.status === 'active') {
-      // Then check data quality
-      const completeness = stats?.dataQuality?.completeness ?? 0;
+    if (rawStatus === 'maintenance') {
+      return { status: 'Maintenance', variant: 'secondary' as const };
+    }
+    if (rawStatus === 'active') {
+      return { status: 'Active', variant: 'default' as const };
+    }
+
+    // Fallback to data quality completeness if status missing
+    const completeness = stats?.dataQuality?.completeness ?? null;
+    if (completeness !== null) {
       if (completeness >= 95)
         return { status: 'Excellent', variant: 'default' as const };
       if (completeness >= 85)
@@ -269,7 +399,10 @@ export default function FloodHistoryPage() {
       return { status: 'Fair', variant: 'outline' as const };
     }
 
-    return { status: 'Unknown', variant: 'secondary' as const };
+    return {
+      status: station?.stationStatus ?? 'Unknown',
+      variant: 'secondary' as const
+    };
   };
 
   return (
@@ -306,7 +439,7 @@ export default function FloodHistoryPage() {
                 <div>
                   <h2 className='text-lg font-semibold'>Area Selection</h2>
                   <p className='text-muted-foreground text-sm'>
-                    Choose monitoring area • {mockAreas.length} available areas
+                    Choose monitoring area • {areas.length} available areas
                   </p>
                 </div>
               </div>
@@ -336,7 +469,7 @@ export default function FloodHistoryPage() {
             <div className='px-1'>
               <div className='relative'>
                 <Select
-                  value={filters.selectedAreaId || mockAreas[0]?.id}
+                  value={filters.selectedAreaId || areas[0]?.id}
                   onValueChange={(value) => handleAreaClick(value)}
                 >
                   <SelectTrigger className='h-auto w-full border-2 border-blue-200 bg-blue-50/50 px-4 py-[20px] shadow-sm transition-all duration-200 hover:bg-blue-100/50 dark:border-blue-800 dark:bg-blue-950/20 dark:hover:bg-blue-950/30'>
@@ -351,8 +484,7 @@ export default function FloodHistoryPage() {
                               {selectedArea.name}
                             </span>
                             <span className='text-muted-foreground text-xs'>
-                              {selectedArea.stationIds.length} monitoring
-                              stations
+                              {selectedAreaStationCount} monitoring stations
                             </span>
                           </div>
                         </div>
@@ -360,30 +492,33 @@ export default function FloodHistoryPage() {
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className='border-2 border-blue-200 dark:border-blue-800'>
-                    {mockAreas.map((area) => (
-                      <SelectItem
-                        key={area.id}
-                        value={area.id}
-                        className='cursor-pointer px-4 py-[25px] hover:bg-blue-50 dark:hover:bg-blue-950/20'
-                      >
-                        <div className='flex w-full items-center justify-between'>
-                          <div className='flex items-center gap-3'>
-                            <div className='flex h-6 w-6 items-center justify-center rounded bg-blue-100 dark:bg-blue-900/40'>
-                              <IconMapPin className='h-3 w-3 text-blue-600 dark:text-blue-400' />
+                    {areas.map((area) => {
+                      const count = getStationsForArea(area.id).length;
+                      return (
+                        <SelectItem
+                          key={area.id}
+                          value={area.id}
+                          className='cursor-pointer px-4 py-[25px] hover:bg-blue-50 dark:hover:bg-blue-950/20'
+                        >
+                          <div className='flex w-full items-center justify-between'>
+                            <div className='flex items-center gap-3'>
+                              <div className='flex h-6 w-6 items-center justify-center rounded bg-blue-100 dark:bg-blue-900/40'>
+                                <IconMapPin className='h-3 w-3 text-blue-600 dark:text-blue-400' />
+                              </div>
+                              <span className='font-medium'>{area.name}</span>
                             </div>
-                            <span className='font-medium'>{area.name}</span>
+                            <div className='flex items-center gap-2'>
+                              <span className='text-muted-foreground text-xs'>
+                                {count} stations
+                              </span>
+                              {filters.selectedAreaId === area.id && (
+                                <div className='h-2 w-2 rounded-full bg-blue-500'></div>
+                              )}
+                            </div>
                           </div>
-                          <div className='flex items-center gap-2'>
-                            <span className='text-muted-foreground text-xs'>
-                              {area.stationIds.length} stations
-                            </span>
-                            {filters.selectedAreaId === area.id && (
-                              <div className='h-2 w-2 rounded-full bg-blue-500'></div>
-                            )}
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
@@ -401,14 +536,17 @@ export default function FloodHistoryPage() {
             <div className='grid max-h-[300px] gap-2 overflow-y-auto pr-1'>
               {areaStations.map((station) => {
                 const isSelected = filters.compare
-                  ? filters.stationIds.includes(station.id)
-                  : filters.stationId === station.id;
-                const statusInfo = getStationStatus(station.id);
+                  ? filters.stationIds.includes(station.stationId)
+                  : filters.stationId === station.stationId;
+                const statusInfo = getStationStatus(station.stationId);
+                const completeness =
+                  statistics.find((s) => s.stationId === station.stationId)
+                    ?.dataQuality?.completeness ?? null;
 
                 return (
                   <div
-                    key={station.id}
-                    onClick={() => handleStationClick(station.id)}
+                    key={station.stationId}
+                    onClick={() => handleStationClick(station.stationId)}
                     className={cn(
                       'group cursor-pointer rounded-lg border p-3 transition-all hover:border-blue-300 hover:shadow-sm',
                       isSelected
@@ -430,16 +568,22 @@ export default function FloodHistoryPage() {
                         </div>
                         <div className='min-w-0 flex-1'>
                           <h4 className='truncate text-xs font-bold'>
-                            {station.name}
+                            {station.stationName}
                           </h4>
                           <p className='text-muted-foreground truncate text-[10px]'>
-                            {station.code}
+                            {station.stationCode}
                           </p>
                           {station.locationDesc && (
                             <p className='text-muted-foreground mt-0.5 truncate text-[9px]'>
                               {station.locationDesc}
                             </p>
                           )}
+                          <p className='text-muted-foreground mt-0.5 text-[9px]'>
+                            Quality:{' '}
+                            {completeness !== null
+                              ? `${completeness.toFixed(0)}%`
+                              : 'N/A'}
+                          </p>
                         </div>
                       </div>
                       <Badge

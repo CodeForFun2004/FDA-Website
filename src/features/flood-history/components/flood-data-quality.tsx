@@ -84,9 +84,13 @@ export function FloodDataQuality({
     );
   }
 
-  const { completeness, missingIntervals } = statistics.dataQuality;
-  const isGoodQuality = completeness >= 95;
+  const completenessValue = statistics.dataQuality?.completeness ?? null;
+  const completeness = completenessValue ?? 0;
+  const missingIntervals = statistics.dataQuality?.missingIntervals ?? [];
+  const isGoodQuality = completenessValue !== null && completenessValue >= 95;
   const hasMissingIntervals = missingIntervals.length > 0;
+  const completenessLabel =
+    completenessValue === null ? 'N/A' : `${completenessValue}%`;
 
   return (
     <Card className='@container/card'>
@@ -115,7 +119,7 @@ export function FloodDataQuality({
                 : 'bg-yellow-100 text-yellow-800'
             }
           >
-            {completeness}%
+            {completenessLabel}
           </Badge>
         </div>
 

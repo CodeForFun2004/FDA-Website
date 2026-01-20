@@ -1,7 +1,7 @@
 // src/features/authenticate/types/auth.type.ts
 // ===== Core Types =====
 
-export type Role = 'ADMIN' | 'SUPER_ADMIN' | 'AUTHORITY';
+export type Role = 'ADMIN' | 'SUPER_ADMIN' | 'AUTHORITY' | 'USER';
 
 export type AuthUser = {
   id: string;

@@ -6,6 +6,17 @@ export type UUID = string;
 export type FloodSeverity = 'safe' | 'caution' | 'warning' | 'critical';
 export type FloodQualityFlag = 'ok' | 'suspect' | 'bad';
 
+// -------- Area Types --------
+export interface AreaDto {
+  id: UUID;
+  name: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  addressText: string;
+  stationIds: UUID[];
+}
+
 export type PeriodPreset =
   | 'last24hours'
   | 'last7days'
@@ -17,27 +28,375 @@ export type PeriodPreset =
 export type TrendsGranularity = 'daily' | 'weekly' | 'monthly';
 export type HistoryGranularity = 'raw' | 'hourly' | 'daily';
 
+// -------- Areas --------
+export const mockAreas: AreaDto[] = [
+  {
+    id: '0d3cfd3f-2f10-4606-9e8a-338dad6c595c',
+    name: 'Dragon Bridge Area',
+    latitude: 16.06135,
+    longitude: 108.2219,
+    radiusMeters: 500,
+    addressText: 'Dragon Bridge and surrounding areas, Da Nang',
+    stationIds: [
+      '550e8400-e29b-41d4-a716-446655440021', // ST002 - Trạm Trần Phú
+      '550e8400-e29b-41d4-a716-446655440020' // ST001 - Trạm Bạch Đằng
+    ]
+  },
+  {
+    id: '1e4dfe4g-3g21-5717-0f9b-449ebe7d696d',
+    name: 'Ngũ Hành Sơn District',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    radiusMeters: 1000,
+    addressText: 'Ngũ Hành Sơn district monitoring stations',
+    stationIds: [
+      'c9c3203c-70f5-444e-b3cd-16160de0ce28', // ST_DN_NHS_09
+      'c02d4c29-338f-4efd-b2f9-d2f5df7913b2', // ST_DN_NHS_08
+      '4d616976-804e-4c6b-9094-8db53254a490', // ST_DN_NHS_07
+      'f6a6a80f-4d06-4d85-b3ec-02dd8e4a3d80', // ST_DN_NHS_06
+      'b615e406-36e0-4715-a7af-77f474c887fe', // ST_DN_NHS_05
+      '5035dcd5-e14c-48d2-9495-149ae884f4c6', // ST_DN_NHS_04
+      'c10bf947-be92-49fb-ab6f-50eb9a49f93b', // ST_DN_NHS_03
+      '872abbd5-9f1e-4024-98dd-de4cc6296ccf' // ST_DN_NHS_02
+    ]
+  },
+  {
+    id: '2f5eff5h-4h32-6828-1g0c-550fcf8e797e',
+    name: 'Liên Chiểu District',
+    latitude: 16.0592,
+    longitude: 108.226,
+    radiusMeters: 800,
+    addressText: 'Liên Chiểu district and Ngã 3 Huệ area',
+    stationIds: [
+      'd9b309eb-5900-47a8-b2d0-4cd4e3603808' // ST_LC_003 - Liên Chiểu
+    ]
+  },
+  {
+    id: '3g6fgg6i-5i43-7939-2h1d-661gd9f9098f',
+    name: 'Hải Châu District',
+    latitude: 16.067,
+    longitude: 108.22,
+    radiusMeters: 600,
+    addressText: 'Central Hải Châu district monitoring stations',
+    stationIds: [
+      'a1b2c3d4-e5f6-7890-abcd-ef1234567890' // ST_DN_HC_01 - Trạm Quan Trắc Hải Châu
+    ]
+  },
+  {
+    id: '4h7ghh7j-6j54-8040-3i2e-772he0ga010g',
+    name: 'Liên Trì & Thanh Hà',
+    latitude: 16.048,
+    longitude: 108.215,
+    radiusMeters: 700,
+    addressText: 'Liên Trì and Thanh Hà bridge areas',
+    stationIds: [
+      'b2c3d4e5-f6g7-8901-bcde-f23456789012', // ST_DN_LT_01 - Trạm Quan Trắc Liên Trì
+      'c3d4e5f6-g7h8-9012-cdef-345678901234' // ST_DN_TH_01 - Trạm Quan Trắc Thanh Hà
+    ]
+  },
+  {
+    id: '5i8hii8k-7k65-9151-4j3f-883if1hb121h',
+    name: 'Bình Thuận & Cẩm Chế',
+    latitude: 16.042,
+    longitude: 108.225,
+    radiusMeters: 750,
+    addressText: 'Bình Thuận and Cẩm Chế bridge areas',
+    stationIds: [
+      'd4e5f6g7-h8i9-0123-def0-456789012345', // ST_DN_BT_01 - Trạm Quan Trắc Bình Thuận
+      'e5f6g7h8-i9j0-1234-ef01-567890123456' // ST_DN_CC_01 - Trạm Quan Trắc Cẩm Chế
+    ]
+  }
+];
+
 // -------- Stations --------
-export const mockStations: Array<{ id: UUID; code: string; name: string }> = [
+export const mockStations: Array<{
+  id: UUID;
+  code: string;
+  name: string;
+  locationDesc?: string;
+  latitude?: number;
+  longitude?: number;
+  roadName?: string;
+  direction?: string;
+  status?: string;
+  thresholdWarning?: number | null;
+  thresholdCritical?: number | null;
+  installedAt?: string | null;
+  lastSeenAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}> = [
   {
-    id: '550e8400-e29b-41d4-a716-446655440000',
-    code: 'ST_DN_01',
-    name: 'Station Ben Nghe'
+    id: '550e8400-e29b-41d4-a716-446655440021',
+    code: 'ST002',
+    name: 'Trạm Trần Phú',
+    locationDesc: 'Đường Trần Phú, quận Hải Châu',
+    latitude: 16.06,
+    longitude: 108.23,
+    roadName: 'Đường Trần Phú',
+    direction: 'downstream',
+    status: 'active',
+    thresholdWarning: 2.0,
+    thresholdCritical: 3.0,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T14:58:10.504176Z',
+    updatedAt: '2026-01-17T14:58:10.504176Z'
   },
   {
-    id: '550e8400-e29b-41d4-a716-446655440001',
-    code: 'ST_DN_02',
-    name: 'Station Hai Chau'
+    id: '550e8400-e29b-41d4-a716-446655440020',
+    code: 'ST001',
+    name: 'Trạm Bạch Đằng',
+    locationDesc: 'Gần cầu Rồng, đường Bạch Đằng',
+    latitude: 16.0544,
+    longitude: 108.2225,
+    roadName: 'Đường Bạch Đằng',
+    direction: 'upstream',
+    status: 'active',
+    thresholdWarning: 2.5,
+    thresholdCritical: 3.5,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T14:58:10.504176Z',
+    updatedAt: '2026-01-17T14:58:10.504176Z'
   },
   {
-    id: '550e8400-e29b-41d4-a716-446655440002',
-    code: 'ST_DN_03',
-    name: 'Station Thanh Khe'
+    id: 'c9c3203c-70f5-444e-b3cd-16160de0ce28',
+    code: 'ST_DN_NHS_09',
+    name: 'Trạm Quan Trắc Giao Thông Ngũ Hành Sơn',
+    locationDesc: 'Nằm ở gần cầu Tiên Sơn khu Chương Dương',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    roadName: 'Đường Chương Dương',
+    direction: 'upstream',
+    status: 'active',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T06:09:38.280386Z',
+    updatedAt: '2026-01-17T09:10:53.953152Z'
   },
   {
-    id: '550e8400-e29b-41d4-a716-446655440003',
-    code: 'ST_DN_04',
-    name: 'Station Son Tra'
+    id: 'd9b309eb-5900-47a8-b2d0-4cd4e3603808',
+    code: 'ST_LC_003',
+    name: 'Liên Chiểu',
+    locationDesc: 'Great',
+    latitude: 16.0592,
+    longitude: 108.226,
+    roadName: 'Ngã 3 Huệ',
+    direction: 'Về phía cầu Sông Hàn ',
+    status: 'active',
+    thresholdWarning: 0.5,
+    thresholdCritical: 1.2,
+    installedAt: '2026-01-13T10:00:00+00:00',
+    lastSeenAt: null,
+    createdAt: '2026-01-17T05:59:27.052966Z',
+    updatedAt: '2026-01-17T06:03:42.461027Z'
+  },
+  {
+    id: 'c02d4c29-338f-4efd-b2f9-d2f5df7913b2',
+    code: 'ST_DN_NHS_08',
+    name: 'Trạm Quan Trắc Giao Thông Ngũ Hành Sơn',
+    locationDesc: 'Nằm ở gần cầu Tiên Sơn khu Chương Dương',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    roadName: 'Đường Chương Dương',
+    direction: 'upstream',
+    status: 'offline',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T06:09:34.304434Z',
+    updatedAt: '2026-01-17T06:09:34.304435Z'
+  },
+  {
+    id: '4d616976-804e-4c6b-9094-8db53254a490',
+    code: 'ST_DN_NHS_07',
+    name: 'Trạm Quan Trắc Giao Thông Ngũ Hành Sơn',
+    locationDesc: 'Nằm ở gần cầu Tiên Sơn khu Chương Dương',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    roadName: 'Đường Chương Dương',
+    direction: 'upstream',
+    status: 'offline',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T06:09:29.85696Z',
+    updatedAt: '2026-01-17T06:09:29.85696Z'
+  },
+  {
+    id: 'f6a6a80f-4d06-4d85-b3ec-02dd8e4a3d80',
+    code: 'ST_DN_NHS_06',
+    name: 'Trạm Quan Trắc Giao Thông Ngũ Hành Sơn',
+    locationDesc: 'Nằm ở gần cầu Tiên Sơn khu Chương Dương',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    roadName: 'Đường Chương Dương',
+    direction: 'upstream',
+    status: 'offline',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T06:09:26.053174Z',
+    updatedAt: '2026-01-17T06:09:26.053175Z'
+  },
+  {
+    id: 'b615e406-36e0-4715-a7af-77f474c887fe',
+    code: 'ST_DN_NHS_05',
+    name: 'Trạm Quan Trắc Giao Thông Ngũ Hành Sơn',
+    locationDesc: 'Nằm ở gần cầu Tiên Sơn khu Chương Dương',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    roadName: 'Đường Chương Dương',
+    direction: 'upstream',
+    status: 'offline',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T06:09:22.268188Z',
+    updatedAt: '2026-01-17T06:09:22.268188Z'
+  },
+  {
+    id: '5035dcd5-e14c-48d2-9495-149ae884f4c6',
+    code: 'ST_DN_NHS_04',
+    name: 'Trạm Quan Trắc Giao Thông Ngũ Hành Sơn',
+    locationDesc: 'Nằm ở gần cầu Tiên Sơn khu Chương Dương',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    roadName: 'Đường Chương Dương',
+    direction: 'upstream',
+    status: 'offline',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T06:09:18.806635Z',
+    updatedAt: '2026-01-17T06:09:18.806635Z'
+  },
+  {
+    id: 'c10bf947-be92-49fb-ab6f-50eb9a49f93b',
+    code: 'ST_DN_NHS_03',
+    name: 'Trạm Quan Trắc Giao Thông Ngũ Hành Sơn',
+    locationDesc: 'Nằm ở gần cầu Tiên Sơn khu Chương Dương',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    roadName: 'Đường Chương Dương',
+    direction: 'upstream',
+    status: 'offline',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T06:09:13.408909Z',
+    updatedAt: '2026-01-17T06:09:13.40891Z'
+  },
+  {
+    id: '872abbd5-9f1e-4024-98dd-de4cc6296ccf',
+    code: 'ST_DN_NHS_02',
+    name: 'Trạm Quan Trắc Giao Thông Ngũ Hành Sơn',
+    locationDesc: 'Nằm ở gần cầu Tiên Sơn khu Chương Dương',
+    latitude: 16.03552,
+    longitude: 108.23785,
+    roadName: 'Đường Chương Dương',
+    direction: 'upstream',
+    status: 'offline',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T06:09:08.652734Z',
+    updatedAt: '2026-01-17T06:09:08.652735Z'
+  },
+  {
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    code: 'ST_DN_HC_01',
+    name: 'Trạm Quan Trắc Hải Châu',
+    locationDesc: 'Khu vực trung tâm quận Hải Châu',
+    latitude: 16.067,
+    longitude: 108.22,
+    roadName: 'Đường Nguyễn Văn Linh',
+    direction: 'bidirectional',
+    status: 'active',
+    thresholdWarning: 1.8,
+    thresholdCritical: 2.8,
+    installedAt: '2026-01-15T08:00:00+00:00',
+    lastSeenAt: null,
+    createdAt: '2026-01-17T05:45:12.123456Z',
+    updatedAt: '2026-01-17T05:45:12.123457Z'
+  },
+  {
+    id: 'b2c3d4e5-f6g7-8901-bcde-f23456789012',
+    code: 'ST_DN_LT_01',
+    name: 'Trạm Quan Trắc Liên Trì',
+    locationDesc: 'Nằm ở khu vực Liên Trì, Đà Nẵng',
+    latitude: 16.048,
+    longitude: 108.215,
+    roadName: 'Đường Liên Trì',
+    direction: 'downstream',
+    status: 'active',
+    thresholdWarning: 1.5,
+    thresholdCritical: 2.5,
+    installedAt: '2026-01-14T12:30:00+00:00',
+    lastSeenAt: null,
+    createdAt: '2026-01-17T05:30:45.678901Z',
+    updatedAt: '2026-01-17T05:30:45.678902Z'
+  },
+  {
+    id: 'c3d4e5f6-g7h8-9012-cdef-345678901234',
+    code: 'ST_DN_TH_01',
+    name: 'Trạm Quan Trắc Thanh Hà',
+    locationDesc: 'Khu vực cầu Thanh Hà, Đà Nẵng',
+    latitude: 16.052,
+    longitude: 108.21,
+    roadName: 'Đường Thanh Hà',
+    direction: 'upstream',
+    status: 'offline',
+    thresholdWarning: null,
+    thresholdCritical: null,
+    installedAt: null,
+    lastSeenAt: null,
+    createdAt: '2026-01-17T05:15:23.456789Z',
+    updatedAt: '2026-01-17T05:15:23.456790Z'
+  },
+  {
+    id: 'd4e5f6g7-h8i9-0123-def0-456789012345',
+    code: 'ST_DN_BT_01',
+    name: 'Trạm Quan Trắc Bình Thuận',
+    locationDesc: 'Nằm ở khu vực Bình Thuận, Đà Nẵng',
+    latitude: 16.042,
+    longitude: 108.225,
+    roadName: 'Đường Bình Thuận',
+    direction: 'bidirectional',
+    status: 'active',
+    thresholdWarning: 2.2,
+    thresholdCritical: 3.2,
+    installedAt: '2026-01-16T14:20:00+00:00',
+    lastSeenAt: null,
+    createdAt: '2026-01-17T05:00:34.567890Z',
+    updatedAt: '2026-01-17T05:00:34.567891Z'
+  },
+  {
+    id: 'e5f6g7h8-i9j0-1234-ef01-567890123456',
+    code: 'ST_DN_CC_01',
+    name: 'Trạm Quan Trắc Cẩm Chế',
+    locationDesc: 'Khu vực cầu Cẩm Chế, Đà Nẵng',
+    latitude: 16.028,
+    longitude: 108.24,
+    roadName: 'Đường Cẩm Chế',
+    direction: 'downstream',
+    status: 'active',
+    thresholdWarning: 1.0,
+    thresholdCritical: 2.0,
+    installedAt: '2026-01-13T09:45:00+00:00',
+    lastSeenAt: null,
+    createdAt: '2026-01-17T04:45:56.789012Z',
+    updatedAt: '2026-01-17T04:45:56.789013Z'
   }
 ];
 
@@ -65,11 +424,33 @@ function stationSeed(stationId: UUID) {
   let acc = 0;
   for (let i = 0; i < stationId.length; i++)
     acc += stationId.charCodeAt(i) * (i + 1);
-  return acc;
+  return acc % 1000000; // Ensure consistent seeding across different UUID lengths
 }
 
-function severityFromCm(v: number): FloodSeverity {
-  // tweak thresholds as you like
+function severityFromCm(v: number, stationId?: UUID): FloodSeverity {
+  // Get station-specific thresholds
+  const station = mockStations.find((s) => s.id === stationId);
+
+  // Convert cm to meters for threshold comparison (thresholds are in meters)
+  const vMeters = v / 100;
+
+  // Check station-specific thresholds if they exist
+  if (
+    station?.thresholdCritical !== null &&
+    station?.thresholdCritical !== undefined &&
+    vMeters >= station.thresholdCritical
+  ) {
+    return 'critical';
+  }
+  if (
+    station?.thresholdWarning !== null &&
+    station?.thresholdWarning !== undefined &&
+    vMeters >= station.thresholdWarning
+  ) {
+    return 'warning';
+  }
+
+  // Fallback to default thresholds if station has no thresholds or null values
   if (v < 120) return 'safe';
   if (v < 180) return 'caution';
   if (v < 240) return 'warning';
@@ -212,7 +593,23 @@ export type FloodStatisticsDto = {
 // -------- Mock Generators --------
 function getStationMeta(stationId: UUID) {
   const st = mockStations.find((s) => s.id === stationId) ?? mockStations[0]!;
-  return st;
+  return {
+    id: st.id,
+    code: st.code,
+    name: st.name,
+    locationDesc: st.locationDesc,
+    latitude: st.latitude,
+    longitude: st.longitude,
+    roadName: st.roadName,
+    direction: st.direction,
+    status: st.status,
+    thresholdWarning: st.thresholdWarning,
+    thresholdCritical: st.thresholdCritical,
+    installedAt: st.installedAt,
+    lastSeenAt: st.lastSeenAt,
+    createdAt: st.createdAt,
+    updatedAt: st.updatedAt
+  };
 }
 
 function generateHistoryPoints(
@@ -254,7 +651,7 @@ function generateHistoryPoints(
       value: Math.round(v * 10) / 10,
       valueMeters: Math.round((v / 100) * 1000) / 1000,
       qualityFlag: qualityFromIdx(i),
-      severity: severityFromCm(v)
+      severity: severityFromCm(v, stationId)
     });
   }
 
@@ -446,7 +843,7 @@ export function getMockFloodTrends(args: {
       readingCount,
       floodHours,
       rainfallTotal: Math.round(rand() * 40 * 10) / 10,
-      peakSeverity: severityFromCm(max)
+      peakSeverity: severityFromCm(max, args.stationId)
     });
   }
 

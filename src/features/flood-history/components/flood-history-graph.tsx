@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { Line, LineChart, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
+import { IconAlertTriangle } from '@tabler/icons-react';
 
 import {
   Card,
@@ -31,20 +32,51 @@ export function FloodHistoryGraph({
   isLoading,
   isCompareMode
 }: FloodHistoryGraphProps) {
-  const { chartData, chartConfig } = useMemo(() => {
+  const { chartData, chartConfig, missingIntervals } = useMemo(() => {
     if (!historyData || historyData.length === 0) {
-      return { chartData: [], chartConfig: {} as ChartConfig };
+      return {
+        chartData: [],
+        chartConfig: {} as ChartConfig,
+        missingIntervals: []
+      };
+    }
+
+    // Detect missing intervals across all data
+    const allTimestamps = new Set<string>();
+    historyData.forEach((dto) => {
+      dto.dataPoints.forEach((point) => allTimestamps.add(point.timestamp));
+    });
+
+    const sortedTimestamps = Array.from(allTimestamps).sort();
+    const detectedMissing: Array<{
+      start: Date;
+      end: Date;
+      durationMinutes: number;
+    }> = [];
+
+    // Calculate expected interval based on granularity
+    const dto = historyData[0];
+    const granularity = dto?.metadata?.granularity;
+    const expectedIntervalMs =
+      granularity === 'hourly' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+
+    for (let i = 1; i < sortedTimestamps.length; i++) {
+      const current = new Date(sortedTimestamps[i]);
+      const previous = new Date(sortedTimestamps[i - 1]);
+      const gap = current.getTime() - previous.getTime();
+
+      if (gap > expectedIntervalMs * 1.5) {
+        // 50% tolerance for missing data
+        detectedMissing.push({
+          start: previous,
+          end: current,
+          durationMinutes: Math.floor(gap / (60 * 1000))
+        });
+      }
     }
 
     if (isCompareMode && historyData.length > 1) {
       // Compare mode: multiple stations
-      const allTimestamps = new Set<string>();
-      historyData.forEach((dto) => {
-        dto.dataPoints.forEach((point) => allTimestamps.add(point.timestamp));
-      });
-
-      const sortedTimestamps = Array.from(allTimestamps).sort();
-
       const data = sortedTimestamps.map((timestamp) => {
         const entry: any = {
           timestamp,
@@ -77,17 +109,27 @@ export function FloodHistoryGraph({
         };
       });
 
-      return { chartData: data, chartConfig: config };
+      return {
+        chartData: data,
+        chartConfig: config,
+        missingIntervals: detectedMissing
+      };
     } else {
       // Single station mode
       const dto = historyData[0];
       if (!dto?.dataPoints) {
-        return { chartData: [], chartConfig: {} as ChartConfig };
+        return {
+          chartData: [],
+          chartConfig: {} as ChartConfig,
+          missingIntervals: []
+        };
       }
 
       const data = dto.dataPoints.map((point) => ({
         timestamp: point.timestamp,
         value: point.value,
+        severity: point.severity,
+        qualityFlag: point.qualityFlag,
         date: new Date(point.timestamp).toLocaleString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -103,7 +145,11 @@ export function FloodHistoryGraph({
         }
       };
 
-      return { chartData: data, chartConfig: config };
+      return {
+        chartData: data,
+        chartConfig: config,
+        missingIntervals: detectedMissing
+      };
     }
   }, [historyData, isCompareMode]);
 
@@ -182,10 +228,29 @@ export function FloodHistoryGraph({
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => `Time: ${value}`}
-                  formatter={(value, name) => {
+                  formatter={(value, name, props) => {
                     if (value === null || value === undefined)
                       return ['No data', name];
-                    return [`${value} cm`, name];
+
+                    const severity = props?.payload?.severity;
+                    const qualityFlag = props?.payload?.qualityFlag;
+
+                    return [
+                      <div key={name} className='flex flex-col gap-1'>
+                        <div>{`${value} cm`}</div>
+                        {severity && (
+                          <div className='text-xs capitalize opacity-75'>
+                            {severity}
+                          </div>
+                        )}
+                        {qualityFlag && qualityFlag !== 'ok' && (
+                          <div className='text-xs text-yellow-600'>
+                            Quality: {qualityFlag}
+                          </div>
+                        )}
+                      </div>,
+                      name
+                    ];
                   }}
                 />
               }
@@ -223,6 +288,37 @@ export function FloodHistoryGraph({
             )}
           </LineChart>
         </ChartContainer>
+
+        {/* Missing Intervals Indicator */}
+        {missingIntervals.length > 0 && (
+          <div className='mt-4 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-950/20'>
+            <div className='flex items-center gap-2 text-sm font-medium text-orange-800 dark:text-orange-200'>
+              <IconAlertTriangle className='h-4 w-4' />
+              Data Gaps Detected ({missingIntervals.length})
+            </div>
+            <div className='mt-2 text-xs text-orange-700 dark:text-orange-300'>
+              Missing data intervals may affect trend analysis. Consider shorter
+              time ranges for more complete data.
+            </div>
+            <div className='mt-2 max-h-20 overflow-y-auto'>
+              {missingIntervals.slice(0, 3).map((interval, index) => (
+                <div
+                  key={index}
+                  className='text-xs text-orange-600 dark:text-orange-400'
+                >
+                  {interval.start.toLocaleString()} -{' '}
+                  {interval.end.toLocaleString()} ({interval.durationMinutes}min
+                  gap)
+                </div>
+              ))}
+              {missingIntervals.length > 3 && (
+                <div className='text-xs text-orange-500'>
+                  ... and {missingIntervals.length - 3} more gaps
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

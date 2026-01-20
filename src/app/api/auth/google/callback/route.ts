@@ -180,9 +180,15 @@ export async function GET(request: NextRequest) {
 
     const roles: string[] = data?.user?.roles ?? [];
 
-    if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN'))
+    // ✅ Check role-based access
+    // SUPER_ADMIN và ADMIN đều vào /admin
+    if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN')) {
       returnUrl = '/admin';
-    else if (roles.includes('AUTHORITY')) returnUrl = '/authority';
+    } else if (roles.includes('AUTHORITY')) returnUrl = '/authority';
+    else if (roles.includes('USER') || roles.length === 0) {
+      // ❌ USER role không được phép truy cập hệ thống admin
+      returnUrl = '/auth/forbidden';
+    }
 
     // (optional) chặn open-redirect: chỉ cho phép path nội bộ
     if (!returnUrl.startsWith('/') || returnUrl.startsWith('//'))

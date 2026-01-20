@@ -24,9 +24,17 @@ export default function LoginViewPage() {
     const user = useAuthStore.getState().user;
     const roles = user?.roles ?? [];
 
-    if (roles.includes('SUPER_ADMIN')) return '/admin';
-    if (roles.includes('ADMIN')) return '/admin';
+    // SUPER_ADMIN và ADMIN đều vào /admin
+    if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN')) {
+      return '/admin';
+    }
     if (roles.includes('AUTHORITY')) return '/authority';
+
+    // ❌ USER role is not allowed to access admin system
+    if (roles.includes('USER') || roles.length === 0) {
+      return '/auth/forbidden';
+    }
+
     return '/';
   };
 
@@ -97,6 +105,36 @@ export default function LoginViewPage() {
         <p className='text-muted-foreground'>
           Nhập Email/SĐT để đăng nhập bằng OTP hoặc Password.
         </p>
+      </div>
+
+      {/* ✅ Admin System Notice */}
+      <div className='rounded-lg border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900/50 dark:bg-blue-950/20'>
+        <div className='flex items-start gap-2'>
+          <svg
+            className='mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400'
+            fill='none'
+            viewBox='0 0 24 24'
+            stroke='currentColor'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+            />
+          </svg>
+          <div className='flex-1 text-sm'>
+            <p className='font-medium text-blue-900 dark:text-blue-100'>
+              Hệ thống quản lý dành cho Chính quyền
+            </p>
+            <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
+              Đây là trang đăng nhập dành cho <strong>Admin</strong>,{' '}
+              <strong>Authority</strong> và <strong>Super Admin</strong>. Người
+              dùng thường không thể đăng ký tài khoản. Vui lòng liên hệ quản trị
+              viên để được cấp quyền truy cập.
+            </p>
+          </div>
+        </div>
       </div>
 
       <LoginFlow onLoggedIn={onLoggedIn} />

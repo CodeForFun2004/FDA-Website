@@ -19,7 +19,7 @@ import {
   ChartLegend,
   ChartLegendContent
 } from '@/components/ui/chart';
-import { FloodHistoryDto } from '../mock';
+import type { FloodHistoryDto } from '../types/flood-history.type';
 
 interface FloodHistoryGraphProps {
   historyData: FloodHistoryDto[];

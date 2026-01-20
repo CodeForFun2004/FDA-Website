@@ -18,13 +18,13 @@ import {
   IconChevronDown,
   IconChevronUp
 } from '@tabler/icons-react';
-import {
+import { mockStations } from '../mock';
+import type {
   PeriodPreset,
   TrendsGranularity,
   HistoryGranularity,
-  mockStations,
   UUID
-} from '../mock';
+} from '../types/flood-history.type';
 
 export type ViewMode = 'trend' | 'detailed-history';
 

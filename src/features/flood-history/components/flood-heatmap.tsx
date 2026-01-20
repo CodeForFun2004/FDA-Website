@@ -8,7 +8,7 @@ import {
   Droplets,
   Info
 } from 'lucide-react';
-import { FloodTrendDto } from '../mock';
+import type { FloodTrendDto } from '../types/flood-history.type';
 
 interface FloodHeatmapProps {
   trendData: FloodTrendDto | null;

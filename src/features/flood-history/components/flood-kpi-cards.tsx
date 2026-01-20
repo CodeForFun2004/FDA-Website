@@ -15,7 +15,7 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FloodStatisticsDto } from '../mock';
+import type { FloodStatisticsDto } from '../types/flood-history.type';
 
 interface FloodKpiCardsProps {
   statistics: FloodStatisticsDto[];

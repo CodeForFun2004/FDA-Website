@@ -19,7 +19,7 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 import { Badge } from '@/components/ui/badge';
-import { FloodTrendDto } from '../mock';
+import type { FloodTrendDto } from '../types/flood-history.type';
 
 interface FloodTrendGraphProps {
   trendData: FloodTrendDto | null;

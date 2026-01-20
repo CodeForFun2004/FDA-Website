@@ -28,21 +28,14 @@ import { FloodDataQuality } from '@/features/flood-history/components/flood-data
 import { FloodHeatmap } from '@/features/flood-history/components/flood-heatmap';
 import { FloodBarChart } from '@/features/flood-history/components/flood-bar-chart';
 import { cn } from '@/lib/utils';
-import {
-  getMockFloodTrends,
-  getMockFloodHistory,
-  getMockFloodStatistics,
-  mockStations,
-  mockAreas,
+import { mockStations, mockAreas } from '@/features/flood-history/mock';
+import type {
+  HistoryGranularity,
   PeriodPreset,
   TrendsGranularity,
-  HistoryGranularity,
-  FloodTrendDto,
-  FloodHistoryDto,
-  FloodStatisticsDto,
-  UUID,
-  AreaDto
-} from '@/features/flood-history/mock';
+  UUID
+} from '@/features/flood-history/types/flood-history.type';
+import { useFloodHistoryStore } from '@/features/flood-history/store/flood-history-store';
 
 export type ViewMode = 'trend' | 'detailed-history';
 
@@ -56,6 +49,52 @@ export interface FloodFilterState {
   selectedAreaId: UUID | null;
 }
 
+const getGranularityFromPeriod = (
+  period: PeriodPreset
+): TrendsGranularity | HistoryGranularity => {
+  switch (period) {
+    case 'last24hours':
+      return 'daily'; // For trends, or 'hourly' for history
+    case 'last7days':
+      return 'daily';
+    case 'last30days':
+      return 'daily';
+    case 'last90days':
+      return 'weekly';
+    case 'last365days':
+      return 'monthly';
+    default:
+      return 'daily';
+  }
+};
+
+const getDateRangeFromPeriod = (period: PeriodPreset) => {
+  const endDate = new Date();
+  const startDate = new Date(endDate);
+
+  switch (period) {
+    case 'last24hours':
+      startDate.setHours(endDate.getHours() - 24);
+      break;
+    case 'last7days':
+      startDate.setDate(endDate.getDate() - 7);
+      break;
+    case 'last30days':
+      startDate.setDate(endDate.getDate() - 30);
+      break;
+    case 'last90days':
+      startDate.setDate(endDate.getDate() - 90);
+      break;
+    case 'last365days':
+      startDate.setDate(endDate.getDate() - 365);
+      break;
+    default:
+      return null;
+  }
+
+  return { startDate, endDate };
+};
+
 export default function FloodHistoryPage() {
   // Initialize with default values
   const [filters, setFilters] = useState<FloodFilterState>({
@@ -68,38 +107,40 @@ export default function FloodHistoryPage() {
     selectedAreaId: mockAreas[0].id
   });
 
-  const [trendData, setTrendData] = useState<FloodTrendDto | null>(null);
-  const [historyData, setHistoryData] = useState<FloodHistoryDto[]>([]);
-  const [statistics, setStatistics] = useState<FloodStatisticsDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const {
+    trendData,
+    historyData,
+    statistics,
+    fetchTrends,
+    fetchHistory,
+    fetchStatistics
+  } = useFloodHistoryStore();
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       if (filters.viewMode === 'trend') {
         // Load trend data (single station only)
-        const trendResponse = getMockFloodTrends({
+        await fetchTrends({
           stationId: filters.stationId,
           period: filters.period,
-          granularity: filters.period === 'last24hours' ? 'daily' : 'daily',
+          granularity: getGranularityFromPeriod(filters.period),
           compareWithPrevious: filters.compareWithPrevious
         });
-        setTrendData(trendResponse.data);
       } else {
         // Load history data (single or compare)
+        const dateRange = getDateRangeFromPeriod(filters.period);
         const historyArgs = filters.compare
           ? { stationIds: filters.stationIds }
           : { stationId: filters.stationId };
 
-        const historyResponse = getMockFloodHistory({
+        await fetchHistory({
           ...historyArgs,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
           granularity: filters.period === 'last24hours' ? 'hourly' : 'daily'
         });
-        setHistoryData(
-          Array.isArray(historyResponse.data)
-            ? historyResponse.data
-            : [historyResponse.data]
-        );
       }
 
       // Load statistics
@@ -107,21 +148,17 @@ export default function FloodHistoryPage() {
         ? { stationIds: filters.stationIds }
         : { stationId: filters.stationId };
 
-      const statsResponse = getMockFloodStatistics({
+      await fetchStatistics({
         ...statsArgs,
-        period: filters.period
+        period: filters.period,
+        includeBreakdown: true
       });
-      setStatistics(
-        Array.isArray(statsResponse.data)
-          ? statsResponse.data
-          : [statsResponse.data]
-      );
     } catch (error) {
       console.error('Error loading flood data:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [filters]);
+  }, [fetchHistory, fetchStatistics, fetchTrends, filters]);
 
   // Load data on mount and when filters change
   useEffect(() => {
@@ -130,25 +167,6 @@ export default function FloodHistoryPage() {
 
   const handleApplyFilters = () => {
     loadData();
-  };
-
-  const getGranularityFromPeriod = (
-    period: PeriodPreset
-  ): TrendsGranularity | HistoryGranularity => {
-    switch (period) {
-      case 'last24hours':
-        return 'daily'; // For trends, or 'hourly' for history
-      case 'last7days':
-        return 'daily';
-      case 'last30days':
-        return 'daily';
-      case 'last90days':
-        return 'weekly';
-      case 'last365days':
-        return 'monthly';
-      default:
-        return 'daily';
-    }
   };
 
   const getChartType = () => {

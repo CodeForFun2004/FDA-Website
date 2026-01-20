@@ -16,7 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
-import { FloodTrendDto } from '../mock';
+import type { FloodTrendDto } from '../types/flood-history.type';
 
 interface FloodBarChartProps {
   trendData: FloodTrendDto | null;

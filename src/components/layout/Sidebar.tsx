@@ -34,6 +34,11 @@ const navItems = [
   { label: 'Sensors Data', href: '/admin/sensors', icon: Activity },
   { label: 'Areas', href: '/admin/areas', icon: MapPinCheck },
   { label: 'Flood Alerts', href: '/admin/alerts', icon: AlertTriangle },
+  {
+    label: 'Alert Subscriptions',
+    href: '/admin/user-alert-subscription',
+    icon: AlertTriangle
+  },
   { label: 'Safe Routes', href: '/admin/routes', icon: Waypoints },
   { label: 'Map & Zones', href: '/admin/zones', icon: MapIcon },
   { label: 'Settings', href: '/admin/settings', icon: Settings },

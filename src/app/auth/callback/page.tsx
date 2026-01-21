@@ -106,6 +106,17 @@ export default function GoogleCallbackPage() {
       // ✅ Set session cookie để layout có thể check
       setSessionCookie();
 
+      // ✅ Check if user has valid role for admin system
+      const userRoles = user?.roles ?? [];
+      if (userRoles.includes('USER') || userRoles.length === 0) {
+        console.warn(
+          '[Auth Callback] USER role detected, redirecting to forbidden'
+        );
+        toast.warning('Tài khoản không có quyền truy cập hệ thống quản lý');
+        router.replace('/auth/forbidden');
+        return;
+      }
+
       // Xoá hash khỏi URL để sạch (tránh lưu token trong history)
       window.history.replaceState(
         null,

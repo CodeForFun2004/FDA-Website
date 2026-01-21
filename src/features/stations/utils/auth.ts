@@ -1,67 +1,32 @@
 // src/features/stations/utils/auth.ts
+/**
+ * @deprecated Use global auth utils from @/lib/auth-utils instead
+ * This file is kept for backward compatibility but will be removed
+ */
 
-import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import {
+  getAccessToken as getAccessTokenGlobal,
+  getAccessTokenSync as getAccessTokenSyncGlobal,
+  debugAuthState
+} from '@/lib/auth-utils';
 
 /**
  * Get access token from auth store
  * Checks if token is expired and attempts to refresh if needed
+ * @deprecated Use getAccessToken from @/lib/auth-utils instead
  */
 export async function getAccessToken(): Promise<string | null> {
-  if (typeof window === 'undefined') {
-    console.log('🔒 Auth: Running on server, no token available');
-    return null;
-  }
-
-  try {
-    const store = useAuthStore.getState();
-    const { accessToken, isTokenExpired, refreshSession } = store;
-
-    console.log('🔍 Auth: Checking token status');
-    console.log('✅ Auth: Token exists:', !!accessToken);
-    console.log('📏 Auth: Token length:', accessToken?.length);
-
-    if (!accessToken) {
-      console.warn('⚠️ Auth: No access token found');
-      return null;
-    }
-
-    // Check if token is expired
-    if (isTokenExpired()) {
-      console.warn('⏰ Auth: Token is expired, attempting refresh...');
-      const refreshed = await refreshSession();
-
-      if (refreshed) {
-        const newToken = useAuthStore.getState().accessToken;
-        console.log('✅ Auth: Token refreshed successfully');
-        return newToken;
-      } else {
-        console.error('❌ Auth: Token refresh failed');
-        return null;
-      }
-    }
-
-    console.log('✅ Auth: Token is valid');
-    return accessToken;
-  } catch (error) {
-    console.error('❌ Auth: Error getting access token', error);
-    return null;
-  }
+  return getAccessTokenGlobal();
 }
 
 /**
  * Synchronous version - gets token without checking expiration
  * Use only when you can't use async (e.g., in React Query mutations)
+ * @deprecated Use getAccessTokenSync from @/lib/auth-utils instead
  */
 export function getAccessTokenSync(): string | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  try {
-    const store = useAuthStore.getState();
-    return store.accessToken;
-  } catch (error) {
-    console.error('❌ Auth: Error getting access token sync', error);
-    return null;
-  }
+  return getAccessTokenSyncGlobal();
 }
+
+// Re-export debug function
+export { debugAuthState };

@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AdminShell from '@/features/admin/components/AdminShell';
 import AdminProviders from './providers';
+import { RoleGuard } from '@/components/guards/RoleGuard';
 
 export const metadata: Metadata = {
   title: 'FDA Admin',
@@ -25,7 +26,9 @@ export default async function Layout({
 
   return (
     <AdminProviders>
-      <AdminShell>{children}</AdminShell>
+      <RoleGuard requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
+        <AdminShell>{children}</AdminShell>
+      </RoleGuard>
     </AdminProviders>
   );
 }

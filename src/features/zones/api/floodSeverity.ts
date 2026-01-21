@@ -1,8 +1,10 @@
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL_TVT ?? 'https://fda.id.vn/api';
+  process.env.NEXT_PUBLIC_API_BASE_URL_TVT ?? 'https://fda.id.vn/api/v1';
 
 export type FloodStationProperties = {
-  stationId: string;
+  id?: string | null;
+  code?: string | null;
+  stationId?: string | null;
   stationCode: string;
   stationName: string;
   locationDesc: string;
@@ -60,5 +62,23 @@ export async function getFloodSeverityGeoJSON(args: {
   });
   if (!res.ok) throw new Error('Flood severity API error');
   const json = (await res.json()) as FloodSeverityResponse;
-  return json.data; // Return the FeatureCollection directly
+  const geojson = json.data;
+
+  // Normalize properties so stationId/stationCode are always available
+  const features = (geojson?.features ?? []).map((feature) => {
+    const properties = feature?.properties ?? ({} as FloodStationProperties);
+    return {
+      ...feature,
+      properties: {
+        ...properties,
+        stationId: properties.stationId ?? properties.id ?? null,
+        stationCode: properties.stationCode ?? properties.code ?? null
+      }
+    };
+  });
+
+  return {
+    ...geojson,
+    features
+  };
 }

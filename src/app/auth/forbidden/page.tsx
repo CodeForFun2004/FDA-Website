@@ -1,59 +1,117 @@
+// src/app/auth/forbidden/page.tsx
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/common';
-import { ShieldAlert, ArrowLeft, Home } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import { IconShieldLock, IconArrowLeft, IconLogout } from '@tabler/icons-react';
 
 export default function ForbiddenPage() {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
+
+  const handleGoBack = () => {
+    router.back();
+  };
+
+  const handleGoHome = () => {
+    router.push('/');
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push('/auth/login');
+  };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100'>
-      <div className='w-full max-w-md space-y-8 p-8 text-center'>
+    <div className='bg-background flex min-h-screen items-center justify-center p-4'>
+      <div className='w-full max-w-md text-center'>
         {/* Icon */}
-        <div className='mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100 shadow-lg'>
-          <ShieldAlert className='h-10 w-10 text-red-600' />
+        <div className='mb-6 flex justify-center'>
+          <div className='bg-destructive/10 rounded-full p-6'>
+            <IconShieldLock
+              className='text-destructive h-16 w-16'
+              strokeWidth={1.5}
+            />
+          </div>
         </div>
 
-        {/* Content */}
-        <div className='space-y-3'>
-          <h1 className='text-4xl font-bold text-slate-900'>403</h1>
-          <h2 className='text-2xl font-semibold text-slate-800'>
-            Access Denied
-          </h2>
-          <p className='text-slate-600'>
-            Bạn không có quyền truy cập vào trang này. Vui lòng liên hệ quản trị
-            viên nếu bạn cho rằng đây là lỗi.
+        {/* Title */}
+        <h1 className='mb-2 text-3xl font-bold tracking-tight'>
+          Access Denied
+        </h1>
+
+        {/* Subtitle */}
+        <p className='text-muted-foreground mb-6 text-lg'>
+          Không có quyền truy cập
+        </p>
+
+        {/* Description */}
+        <div className='bg-muted/50 mb-8 rounded-lg border p-4 text-left'>
+          <p className='text-sm leading-relaxed'>
+            Bạn không có quyền truy cập vào trang này. Hệ thống quản lý FDA chỉ
+            dành cho:
           </p>
+          <ul className='mt-3 space-y-1.5 text-sm'>
+            <li className='flex items-center gap-2'>
+              <span className='text-primary'>•</span>
+              <span>
+                <strong>Admin</strong> - Quản trị viên hệ thống
+              </span>
+            </li>
+            <li className='flex items-center gap-2'>
+              <span className='text-primary'>•</span>
+              <span>
+                <strong>Authority</strong> - Cán bộ chính quyền
+              </span>
+            </li>
+            <li className='flex items-center gap-2'>
+              <span className='text-primary'>•</span>
+              <span>
+                <strong>Super Admin</strong> - Quản trị cấp cao
+              </span>
+            </li>
+          </ul>
+
+          {user && (
+            <div className='mt-4 border-t pt-3'>
+              <p className='text-muted-foreground text-xs'>
+                Đang đăng nhập với vai trò:{' '}
+                <span className='font-semibold'>
+                  {user.roles?.join(', ') || 'Unknown'}
+                </span>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
-        <div className='flex flex-col gap-3 sm:flex-row sm:justify-center'>
-          <Button
-            onClick={() => router.back()}
-            variant='outline'
-            className='gap-2'
-          >
-            <ArrowLeft className='h-4 w-4' />
-            Quay lại
+        <div className='flex flex-col gap-3'>
+          <Button onClick={handleGoBack} variant='default' className='w-full'>
+            <IconArrowLeft className='mr-2 h-4 w-4' />
+            Quay lại trang trước
           </Button>
+
+          <Button onClick={handleGoHome} variant='outline' className='w-full'>
+            Về trang chủ
+          </Button>
+
           <Button
-            onClick={() => router.push('/admin/dashboard')}
-            className='gap-2'
+            onClick={handleLogout}
+            variant='ghost'
+            className='text-muted-foreground w-full'
           >
-            <Home className='h-4 w-4' />
-            Về Dashboard
+            <IconLogout className='mr-2 h-4 w-4' />
+            Đăng xuất
           </Button>
         </div>
 
-        {/* Additional Info */}
-        <div className='mt-8 rounded-lg border border-slate-200 bg-white p-4 text-left'>
-          <h3 className='mb-2 text-sm font-semibold text-slate-700'>
-            Cần trợ giúp?
-          </h3>
-          <p className='text-xs text-slate-600'>
-            Nếu bạn tin rằng bạn nên có quyền truy cập, vui lòng liên hệ với
-            quản trị viên hệ thống hoặc kiểm tra vai trò tài khoản của bạn.
+        {/* Footer */}
+        <div className='text-muted-foreground mt-8 text-xs'>
+          <p>
+            Nếu bạn cho rằng đây là lỗi, vui lòng liên hệ quản trị viên hệ
+            thống.
           </p>
         </div>
       </div>

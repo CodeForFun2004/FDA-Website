@@ -1,5 +1,6 @@
 // src/lib/api/client.ts
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import { debugAuthState } from '@/lib/auth-utils';
 
 export class ApiError extends Error {
   status: number;
@@ -102,7 +103,19 @@ export async function apiFetch<T>(
   const url = `${BASE}${path.startsWith('/') ? '' : '/'}${path}`;
 
   const needAuth = options.auth !== false;
-  const token = needAuth ? useAuthStore.getState().accessToken : null;
+
+  // ✅ Get token directly from store's getValidToken() method
+  // This follows React/Zustand best practices - logic lives in the store!
+  const token = needAuth ? await useAuthStore.getState().getValidToken() : null;
+
+  // If token is required but not available after refresh attempt
+  if (needAuth && !token) {
+    console.error(
+      '[API Client] No valid token available after refresh attempt'
+    );
+    debugAuthState(); // Log auth state for debugging
+    throw new ApiError('Authentication required', 401);
+  }
 
   // Build headers safely
   const headers = new Headers(options.headers ?? {});

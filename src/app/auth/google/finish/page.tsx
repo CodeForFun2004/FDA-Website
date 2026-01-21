@@ -54,10 +54,14 @@ export default function GoogleFinishPage() {
 
       // redirect theo role
       const roles = user?.roles ?? [];
-      if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN'))
+      // SUPER_ADMIN và ADMIN đều vào /admin
+      if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN')) {
         router.push('/admin');
-      else if (roles.includes('AUTHORITY')) router.push('/authority');
-      else router.push('/');
+      } else if (roles.includes('AUTHORITY')) router.push('/authority');
+      else if (roles.includes('USER') || roles.length === 0) {
+        // ❌ USER role không được phép truy cập hệ thống admin
+        router.push('/auth/forbidden');
+      } else router.push('/');
     } catch (e: any) {
       toast.error(e?.message ?? 'Google finish failed.');
       router.push('/auth/login');

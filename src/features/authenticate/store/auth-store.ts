@@ -49,6 +49,9 @@ type AuthState = {
   // ✅ NEW: Check if token is expired or about to expire
   isTokenExpired: () => boolean;
   isTokenExpiringSoon: (thresholdMinutes?: number) => boolean;
+
+  // ✅ NEW: Get valid token with auto-refresh
+  getValidToken: () => Promise<string | null>;
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -261,6 +264,44 @@ export const useAuthStore = create<AuthState>()(
         const expiry = new Date(expiresAt).getTime();
         const threshold = thresholdMinutes * 60 * 1000;
         return Date.now() >= expiry - threshold;
+      },
+
+      // ✅ NEW: Get valid token with auto-refresh
+      // This is the PRIMARY way to get tokens - no external helpers needed!
+      getValidToken: async () => {
+        const state = get();
+        const {
+          accessToken,
+          isTokenExpired,
+          isTokenExpiringSoon,
+          refreshSession
+        } = state;
+
+        // No token at all
+        if (!accessToken) {
+          console.warn('[Auth Store] No access token available');
+          return null;
+        }
+
+        // Token is completely expired - must refresh
+        if (isTokenExpired()) {
+          console.log('[Auth Store] Token expired, refreshing...');
+          const success = await refreshSession();
+          return success ? get().accessToken : null;
+        }
+
+        // Token is expiring soon - proactive refresh in background
+        if (isTokenExpiringSoon(5)) {
+          console.log(
+            '[Auth Store] Token expiring soon, refreshing proactively...'
+          );
+          // Don't wait for refresh, use current token but refresh in background
+          refreshSession().catch((err) => {
+            console.error('[Auth Store] Background refresh failed:', err);
+          });
+        }
+
+        return accessToken;
       }
     }),
     {

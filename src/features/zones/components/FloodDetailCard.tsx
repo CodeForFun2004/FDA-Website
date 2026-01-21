@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Card, Button } from '@/components/ui/common';
 import {
   AlertTriangle,
@@ -57,6 +58,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
   };
 
   const config = getSeverityConfig(properties.severityLevel ?? 0);
+  const displayStationCode = properties.stationCode ?? properties.code ?? 'N/A';
 
   // Format date
   const formattedDate = properties.measuredAt
@@ -68,6 +70,21 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
       })
     : 'N/A';
 
+  const resolvedStationId =
+    properties.stationId ??
+    properties.id ??
+    properties.stationCode ??
+    properties.code ??
+    properties.stationName;
+
+  console.log('Rendering FloodDetailCard for station:', {
+    stationId: properties.stationId,
+    stationCode: properties.stationCode,
+    apiId: properties.id,
+    apiCode: properties.code,
+    resolvedStationId
+  });
+
   return (
     <div className='pointer-events-auto w-full max-w-xs'>
       <Card className='pointer-events-auto overflow-hidden rounded-2xl border-none bg-white/95 shadow-xl backdrop-blur-md'>
@@ -76,7 +93,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
           <div className='flex items-start justify-between'>
             <div className='min-w-0 flex-1'>
               <h2 className='text-lg leading-tight font-bold text-slate-800'>
-                {properties.stationName || `Trạm ${properties.stationCode}`}
+                {properties.stationName || `Trạm ${displayStationCode}`}
               </h2>
               <div className='mt-1.5 flex items-center gap-2'>
                 <span
@@ -134,19 +151,37 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
                 Mã trạm
               </p>
               <p className='mt-0.5 text-sm leading-tight font-semibold break-words text-slate-700'>
-                {properties.stationCode}
+                {displayStationCode}
               </p>
             </div>
           </div>
 
-          <div className='flex items-center gap-2 text-xs text-slate-500'>
-            <Clock className='h-3.5 w-3.5' />
-            <span>
-              Cập nhật:{' '}
-              <span className='font-medium text-slate-700'>
-                {formattedDate}
+          <div className='flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500'>
+            <div className='flex items-center gap-2'>
+              <Clock className='h-3.5 w-3.5' />
+              <span>
+                Cập nhật:{' '}
+                <span className='font-medium text-slate-700'>
+                  {formattedDate}
+                </span>
               </span>
-            </span>
+            </div>
+            <Button
+              asChild
+              size='sm'
+              variant='outline'
+              className='h-7 rounded-lg border-blue-200 px-2 text-[10px] font-semibold text-blue-600 hover:bg-blue-50'
+            >
+              <Link
+                href={
+                  resolvedStationId
+                    ? `/admin/flood-history?stationId=${resolvedStationId}`
+                    : '/admin/flood-history'
+                }
+              >
+                View detail
+              </Link>
+            </Button>
           </div>
         </div>
       </Card>

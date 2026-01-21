@@ -34,8 +34,12 @@ const normalizeStation = (
   properties: FloodStationProperties,
   coordinates: [number, number]
 ): FloodStationSummary => ({
-  stationId: properties.stationId,
-  stationCode: properties.stationCode,
+  stationId:
+    properties.stationId ??
+    properties.id ??
+    properties.stationCode ??
+    properties.code,
+  stationCode: properties.stationCode ?? properties.code ?? 'UNKNOWN',
   stationName: properties.stationName,
   locationDesc: properties.locationDesc,
   roadName: properties.roadName,
@@ -66,8 +70,16 @@ export const useFloodStationsStore = create<FloodStationsState>()((set) => ({
       .map((feature: any) => {
         const coordinates = feature?.geometry?.coordinates;
         const properties = feature?.properties as FloodStationProperties;
-        if (!properties || !Array.isArray(coordinates)) return null;
-        return normalizeStation(properties, coordinates);
+        if (
+          !properties ||
+          !Array.isArray(coordinates) ||
+          coordinates.length < 2 ||
+          typeof coordinates[0] !== 'number' ||
+          typeof coordinates[1] !== 'number'
+        )
+          return null;
+        const tuple: [number, number] = [coordinates[0], coordinates[1]];
+        return normalizeStation(properties, tuple);
       })
       .filter(Boolean) as FloodStationSummary[];
 
@@ -92,8 +104,16 @@ export const useFloodStationsStore = create<FloodStationsState>()((set) => ({
         .map((feature: any) => {
           const coordinates = feature?.geometry?.coordinates;
           const properties = feature?.properties as FloodStationProperties;
-          if (!properties || !Array.isArray(coordinates)) return null;
-          return normalizeStation(properties, coordinates);
+          if (
+            !properties ||
+            !Array.isArray(coordinates) ||
+            coordinates.length < 2 ||
+            typeof coordinates[0] !== 'number' ||
+            typeof coordinates[1] !== 'number'
+          )
+            return null;
+          const tuple: [number, number] = [coordinates[0], coordinates[1]];
+          return normalizeStation(properties, tuple);
         })
         .filter(Boolean) as FloodStationSummary[];
 

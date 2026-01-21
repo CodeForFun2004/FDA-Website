@@ -506,11 +506,11 @@ export default function FloodHistoryPage() {
                                 <IconMapPin className='h-3 w-3 text-blue-600 dark:text-blue-400' />
                               </div>
                               <span className='font-medium'>{area.name}</span>
-                            </div>
-                            <div className='flex items-center gap-2'>
                               <span className='text-muted-foreground text-xs'>
                                 {count} stations
                               </span>
+                            </div>
+                            <div className='ml-2 flex items-center gap-2'>
                               {filters.selectedAreaId === area.id && (
                                 <div className='h-2 w-2 rounded-full bg-blue-500'></div>
                               )}

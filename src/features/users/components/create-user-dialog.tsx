@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { createAdminUserApi } from '@/features/admin/api/admin';
+import { createAdminUserApi } from '@/features/admin/api/admin.api';
 import type { CreateUserRequest } from '@/features/admin/types/admin.type';
 import {
   Loader2,

@@ -12,7 +12,7 @@ import { Card, LoadingState } from '@/components/ui/common';
 import { MapPin } from 'lucide-react';
 import { Zone } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { ZoneDetailCard } from '../components/ZoneDetailCard';
+import { ZoneDetailCard } from '../components/zone-detail-card';
 
 declare const google: any;
 

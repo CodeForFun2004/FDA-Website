@@ -9,7 +9,7 @@ import {
   type AuthUser,
   type Role,
   googleCallbackApi
-} from '@/features/authenticate/api/auth';
+} from '@/features/authenticate/api/auth.api';
 
 type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated';
 

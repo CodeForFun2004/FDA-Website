@@ -1,5 +1,5 @@
 // src/features/profile/api/user-profile.ts
-import { apiFetch } from "@/lib/api/client";
+import { apiFetch } from '@/lib/api/client';
 
 // ===== Types =====
 export type ApiProfile = {
@@ -50,8 +50,8 @@ export type ChangePasswordResponse = {
  * Lấy thông tin profile của user đang đăng nhập
  */
 export function getUserProfileApi() {
-  return apiFetch<GetProfileResponse>("/user-profile", {
-    method: "GET",
+  return apiFetch<GetProfileResponse>('/user-profile', {
+    method: 'GET'
   });
 }
 
@@ -63,9 +63,9 @@ export function getUserProfileApi() {
  * - avatarUrl: string (optional)
  */
 export function updateUserProfileApi(formData: FormData) {
-  return apiFetch<UpdateProfileResponse>("/user-profile", {
-    method: "PUT",
-    body: formData,
+  return apiFetch<UpdateProfileResponse>('/user-profile', {
+    method: 'PUT',
+    body: formData
   });
 }
 
@@ -74,8 +74,8 @@ export function updateUserProfileApi(formData: FormData) {
  * Đổi mật khẩu
  */
 export function changePasswordApi(payload: ChangePasswordRequest) {
-  return apiFetch<ChangePasswordResponse>("/auth/change-password", {
-    method: "POST",
-    body: JSON.stringify(payload),
+  return apiFetch<ChangePasswordResponse>('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify(payload)
   });
 }

@@ -7,7 +7,7 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
 
   const items = [
     {
-      label: 'Safe (< 1.0m)',
+      label: 'Safe (< 10 cm)',
       key: 'safe',
       color: 'text-emerald-600',
       bg: 'bg-emerald-500',
@@ -15,7 +15,7 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
       ping: false
     },
     {
-      label: 'Caution (1.0–1.9m)',
+      label: 'Caution (10–20 cm)',
       key: 'caution',
       color: 'text-yellow-600',
       bg: 'bg-yellow-500',
@@ -23,7 +23,7 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
       ping: false
     },
     {
-      label: 'Warning (2.0–2.9m)',
+      label: 'Warning (20–40 cm)',
       key: 'warning',
       color: 'text-orange-600',
       bg: 'bg-orange-500',
@@ -31,7 +31,7 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
       ping: false
     },
     {
-      label: 'Critical (≥ 3.0m)',
+      label: 'Critical (≥ 40 cm)',
       key: 'critical',
       color: 'text-red-600',
       bg: 'bg-red-500',

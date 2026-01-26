@@ -2,9 +2,9 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
-import MapView from './MapView';
-import LayerPanel from './LayerPanel';
-import LegendFlood from './LegendFlood';
+import MapView from './map-view';
+import LayerPanel from './layer-panel';
+import LegendFlood from './legend-flood';
 import { useMapPreferences } from '../../hooks/useMapPreferences';
 
 const queryClient = new QueryClient();

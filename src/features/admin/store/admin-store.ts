@@ -12,14 +12,14 @@ import {
   updateUserRolesApi,
   updateUserStatusApi,
   getAdminStatsApi
-} from '../api/admin';
+} from '../api/admin.api';
 import type {
   AdminUser,
   CreateUserRequest,
   UpdateUserRequest,
   AdminStats
 } from '../types/admin.type';
-import type { Role } from '@/features/authenticate/api/auth';
+import type { Role } from '@/features/authenticate/api/auth.api';
 
 type AdminStatus = 'idle' | 'loading' | 'success' | 'error';
 

@@ -11,7 +11,7 @@ import {
 import type { AlertSubscription } from '@/features/user-alert-subscription/types/alert-subscription.type';
 import { IconDotsVertical, IconEye } from '@tabler/icons-react';
 import { useState } from 'react';
-import { AlertSubscriptionDetailDialog } from '../AlertSubscriptionDetailDialog';
+import { AlertSubscriptionDetailDialog } from '../alert-subscription-detail-dialog';
 
 interface CellActionProps {
   data: AlertSubscription;

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import type maplibregl from 'maplibre-gl';
-import { getFloodSeverityGeoJSON } from '../api/floodSeverity';
+import { getFloodSeverityGeoJSON } from '../api/flood-severity.api';
 
 type Args = {
   mapRef: React.RefObject<maplibregl.Map | null>;

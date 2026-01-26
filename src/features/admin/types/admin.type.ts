@@ -1,4 +1,4 @@
-import { type Role } from '@/features/authenticate/api/auth';
+import { type Role } from '@/features/authenticate/api/auth.api';
 
 // Re-export Role for use in other admin files
 export type { Role };

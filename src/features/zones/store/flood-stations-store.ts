@@ -1,8 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import { getFloodSeverityGeoJSON } from '../api/floodSeverity';
-import type { FloodStationProperties } from '../api/floodSeverity';
+import { getFloodSeverityGeoJSON } from '../api/flood-severity.api';
+import type { FloodStationProperties } from '../api/flood-severity.api';
 
 export type FloodStationSummary = {
   stationId: string;

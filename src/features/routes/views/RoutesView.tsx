@@ -11,8 +11,8 @@ import {
 import { LoadingState } from '@/components/ui/common';
 import { analyzeRouteWithGemini, mockGeocode } from '@/lib/api';
 import { RouteAnalysis } from '@/lib/types';
-import { FloatingInputPanel } from '../components/FloatingInputPanel';
-import { RouteResultCards } from '../components/RouteResultCards';
+import { FloatingInputPanel } from '../components/floating-input-panel';
+import { RouteResultCards } from '../components/route-result-cards';
 
 declare const google: any;
 

@@ -12,7 +12,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { updateAdminUserApi } from '@/features/admin/api/admin';
+import { updateAdminUserApi } from '@/features/admin/api/admin.api';
 import type { User } from '../types';
 import { Loader2, Lock } from 'lucide-react';
 import { toast } from 'sonner';

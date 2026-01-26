@@ -1,5 +1,5 @@
 // src/app/authority/layout.tsx
-import AdminShell from '@/features/admin/components/AdminShell';
+import AdminShell from '@/features/admin/components/admin-shell';
 import AdminProviders from '../admin/providers';
 import { RoleGuard } from '@/components/guards/RoleGuard';
 import type { Metadata } from 'next';

@@ -2,19 +2,19 @@
 // Re-export all admin feature modules
 
 // Store
-export { useAdminStore, useAdminPermissions } from "./store/admin-store";
+export { useAdminStore, useAdminPermissions } from './store/admin-store';
 
 // API
 export {
-    getAdminUsersApi,
-    getAdminUserByIdApi,
-    createAdminUserApi,
-    updateAdminUserApi,
-    deleteAdminUserApi,
-    updateUserRolesApi,
-    updateUserStatusApi,
-    getAdminStatsApi
-} from "./api/admin";
+  getAdminUsersApi,
+  getAdminUserByIdApi,
+  createAdminUserApi,
+  updateAdminUserApi,
+  deleteAdminUserApi,
+  updateUserRolesApi,
+  updateUserStatusApi,
+  getAdminStatsApi
+} from './api/admin.api';
 
 // Types
-export * from "./types/admin.type";
+export * from './types/admin.type';

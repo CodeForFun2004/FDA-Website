@@ -8,8 +8,8 @@ import { Button } from '../../../components/ui/common';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 import { setSessionCookie } from '@/helpers/auth-session';
 import { toast } from 'sonner';
-import { initGoogleOAuthApi } from '@/features/authenticate/api/auth';
-import LoginFlow from './LoginFlow';
+import { initGoogleOAuthApi } from '@/features/authenticate/api/auth.api';
+import LoginFlow from './login-flow';
 
 export default function LoginViewPage() {
   const router = useRouter();

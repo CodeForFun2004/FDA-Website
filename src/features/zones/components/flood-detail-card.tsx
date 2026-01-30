@@ -10,7 +10,7 @@ import {
   Clock,
   Activity
 } from 'lucide-react';
-import type { FloodStationProperties } from '@/features/zones/api/floodSeverity';
+import type { FloodStationProperties } from '@/features/zones/api/flood-severity.api';
 
 export type FloodFeatureProps = {
   properties: FloodStationProperties;

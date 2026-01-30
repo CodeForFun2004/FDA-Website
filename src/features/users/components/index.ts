@@ -2,6 +2,6 @@
 export {
   CreateUserDialog,
   type CreateUserDialogProps
-} from './CreateUserDialog';
-export { EditUserDialog, type EditUserDialogProps } from './EditUserDialog';
-export { BanUserDialog, type BanUserDialogProps } from './BanUserDialog';
+} from './create-user-dialog';
+export { EditUserDialog, type EditUserDialogProps } from './edit-user-dialog';
+export { BanUserDialog, type BanUserDialogProps } from './ban-user-dialog';

@@ -14,13 +14,13 @@ import {
 import { useFloodSeverity } from '../../hooks/useFloodSeverity';
 import { useFloodStationsStore } from '../../store/flood-stations-store';
 
-import { FloodDetailCard } from '../FloodDetailCard';
+import { FloodDetailCard } from '../flood-detail-card';
 
 // ✅ Flood roads overlay (new)
 import {
   ensureFloodRoadsOverlay,
   removeFloodRoadsOverlay
-} from '../map/floodRoads';
+} from './flood-roads';
 import type { FloodRoadFC } from '../../mocks/floodRoadMock';
 import { startMockFloodFeed } from '../../mocks/floodRoadMock';
 

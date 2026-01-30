@@ -11,7 +11,7 @@ import {
 import type { Area } from '../../types/area.type';
 import { IconDotsVertical, IconEye } from '@tabler/icons-react';
 import { useState } from 'react';
-import { AreaDetailDialog } from '../AreaDetailDialog';
+import { AreaDetailDialog } from '../area-detail-dialog';
 
 export function CellAction({ data }: { data: Area }) {
   const [open, setOpen] = useState(false);

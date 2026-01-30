@@ -9,7 +9,7 @@ import {
   type AuthUser,
   type Role,
   googleCallbackApi
-} from '@/features/authenticate/api/auth';
+} from '@/features/authenticate/api/auth.api';
 
 type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated';
 
@@ -22,6 +22,9 @@ type AuthState = {
   expiresAt: string | null;
 
   error: string | null;
+
+  // Flag to show reset password modal after login
+  needsPasswordReset: boolean;
 
   // ✅ NEW flow
   loginWithPassword: (identifier: string, password: string) => Promise<void>;
@@ -43,6 +46,8 @@ type AuthState = {
   logout: () => void;
   clearError: () => void;
 
+  setNeedsPasswordReset: (needs: boolean) => void;
+
   hasRole: (role: Role) => boolean;
   isAdminLike: () => boolean;
 
@@ -63,6 +68,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       expiresAt: null,
       error: null,
+      needsPasswordReset: false,
 
       // ✅ Password login: dùng identifier thay vì email
       loginWithPassword: async (identifier, password) => {
@@ -201,11 +207,14 @@ export const useAuthStore = create<AuthState>()(
           accessToken: null,
           refreshToken: null,
           expiresAt: null,
-          error: null
+          error: null,
+          needsPasswordReset: false
         });
       },
 
       clearError: () => set({ error: null }),
+
+      setNeedsPasswordReset: (needs) => set({ needsPasswordReset: needs }),
 
       hasRole: (role) => (get().user?.roles ?? []).includes(role),
       isAdminLike: () => {

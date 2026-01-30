@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import {
   updateUserProfileApi,
   changePasswordApi
-} from '@/features/profile/api/user-profile';
+} from '@/features/profile/api/user-profile.api';
 import { ProfileMenu } from './ProfileMenu';
 
 export const Header = () => {

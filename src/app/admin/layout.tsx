@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import AdminShell from '@/features/admin/components/AdminShell';
+import AdminShell from '@/features/admin/components/admin-shell';
 import AdminProviders from './providers';
 import { RoleGuard } from '@/components/guards/RoleGuard';
 

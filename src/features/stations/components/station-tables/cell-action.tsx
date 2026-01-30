@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import type { Station } from '@/features/stations/types/station.type';
-import { EditStationDialog } from '@/features/stations/components/EditStationDialog';
+import { EditStationDialog } from '@/features/stations/components/edit-station-dialog';
 import { stationsApi } from '@/features/stations/api/station.api';
 import { getAccessToken } from '@/features/stations/utils/auth';
 import { IconDotsVertical, IconEdit, IconTrash } from '@tabler/icons-react';

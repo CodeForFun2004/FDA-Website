@@ -1,6 +1,6 @@
 // src/features/users/hooks/useUsers.ts
 import { useQuery } from '@tanstack/react-query';
-import { getAdminUsersApi } from '@/features/admin/api/admin';
+import { getAdminUsersApi } from '@/features/admin/api/admin.api';
 import type { AdminUser } from '@/features/admin/types/admin.type';
 import type { User } from '../types';
 

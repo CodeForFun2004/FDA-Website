@@ -3,7 +3,7 @@
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { Button } from '@/components/ui/button';
-import { CreateStationDialog } from '@/features/stations/components/CreateStationDialog';
+import { CreateStationDialog } from '@/features/stations/components/create-station-dialog';
 
 import { useDataTable } from '@/hooks/use-data-table';
 

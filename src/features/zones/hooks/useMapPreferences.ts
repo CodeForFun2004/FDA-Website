@@ -15,7 +15,7 @@ import {
 import {
   getUserMapPreferences,
   putUserMapPreferences
-} from '../api/mapPreferences';
+} from '../api/map-preferences.api';
 
 /**
  * TODO: chỉnh hàm này theo auth-store của project bạn.

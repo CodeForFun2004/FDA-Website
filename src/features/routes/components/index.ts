@@ -1,8 +1,8 @@
 export {
   FloatingInputPanel,
   type FloatingInputPanelProps
-} from './FloatingInputPanel';
+} from './floating-input-panel';
 export {
   RouteResultCards,
   type RouteResultCardsProps
-} from './RouteResultCards';
+} from './route-result-cards';

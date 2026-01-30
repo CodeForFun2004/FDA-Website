@@ -36,6 +36,7 @@ export type {
  * 2) POST /auth/send-otp         { identifier }
  * 3) POST /auth/login            { identifier, otpCode?, password?, deviceInfo? }
  * 4) POST /auth/refresh-token    { refreshToken }
+ * 5) POST /auth/reset-password   { newPassword, confirmPassword }
  */
 
 export function checkIdentifierApi(payload: CheckIdentifierRequest) {
@@ -73,6 +74,24 @@ export function refreshTokenApi(payload: RefreshTokenRequest) {
     auth: false, // Don't send auth header - using refresh token in body
     body: JSON.stringify(payload)
   });
+}
+
+/**
+ * Reset password after OTP verification (requires accessToken)
+ * POST /auth/reset-password
+ */
+export function resetPasswordApi(payload: {
+  newPassword: string;
+  confirmPassword: string;
+}) {
+  return apiFetch<{ success: boolean; message: string }>(
+    '/auth/reset-password',
+    {
+      method: 'POST',
+      auth: true, // Requires accessToken from OTP login
+      body: JSON.stringify(payload)
+    }
+  );
 }
 
 // ===== Google OAuth =====

@@ -51,7 +51,8 @@ const ROLE_OPTIONS = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'ACTIVE', label: 'Active' },
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
   { value: 'banned', label: 'Banned' }
 ];
 
@@ -68,7 +69,7 @@ export function EditUserDialog({
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
-    status: 'ACTIVE',
+    status: 'active',
     role: 'USER'
   });
 
@@ -81,12 +82,7 @@ export function EditUserDialog({
       setFormData({
         fullName: user.name || '',
         phoneNumber: '',
-        status:
-          user.status === 'Active'
-            ? 'ACTIVE'
-            : user.status === 'Inactive'
-              ? 'INACTIVE'
-              : user.status,
+        status: user.status.toLowerCase(),
         role: user.role
       });
       setErrors({});

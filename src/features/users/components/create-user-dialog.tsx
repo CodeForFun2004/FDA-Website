@@ -49,6 +49,12 @@ const ROLE_OPTIONS = [
   { value: 'AUTHORITY', label: 'Authority' }
 ];
 
+const STATUS_OPTIONS = [
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'banned', label: 'Banned' }
+];
+
 // ===== Component =====
 export function CreateUserDialog({
   open,
@@ -63,6 +69,7 @@ export function CreateUserDialog({
     password: '',
     fullName: '',
     phoneNumber: '',
+    status: 'active',
     role: 'USER'
   });
 
@@ -105,6 +112,7 @@ export function CreateUserDialog({
       password: '',
       fullName: '',
       phoneNumber: '',
+      status: 'active',
       role: 'USER'
     });
     setErrors({});
@@ -149,6 +157,7 @@ export function CreateUserDialog({
       password: formData.password,
       fullName: formData.fullName.trim(),
       phoneNumber: formData.phoneNumber.trim() || undefined,
+      status: formData.status,
       roleNames: [formData.role]
     };
 
@@ -267,6 +276,30 @@ export function CreateUserDialog({
             {errors.phoneNumber && (
               <p className='text-destructive text-sm'>{errors.phoneNumber}</p>
             )}
+          </div>
+
+          {/* Status */}
+          <div className='space-y-2'>
+            <Label htmlFor='status' className='flex items-center gap-2'>
+              <Shield className='text-muted-foreground h-4 w-4' />
+              Trạng thái
+            </Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => handleInputChange('status', value)}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder='Chọn trạng thái' />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Role */}

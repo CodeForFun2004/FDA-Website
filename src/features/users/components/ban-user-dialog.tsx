@@ -71,7 +71,7 @@ export function BanUserDialog({
   // Handle ban/unban confirmation
   const handleToggleBan = () => {
     if (!user) return;
-    const newStatus = user.status === 'Banned' ? 'ACTIVE' : 'banned';
+    const newStatus = user.status === 'Banned' ? 'active' : 'banned';
     banUserMutation.mutate({ userId: user.id, newStatus });
   };
 
@@ -89,15 +89,17 @@ export function BanUserDialog({
             <Lock className='h-5 w-5' />
             Xác nhận {action.toLowerCase()} user
           </DialogTitle>
-          <DialogDescription className='space-y-2 pt-2'>
-            <div>
-              Bạn có chắc chắn muốn {action.toLowerCase()} user{' '}
-              <strong>{user.email}</strong>?
-            </div>
-            <div className='text-muted-foreground text-sm'>
-              {isBanned
-                ? 'User sẽ có thể đăng nhập vào hệ thống sau khi được mở khóa.'
-                : 'User sẽ không thể đăng nhập vào hệ thống sau khi bị khóa.'}
+          <DialogDescription asChild>
+            <div className='space-y-2 pt-2'>
+              <div>
+                Bạn có chắc chắn muốn {action.toLowerCase()} user{' '}
+                <strong>{user.email}</strong>?
+              </div>
+              <div className='text-muted-foreground text-sm'>
+                {isBanned
+                  ? 'User sẽ có thể đăng nhập vào hệ thống sau khi được mở khóa.'
+                  : 'User sẽ không thể đăng nhập vào hệ thống sau khi bị khóa.'}
+              </div>
             </div>
           </DialogDescription>
         </DialogHeader>

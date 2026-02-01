@@ -14,6 +14,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/common';
 import { Input } from '@/components/ui/input';
@@ -83,6 +84,15 @@ function formatDateTime(iso?: string | null) {
     dateStyle: 'medium',
     timeStyle: 'short'
   }).format(d);
+}
+
+function extractErrorMessage(err: any) {
+  const data = err?.response?.data ?? err?.data ?? err;
+  const messages = Array.isArray(data?.errors)
+    ? data.errors.map((e: any) => e?.message).filter(Boolean)
+    : [];
+  if (messages.length) return messages.join(' ');
+  return data?.message ?? err?.message ?? 'Đổi mật khẩu thất bại.';
 }
 
 function AvatarCircle({
@@ -499,6 +509,7 @@ export function ProfileModal({
                               avatarFile,
                               avatarUrl: null
                             });
+                            onOpenChange(false);
                           } finally {
                             setSaving(false);
                           }
@@ -643,18 +654,27 @@ export function ProfileModal({
                             !pw.currentPassword ||
                             !pw.newPassword ||
                             !pw.confirmPassword
-                          )
+                          ) {
+                            toast.error('Vui lòng nhập đầy đủ thông tin.');
                             return;
-                          if (pw.newPassword !== pw.confirmPassword) return;
+                          }
+                          if (pw.newPassword !== pw.confirmPassword) {
+                            toast.error('Mật khẩu xác nhận không khớp.');
+                            return;
+                          }
 
                           try {
                             setChangingPw(true);
                             await onChangePassword(pw);
+                            // toast.success('Đổi mật khẩu thành công.');
                             setPw({
                               currentPassword: '',
                               newPassword: '',
                               confirmPassword: ''
                             });
+                            onOpenChange(false);
+                          } catch (error: any) {
+                            toast.error(extractErrorMessage(error));
                           } finally {
                             setChangingPw(false);
                           }

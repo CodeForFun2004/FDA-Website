@@ -5,7 +5,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: Role;
+  roles: Role[];
   status: 'Active' | 'Inactive' | 'Banned';
   isAdminCreated: boolean;
   createdAt: string;

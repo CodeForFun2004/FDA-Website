@@ -29,9 +29,9 @@ export const Header = () => {
 
   // src/components/layout/Header.tsx
   const displayName = authUser?.fullName?.trim() || authUser?.email || null;
-  const displayRole = authUser?.roles?.[0] || null;
+  const displayRoles = authUser?.roles ?? [];
   // Nếu không có user → không render ProfileMenu
-  if (!displayName || !displayRole) {
+  if (!displayName) {
     return null; // hoặc redirect
   }
 
@@ -45,7 +45,7 @@ export const Header = () => {
   const userForMenu = {
     name: displayName,
     email: authUser?.email || 'unknown@local',
-    role: displayRole,
+    roles: displayRoles,
     avatarUrl: authUser?.avatarUrl ?? undefined // ✅ null -> undefined
     // phone: authUser?.phone,
     // location: authUser?.location,

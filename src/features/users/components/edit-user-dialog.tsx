@@ -83,7 +83,7 @@ export function EditUserDialog({
         fullName: user.name || '',
         phoneNumber: '',
         status: user.status.toLowerCase(),
-        role: user.role
+        role: user.roles?.[0] ?? 'USER'
       });
       setErrors({});
     }

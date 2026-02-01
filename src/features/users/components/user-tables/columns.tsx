@@ -49,29 +49,46 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     id: 'role',
-    accessorKey: 'role',
+    accessorKey: 'roles',
     header: ({ column }: { column: Column<User, unknown> }) => (
       <DataTableColumnHeader column={column} title='Role' />
     ),
     cell: ({ row }) => {
-      const role = row.original.role;
+      const roles = row.original.roles ?? [];
+
+      const getRoleBadgeClass = (role: string) => {
+        if (role === 'SUPER_ADMIN')
+          return 'border-red-500 bg-red-50 text-red-600';
+        if (role === 'ADMIN')
+          return 'border-purple-500 bg-purple-50 text-purple-600';
+        if (role === 'AUTHORITY')
+          return 'border-blue-500 bg-blue-50 text-blue-600';
+        return 'border-green-500 bg-green-50 text-green-600';
+      };
+
+      const getRoleLabel = (role: string) =>
+        role === 'SUPER_ADMIN'
+          ? 'Super Admin'
+          : role.charAt(0) + role.slice(1).toLowerCase();
+
       return (
-        <Badge
-          variant='outline'
-          className={
-            role === 'SUPER_ADMIN'
-              ? 'border-red-500 bg-red-50 text-red-600'
-              : role === 'ADMIN'
-                ? 'border-purple-500 bg-purple-50 text-purple-600'
-                : role === 'AUTHORITY'
-                  ? 'border-blue-500 bg-blue-50 text-blue-600'
-                  : 'border-green-500 bg-green-50 text-green-600'
-          }
-        >
-          {role === 'SUPER_ADMIN'
-            ? 'Super Admin'
-            : role.charAt(0) + role.slice(1).toLowerCase()}
-        </Badge>
+        <div className='flex flex-wrap gap-1'>
+          {roles.length > 0 ? (
+            roles.map((role) => (
+              <Badge
+                key={role}
+                variant='outline'
+                className={getRoleBadgeClass(role)}
+              >
+                {getRoleLabel(role)}
+              </Badge>
+            ))
+          ) : (
+            <Badge variant='outline' className='border-gray-300 text-gray-600'>
+              User
+            </Badge>
+          )}
+        </div>
       );
     },
     meta: {

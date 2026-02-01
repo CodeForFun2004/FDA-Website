@@ -43,6 +43,17 @@ export type ChangePasswordResponse = {
   message: string;
 };
 
+export type UpdatePhoneNumberRequest = {
+  newPhoneNumber: string;
+  otpCode: string;
+};
+
+export type UpdatePhoneNumberResponse = {
+  success: boolean;
+  message: string;
+  profile: ApiProfile;
+};
+
 // ===== API Functions =====
 
 /**
@@ -78,4 +89,18 @@ export function changePasswordApi(payload: ChangePasswordRequest) {
     method: 'POST',
     body: JSON.stringify(payload)
   });
+}
+
+/**
+ * POST /user-profile/update-phoneNumber
+ * Update phone number using OTP
+ */
+export function updatePhoneNumberApi(payload: UpdatePhoneNumberRequest) {
+  return apiFetch<UpdatePhoneNumberResponse>(
+    '/user-profile/update-phoneNumber',
+    {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }
+  );
 }

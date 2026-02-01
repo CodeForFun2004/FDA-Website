@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/common';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { sendOtpApi } from '@/features/authenticate/api/auth.api';
+import { updatePhoneNumberApi } from '@/features/profile/api/user-profile.api';
 
 /**
  * ✅ Đồng bộ theo swagger:
@@ -229,7 +231,9 @@ export function ProfileModal({
   onChangePassword
 }: ProfileModalProps) {
   const [mounted, setMounted] = React.useState(false);
-  const [tab, setTab] = React.useState<'profile' | 'password'>('profile');
+  const [tab, setTab] = React.useState<'profile' | 'password' | 'phone'>(
+    'profile'
+  );
 
   const [saving, setSaving] = React.useState(false);
   const [changingPw, setChangingPw] = React.useState(false);
@@ -253,6 +257,16 @@ export function ProfileModal({
     confirm: false
   });
 
+  // phone number update
+  const [newPhoneNumber, setNewPhoneNumber] = React.useState(
+    user.phoneNumber ?? ''
+  );
+  const [otpCode, setOtpCode] = React.useState('');
+  const [otpExpiresAt, setOtpExpiresAt] = React.useState<string | null>(null);
+  const [otpSending, setOtpSending] = React.useState(false);
+  const [updatingPhone, setUpdatingPhone] = React.useState(false);
+  const [nowTick, setNowTick] = React.useState(Date.now());
+
   const primaryRole = pickPrimaryRole(user.roles ?? []);
   const displayName = user.fullName?.trim() || user.email || 'User';
 
@@ -271,7 +285,26 @@ export function ProfileModal({
 
     setPw({ currentPassword: '', newPassword: '', confirmPassword: '' });
     setShowPw({ current: false, next: false, confirm: false });
+
+    setNewPhoneNumber(user.phoneNumber ?? '');
+    setOtpCode('');
+    setOtpExpiresAt(null);
+    setOtpSending(false);
+    setUpdatingPhone(false);
+    setNowTick(Date.now());
   }, [open, user]);
+
+  React.useEffect(() => {
+    if (!otpExpiresAt) return;
+    const t = setInterval(() => setNowTick(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [otpExpiresAt]);
+
+  const secondsLeft = React.useMemo(() => {
+    if (!otpExpiresAt) return null;
+    const ms = new Date(otpExpiresAt).getTime() - nowTick;
+    return Math.max(0, Math.floor(ms / 1000));
+  }, [otpExpiresAt, nowTick]);
 
   React.useEffect(() => {
     const onEsc = (e: KeyboardEvent) => {
@@ -322,8 +355,9 @@ export function ProfileModal({
                 value={tab}
                 onChange={(v) => setTab(v as any)}
                 tabs={[
-                  { value: 'profile', label: 'Thông tin' },
-                  { value: 'password', label: 'Mật khẩu' }
+                  { value: 'profile', label: 'Information' },
+                  { value: 'password', label: 'Passsword' },
+                  { value: 'phone', label: 'Phone Number' }
                 ]}
               />
               {/* <div className="text-xs text-muted-foreground">
@@ -519,7 +553,7 @@ export function ProfileModal({
                       </Button>
                     </div>
                   </div>
-                ) : (
+                ) : tab === 'password' ? (
                   // PASSWORD TAB
                   <div className='border-input bg-background rounded-2xl border p-4'>
                     <div className='mb-3 flex items-center gap-2 text-sm font-semibold'>
@@ -681,6 +715,118 @@ export function ProfileModal({
                         }}
                       >
                         {changingPw ? 'Đang đổi...' : 'Đổi mật khẩu'}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  // PHONE NUMBER TAB
+                  <div className='border-input bg-background rounded-2xl border p-4'>
+                    <div className='mb-3 text-sm font-semibold'>
+                      Cập nhật số điện thoại
+                    </div>
+
+                    <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
+                      <InfoBlock icon={Phone} label='Số điện thoại mới'>
+                        <Input
+                          value={newPhoneNumber}
+                          onChange={(e) => setNewPhoneNumber(e.target.value)}
+                          placeholder='+84901234567'
+                          inputMode='tel'
+                        />
+                      </InfoBlock>
+
+                      <InfoBlock icon={KeyRound} label='OTP xác nhận'>
+                        <Input
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value)}
+                          placeholder='Nhập OTP'
+                          inputMode='numeric'
+                          maxLength={6}
+                        />
+                      </InfoBlock>
+
+                      <div className='border-input bg-muted/30 text-muted-foreground rounded-2xl border p-3 text-xs sm:col-span-2'>
+                        {secondsLeft !== null ? (
+                          <span>
+                            OTP sẽ hết hạn sau{' '}
+                            <b>{Math.max(0, secondsLeft)}s</b>. Nếu chưa nhận
+                            được, hãy gửi lại OTP.
+                          </span>
+                        ) : (
+                          <span>
+                            Nhập số điện thoại mới để nhận OTP xác nhận.
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className='mt-4 flex items-center justify-between gap-2'>
+                      <Button
+                        variant='outline'
+                        className='h-11 rounded-xl'
+                        disabled={otpSending}
+                        onClick={async () => {
+                          if (!newPhoneNumber.trim()) {
+                            toast.error('Vui lòng nhập số điện thoại.');
+                            return;
+                          }
+
+                          try {
+                            setOtpSending(true);
+                            const res = await sendOtpApi({
+                              identifier: newPhoneNumber.trim()
+                            });
+                            if (!res?.success) {
+                              toast.error(res?.message || 'Gửi OTP thất bại.');
+                              return;
+                            }
+                            setOtpExpiresAt(res.expiresAt ?? null);
+                            toast.success(res?.message || 'Đã gửi OTP.');
+                          } catch (error: any) {
+                            toast.error(extractErrorMessage(error));
+                          } finally {
+                            setOtpSending(false);
+                          }
+                        }}
+                      >
+                        {otpSending ? 'Đang gửi...' : 'Gửi OTP'}
+                      </Button>
+
+                      <Button
+                        className='h-11 rounded-xl'
+                        disabled={updatingPhone}
+                        onClick={async () => {
+                          if (!newPhoneNumber.trim() || !otpCode.trim()) {
+                            toast.error('Vui lòng nhập số điện thoại và OTP.');
+                            return;
+                          }
+
+                          try {
+                            setUpdatingPhone(true);
+                            const res = await updatePhoneNumberApi({
+                              newPhoneNumber: newPhoneNumber.trim(),
+                              otpCode: otpCode.trim()
+                            });
+                            if (!res?.success) {
+                              toast.error(
+                                res?.message ||
+                                  'Cập nhật số điện thoại thất bại.'
+                              );
+                              return;
+                            }
+                            toast.success(
+                              res?.message ||
+                                'Cập nhật số điện thoại thành công.'
+                            );
+                            onOpenChange(false);
+                          } catch (error: any) {
+                            toast.error(extractErrorMessage(error));
+                          } finally {
+                            setUpdatingPhone(false);
+                          }
+                        }}
+                      >
+                        {updatingPhone ? 'Đang cập nhật...' : 'Cập nhật'}
                       </Button>
                     </div>
                   </div>

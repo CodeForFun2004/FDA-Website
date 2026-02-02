@@ -46,25 +46,27 @@ export default function RegisterViewPage() {
 
     // ✅ validation bằng toast
     if (!name) {
-      toast.warning('Vui lòng nhập họ và tên.', { id: 'register-warning' });
+      toast.warning('Please enter your full name.', { id: 'register-warning' });
       return;
     }
     if (!mail) {
-      toast.warning('Vui lòng nhập email.', { id: 'register-warning' });
+      toast.warning('Please enter your email.', { id: 'register-warning' });
       return;
     }
     if (!password) {
-      toast.warning('Vui lòng nhập mật khẩu.', { id: 'register-warning' });
+      toast.warning('Please enter your password.', { id: 'register-warning' });
       return;
     }
     if (!confirmPassword) {
-      toast.warning('Vui lòng nhập xác nhận mật khẩu.', {
+      toast.warning('Please confirm your password.', {
         id: 'register-warning'
       });
       return;
     }
     if (password !== confirmPassword) {
-      toast.error('Mật khẩu xác nhận không khớp.', { id: 'register-error' });
+      toast.error('Confirmation password does not match.', {
+        id: 'register-error'
+      });
       return;
     }
 
@@ -73,7 +75,7 @@ export default function RegisterViewPage() {
     try {
       // ✅ Backend register chưa có -> không gọi API, không login giả
       toast.info(
-        'Chức năng đăng ký hiện chưa mở. Vui lòng liên hệ quản trị để được cấp tài khoản.',
+        'Registration is not open yet. Please contact an administrator for access.',
         { id: 'register-info' }
       );
 
@@ -88,7 +90,7 @@ export default function RegisterViewPage() {
 
   const handleGoogleRegister = () => {
     toast.warning(
-      'Google Sign-Up hiện chưa được triển khai. Vui lòng đăng nhập bằng Email/Password.',
+      'Google Sign-Up is not available yet. Please sign in with email/password.',
       { id: 'register-google' }
     );
   };

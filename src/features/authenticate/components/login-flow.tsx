@@ -66,7 +66,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
 
     const id = normalizeIdentifier(identifier);
     if (!id) {
-      toast.warning('Vui lòng nhập Email hoặc SĐT.');
+      toast.warning('Please enter email or phone number.');
       return;
     }
 
@@ -76,7 +76,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
 
       // nếu BE có accountExists
       if (res?.accountExists === false) {
-        toast.error(res?.message || 'Tài khoản không tồn tại.');
+        toast.error(res?.message || 'Account does not exist.');
         return;
       }
 
@@ -91,9 +91,9 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
 
       setExpiresAt(otpRes?.expiresAt ?? null);
       setOtp('');
-      toast.success(otpRes?.message || 'Đã gửi OTP.');
+      toast.success(otpRes?.message || 'OTP has been sent.');
     } catch (err: any) {
-      toast.error(err?.message || 'Không thể kiểm tra tài khoản.');
+      toast.error(err?.message || 'Unable to check account.');
     } finally {
       setLocalLoading(false);
     }
@@ -110,9 +110,9 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
       const otpRes = await sendOtpApi({ identifier: id });
       setExpiresAt(otpRes?.expiresAt ?? null);
       setOtp('');
-      toast.success(otpRes?.message || 'Đã gửi lại OTP.');
+      toast.success(otpRes?.message || 'OTP has been resent.');
     } catch (err: any) {
-      toast.error(err?.message || 'Gửi OTP thất bại.');
+      toast.error(err?.message || 'Failed to send OTP.');
     } finally {
       setLocalLoading(false);
     }
@@ -123,7 +123,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
     const id = normalizeIdentifier(identifier);
 
     if (!id) {
-      toast.warning('Vui lòng nhập Email hoặc SĐT.');
+      toast.warning('Please enter email or phone number.');
       return;
     }
 
@@ -136,9 +136,9 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
       setStep('OTP');
       setExpiresAt(otpRes?.expiresAt ?? null);
       setOtp('');
-      toast.success('OTP đặt lại mật khẩu đã được gửi!');
+      toast.success('Password reset OTP has been sent!');
     } catch (err: any) {
-      toast.error(err?.message || 'Không thể gửi OTP.');
+      toast.error(err?.message || 'Unable to send OTP.');
     } finally {
       setLocalLoading(false);
     }
@@ -150,13 +150,13 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
 
     const id = normalizeIdentifier(identifier);
     if (otp.length !== 6) {
-      toast.warning('OTP phải đủ 6 số.');
+      toast.warning('OTP must be 6 digits.');
       return;
     }
 
     try {
       await loginWithOtp(id, otp);
-      toast.success('Đăng nhập thành công!');
+      toast.success('Signed in successfully!');
 
       // If this was a forgot password flow, set flag and redirect to /admin
       if (flowMode === 'FORGOT_PASSWORD') {
@@ -167,7 +167,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
       // Always call onLoggedIn to redirect
       props.onLoggedIn?.();
     } catch (err: any) {
-      toast.error(err?.message || 'Đăng nhập thất bại.');
+      toast.error(err?.message || 'Sign-in failed.');
     }
   };
 
@@ -177,16 +177,16 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
 
     const id = normalizeIdentifier(identifier);
     if (!password) {
-      toast.warning('Vui lòng nhập mật khẩu.');
+      toast.warning('Please enter your password.');
       return;
     }
 
     try {
       await loginWithPassword(id, password);
-      toast.success('Đăng nhập thành công!');
+      toast.success('Signed in successfully!');
       props.onLoggedIn?.();
     } catch (err: any) {
-      toast.error(err?.message || 'Đăng nhập thất bại.');
+      toast.error(err?.message || 'Sign-in failed.');
     }
   };
 
@@ -197,13 +197,13 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
         <form onSubmit={handleContinue} className='space-y-4'>
           <div className='space-y-2'>
             <label className='text-sm font-medium' htmlFor='identifier'>
-              Email / Số điện thoại
+              Email / Phone number
             </label>
             <div className='relative'>
               <Mail className='text-muted-foreground absolute top-2.5 left-3 h-4 w-4' />
               <Input
                 id='identifier'
-                placeholder='you@gmail.com hoặc +84...'
+                placeholder='you@gmail.com or +84...'
                 className='pl-9'
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
@@ -216,11 +216,11 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
             {disabled ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Đang xử lý...
+                Processing...
               </>
             ) : (
               <span className='flex items-center'>
-                Tiếp tục <ArrowRight className='ml-2 h-4 w-4' />
+                Continue <ArrowRight className='ml-2 h-4 w-4' />
               </span>
             )}
           </Button>
@@ -232,7 +232,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
               disabled={disabled}
               className='text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline disabled:opacity-50'
             >
-              Quên mật khẩu?
+              Forgot password?
             </button>
           </div>
         </form>
@@ -246,26 +246,25 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
             <div className='text-muted-foreground text-sm'>
               {flowMode === 'FORGOT_PASSWORD' ? (
                 <>
-                  OTP đặt lại mật khẩu đã gửi tới:{' '}
+                  Password reset OTP sent to:{' '}
                   <span className='font-medium'>{identifier}</span>
                 </>
               ) : (
                 <>
-                  OTP đã gửi tới:{' '}
-                  <span className='font-medium'>{identifier}</span>
+                  OTP sent to: <span className='font-medium'>{identifier}</span>
                 </>
               )}
             </div>
             {flowMode === 'FORGOT_PASSWORD' && (
               <div className='rounded-lg border border-blue-100 bg-blue-50 p-2 text-xs text-blue-700'>
-                Sau khi xác minh, bạn sẽ được yêu cầu đặt mật khẩu mới.
+                After verification, you'll be asked to set a new password.
               </div>
             )}
           </div>
 
           <div className='space-y-2'>
             <label className='text-sm font-medium' htmlFor='otp'>
-              Nhập OTP (6 số)
+              Enter OTP (6 digits)
             </label>
             <Input
               id='otp'
@@ -279,7 +278,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
             />
             {secondsLeft !== null ? (
               <div className='text-muted-foreground text-xs'>
-                Hết hạn sau: {Math.floor(secondsLeft / 60)}:
+                Expires in: {Math.floor(secondsLeft / 60)}:
                 {String(secondsLeft % 60).padStart(2, '0')}
               </div>
             ) : null}
@@ -290,13 +289,13 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                 {flowMode === 'FORGOT_PASSWORD'
-                  ? 'Đang xác minh...'
-                  : 'Đang đăng nhập...'}
+                  ? 'Verifying...'
+                  : 'Signing in...'}
               </>
             ) : flowMode === 'FORGOT_PASSWORD' ? (
-              'Xác minh OTP'
+              'Verify OTP'
             ) : (
-              'Đăng nhập'
+              'Sign In'
             )}
           </Button>
 
@@ -313,7 +312,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
               }}
               disabled={disabled}
             >
-              Đổi Email/SĐT
+              Change email/phone
             </Button>
 
             <Button
@@ -322,9 +321,9 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
               className='h-11 flex-1'
               onClick={handleResendOtp}
               disabled={disabled || (secondsLeft !== null && secondsLeft > 0)}
-              title='Chỉ cho gửi lại khi OTP hết hạn (có thể đổi rule)'
+              title='Resend allowed only after OTP expires (rule can be changed)'
             >
-              Gửi lại OTP
+              Resend OTP
             </Button>
           </div>
         </form>
@@ -335,7 +334,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
     return (
       <form onSubmit={handleLoginPassword} className='space-y-4'>
         <div className='text-muted-foreground text-sm'>
-          Tài khoản: <span className='font-medium'>{identifier}</span>
+          Account: <span className='font-medium'>{identifier}</span>
         </div>
 
         <div className='space-y-2'>
@@ -349,7 +348,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
               disabled={disabled}
               className='text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline disabled:opacity-50'
             >
-              Quên mật khẩu?
+              Forgot password?
             </button>
           </div>
           <div className='relative'>
@@ -405,7 +404,7 @@ export default function LoginFlow(props: { onLoggedIn?: () => void }) {
           }}
           disabled={disabled}
         >
-          Quay lại
+          Back
         </Button>
       </form>
     );

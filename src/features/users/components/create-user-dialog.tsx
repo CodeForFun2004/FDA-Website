@@ -81,7 +81,7 @@ export function CreateUserDialog({
     mutationFn: (data: CreateUserRequest) => createAdminUserApi(data),
     onSuccess: (response) => {
       if (response.success) {
-        toast.success('Tạo user thành công!', {
+        toast.success('User created successfully!', {
           description: `User ID: ${response.userId}`
         });
         // Invalidate users query to refetch
@@ -93,13 +93,13 @@ export function CreateUserDialog({
         // Call onSuccess callback
         onSuccess?.();
       } else {
-        toast.error('Tạo user thất bại', {
+        toast.error('Failed to create user', {
           description: response.message
         });
       }
     },
     onError: (error: Error) => {
-      toast.error('Lỗi tạo user', {
+      toast.error('User creation error', {
         description: error.message
       });
     }
@@ -123,23 +123,23 @@ export function CreateUserDialog({
     const newErrors: Record<string, string> = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email là bắt buộc';
+      newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = 'Invalid email';
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = 'Mật khẩu là bắt buộc';
+      newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      newErrors.password = 'Password must be at least 6 characters';
     }
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Họ tên là bắt buộc';
+      newErrors.fullName = 'Full name is required';
     }
 
     if (formData.phoneNumber && !/^[0-9]{10,11}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Số điện thoại không hợp lệ (10-11 số)';
+      newErrors.phoneNumber = 'Invalid phone number (10-11 digits)';
     }
 
     setErrors(newErrors);
@@ -189,11 +189,11 @@ export function CreateUserDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <UserPlus className='text-primary h-5 w-5' />
-            Tạo User Mới
+            Create New User
           </DialogTitle>
           <DialogDescription>
-            Điền thông tin để tạo tài khoản user mới. Các trường có dấu * là bắt
-            buộc.
+            Fill in the details to create a new user account. Fields marked *
+            are required.
           </DialogDescription>
         </DialogHeader>
 
@@ -222,12 +222,12 @@ export function CreateUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='password' className='flex items-center gap-2'>
               <Lock className='text-muted-foreground h-4 w-4' />
-              Mật khẩu <span className='text-destructive'>*</span>
+              Password <span className='text-destructive'>*</span>
             </Label>
             <Input
               id='password'
               type='password'
-              placeholder='Nhập mật khẩu (ít nhất 6 ký tự)'
+              placeholder='Enter password (at least 6 characters)'
               value={formData.password}
               onChange={(e) => handleInputChange('password', e.target.value)}
               disabled={isLoading}
@@ -242,12 +242,12 @@ export function CreateUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='fullName' className='flex items-center gap-2'>
               <User className='text-muted-foreground h-4 w-4' />
-              Họ và tên <span className='text-destructive'>*</span>
+              Full name <span className='text-destructive'>*</span>
             </Label>
             <Input
               id='fullName'
               type='text'
-              placeholder='Nguyễn Văn A'
+              placeholder='John Doe'
               value={formData.fullName}
               onChange={(e) => handleInputChange('fullName', e.target.value)}
               disabled={isLoading}
@@ -262,7 +262,7 @@ export function CreateUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='phoneNumber' className='flex items-center gap-2'>
               <Phone className='text-muted-foreground h-4 w-4' />
-              Số điện thoại
+              Phone number
             </Label>
             <Input
               id='phoneNumber'
@@ -282,7 +282,7 @@ export function CreateUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='status' className='flex items-center gap-2'>
               <Shield className='text-muted-foreground h-4 w-4' />
-              Trạng thái
+              Status
             </Label>
             <Select
               value={formData.status}
@@ -290,7 +290,7 @@ export function CreateUserDialog({
               disabled={isLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Chọn trạng thái' />
+                <SelectValue placeholder='Select status' />
               </SelectTrigger>
               <SelectContent>
                 {STATUS_OPTIONS.map((option) => (
@@ -306,7 +306,7 @@ export function CreateUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='role' className='flex items-center gap-2'>
               <Shield className='text-muted-foreground h-4 w-4' />
-              Vai trò <span className='text-destructive'>*</span>
+              Role <span className='text-destructive'>*</span>
             </Label>
             <Select
               value={formData.role}
@@ -314,7 +314,7 @@ export function CreateUserDialog({
               disabled={isLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Chọn vai trò' />
+                <SelectValue placeholder='Select role' />
               </SelectTrigger>
               <SelectContent>
                 {ROLE_OPTIONS.map((option) => (
@@ -333,18 +333,18 @@ export function CreateUserDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isLoading}
             >
-              Hủy
+              Cancel
             </Button>
             <Button type='submit' disabled={isLoading} className='gap-2'>
               {isLoading ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Đang tạo...
+                  Creating...
                 </>
               ) : (
                 <>
                   <UserPlus className='h-4 w-4' />
-                  Tạo User
+                  Create User
                 </>
               )}
             </Button>

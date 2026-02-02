@@ -34,15 +34,16 @@ export function ZoneDetailCard({ zone, onClose }: ZoneDetailCardProps) {
                       <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75'></span>
                       <span className='relative inline-flex h-2 w-2 rounded-full bg-red-500'></span>
                     </span>
-                    Nguy cơ ngập sâu
+                    Severe flood risk
                   </span>
                 ) : zone.riskLevel === 'Watch' ? (
                   <span className='flex items-center text-[10px] font-bold text-orange-600'>
-                    <AlertTriangle className='mr-1 h-3 w-3' /> Cảnh báo mực nước
+                    <AlertTriangle className='mr-1 h-3 w-3' /> Water level
+                    warning
                   </span>
                 ) : (
                   <span className='flex items-center text-[10px] font-bold text-emerald-600'>
-                    <Droplets className='mr-1 h-3 w-3' /> An toàn
+                    <Droplets className='mr-1 h-3 w-3' /> Safe
                   </span>
                 )}
               </div>
@@ -64,14 +65,14 @@ export function ZoneDetailCard({ zone, onClose }: ZoneDetailCardProps) {
           <div className='mb-3 flex items-center justify-between'>
             <div>
               <p className='text-xs font-medium text-slate-600'>
-                Xu hướng mực nước
+                Water level trend
               </p>
               <p className='text-[10px] text-slate-400'>
-                Dự kiến: <span className='font-bold text-slate-800'>0.5m</span>
+                Forecast: <span className='font-bold text-slate-800'>0.5m</span>
               </p>
             </div>
             <span className='flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-500'>
-              <ArrowUpRight className='mr-0.5 h-3 w-3' /> Tăng
+              <ArrowUpRight className='mr-0.5 h-3 w-3' /> Rising
             </span>
           </div>
 
@@ -81,13 +82,13 @@ export function ZoneDetailCard({ zone, onClose }: ZoneDetailCardProps) {
           {/* Action Buttons */}
           <div className='mt-3 grid grid-cols-2 gap-2'>
             <Button className='h-8 w-full rounded-lg bg-blue-600 text-[10px] font-bold text-white shadow-md shadow-blue-200 hover:bg-blue-700'>
-              <Navigation className='mr-1 h-3 w-3' /> Tránh ngập
+              <Navigation className='mr-1 h-3 w-3' /> Avoid floods
             </Button>
             <Button
               variant='outline'
               className='h-8 w-full rounded-lg border-slate-200 text-[10px] text-slate-600'
             >
-              Chi tiết
+              Details
             </Button>
           </div>
         </div>

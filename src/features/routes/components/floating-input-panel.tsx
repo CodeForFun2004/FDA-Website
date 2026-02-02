@@ -47,9 +47,9 @@ export function FloatingInputPanel({
             <Search className='h-4 w-4 text-blue-600' />
           </div>
           <div className='text-left'>
-            <p className='text-sm font-bold text-slate-800'>Tìm lộ trình</p>
+            <p className='text-sm font-bold text-slate-800'>Find routes</p>
             <p className='max-w-[150px] truncate text-xs text-slate-500'>
-              {destination || 'Nhấn để tìm kiếm'}
+              {destination || 'Tap to search'}
             </p>
           </div>
           <ChevronDown className='ml-2 h-4 w-4 text-slate-400' />
@@ -62,18 +62,18 @@ export function FloatingInputPanel({
           <div className='flex items-center justify-between border-b border-slate-100 pb-2'>
             <h2 className='flex items-center gap-2 text-base font-bold text-slate-800'>
               <Navigation className='h-4 w-4 text-blue-600' />
-              Tìm lộ trình an toàn
+              Find safe routes
             </h2>
             <div className='flex items-center gap-2'>
               {isSearching && (
                 <span className='animate-pulse text-[10px] font-medium text-blue-600'>
-                  Đang phân tích...
+                  Analyzing...
                 </span>
               )}
               <button
                 onClick={() => setIsExpanded(false)}
                 className='rounded-lg p-1 transition-colors hover:bg-slate-100'
-                title='Thu gọn'
+                title='Collapse'
               >
                 <ChevronUp className='h-4 w-4 text-slate-400' />
               </button>
@@ -86,21 +86,21 @@ export function FloatingInputPanel({
 
             <div className='relative z-10'>
               <label className='mb-1 ml-1 block text-[10px] font-bold tracking-wide text-slate-500 uppercase'>
-                Điểm xuất phát
+                Origin
               </label>
               <div className='flex items-center gap-2'>
                 <div className='h-3 w-3 flex-shrink-0 rounded-full bg-blue-600 shadow-sm ring-2 ring-blue-100'></div>
                 <div className='relative flex-1'>
                   <Input
                     className='h-9 rounded-lg border-slate-200 bg-slate-50 pr-7 pl-2 text-sm font-medium transition-all focus:bg-white focus:ring-2 focus:ring-blue-100'
-                    placeholder='Nhập địa điểm...'
+                    placeholder='Enter a place...'
                     value={origin}
                     onChange={(e) => onOriginChange(e.target.value)}
                   />
                   <button
                     onClick={onUseMyLocation}
                     className='absolute top-2 right-1.5 text-blue-500 hover:text-blue-700'
-                    title='Dùng vị trí hiện tại'
+                    title='Use current location'
                   >
                     <Locate className='h-4 w-4' />
                   </button>
@@ -110,14 +110,14 @@ export function FloatingInputPanel({
 
             <div className='relative z-10'>
               <label className='mb-1 ml-1 block text-[10px] font-bold tracking-wide text-slate-500 uppercase'>
-                Điểm đến
+                Destination
               </label>
               <div className='flex items-center gap-2'>
                 <div className='h-3 w-3 flex-shrink-0 rounded-full bg-red-500 shadow-sm ring-2 ring-red-100'></div>
                 <div className='relative flex-1'>
                   <Input
                     className='h-9 rounded-lg border-slate-200 bg-slate-50 pr-7 pl-2 text-sm font-medium transition-all focus:bg-white focus:ring-2 focus:ring-red-100'
-                    placeholder='Bạn muốn đến đâu?'
+                    placeholder='Where do you want to go?'
                     value={destination}
                     onChange={(e) => onDestinationChange(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && onSearch()}
@@ -140,7 +140,7 @@ export function FloatingInputPanel({
             disabled={isSearching || !destination}
             className='h-10 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-blue-500/30 transition-transform hover:from-blue-700 hover:to-indigo-700 active:scale-95'
           >
-            {isSearching ? 'Đang tìm kiếm...' : 'Tìm lộ trình'}
+            {isSearching ? 'Searching...' : 'Find route'}
           </Button>
         </Card>
       )}

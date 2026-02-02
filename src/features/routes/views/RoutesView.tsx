@@ -38,8 +38,8 @@ export default function RoutesPage() {
   });
 
   // State - Defaulting to the requested demo route
-  const [origin, setOrigin] = useState('FPT Software Đà Nẵng');
-  const [destination, setDestination] = useState('Co.opmart Đà Nẵng');
+  const [origin, setOrigin] = useState('FPT Software Da Nang');
+  const [destination, setDestination] = useState('Co.opmart Da Nang');
   const [isSearching, setIsSearching] = useState(false);
   const [hasAutoSearched, setHasAutoSearched] = useState(false);
 
@@ -79,7 +79,7 @@ export default function RoutesPage() {
       let startCoords = startPoint;
       if (
         !startCoords ||
-        (searchOrigin && searchOrigin !== 'Vị trí hiện tại của bạn')
+        (searchOrigin && searchOrigin !== 'Your current location')
       ) {
         startCoords = await mockGeocode(searchOrigin);
       }
@@ -201,7 +201,7 @@ export default function RoutesPage() {
     // Keep start point as user location usually
     if (userLocation) {
       setStartPoint(userLocation);
-      setOrigin('Vị trí hiện tại của bạn');
+      setOrigin('Your current location');
     } else {
       setOrigin('');
       setStartPoint(null);
@@ -211,7 +211,7 @@ export default function RoutesPage() {
   const handleUseMyLocation = () => {
     if (userLocation) {
       setStartPoint(userLocation);
-      setOrigin('Vị trí hiện tại của bạn');
+      setOrigin('Your current location');
     }
   };
 

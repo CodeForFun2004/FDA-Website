@@ -100,7 +100,7 @@ export function EditUserDialog({
     }) => updateAdminUserApi(userId, data),
     onSuccess: (response) => {
       if (response.success) {
-        toast.success('Cập nhật user thành công!');
+        toast.success('User updated successfully!');
         // Invalidate users query to refetch
         queryClient.invalidateQueries({ queryKey: ['users'] });
         // Close dialog
@@ -108,13 +108,13 @@ export function EditUserDialog({
         // Call onSuccess callback
         onSuccess?.();
       } else {
-        toast.error('Cập nhật user thất bại', {
+        toast.error('Failed to update user', {
           description: response.message
         });
       }
     },
     onError: (error: Error) => {
-      toast.error('Lỗi cập nhật user', {
+      toast.error('User update error', {
         description: error.message
       });
     }
@@ -125,15 +125,15 @@ export function EditUserDialog({
     const newErrors: Record<string, string> = {};
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Họ tên là bắt buộc';
+      newErrors.fullName = 'Full name is required';
     }
 
     if (formData.phoneNumber && !/^[0-9]{10,11}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Số điện thoại không hợp lệ (10-11 số)';
+      newErrors.phoneNumber = 'Invalid phone number (10-11 digits)';
     }
 
     if (!formData.role) {
-      newErrors.role = 'Phải chọn vai trò';
+      newErrors.role = 'Role is required';
     }
 
     setErrors(newErrors);
@@ -187,10 +187,10 @@ export function EditUserDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Edit className='text-primary h-5 w-5' />
-            Chỉnh sửa User
+            Edit User
           </DialogTitle>
           <DialogDescription>
-            Cập nhật thông tin user. Chỉ áp dụng cho user được tạo bởi admin.
+            Update user information. Applies only to users created by admin.
           </DialogDescription>
         </DialogHeader>
 
@@ -205,12 +205,12 @@ export function EditUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='fullName' className='flex items-center gap-2'>
               <UserIcon className='text-muted-foreground h-4 w-4' />
-              Họ và tên <span className='text-destructive'>*</span>
+              Full name <span className='text-destructive'>*</span>
             </Label>
             <Input
               id='fullName'
               type='text'
-              placeholder='Nguyễn Văn A'
+              placeholder='John Doe'
               value={formData.fullName}
               onChange={(e) => handleInputChange('fullName', e.target.value)}
               disabled={isLoading}
@@ -225,7 +225,7 @@ export function EditUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='phoneNumber' className='flex items-center gap-2'>
               <Phone className='text-muted-foreground h-4 w-4' />
-              Số điện thoại
+              Phone number
             </Label>
             <Input
               id='phoneNumber'
@@ -245,7 +245,7 @@ export function EditUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='status' className='flex items-center gap-2'>
               <Activity className='text-muted-foreground h-4 w-4' />
-              Trạng thái <span className='text-destructive'>*</span>
+              Status <span className='text-destructive'>*</span>
             </Label>
             <Select
               value={formData.status}
@@ -253,7 +253,7 @@ export function EditUserDialog({
               disabled={isLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Chọn trạng thái' />
+                <SelectValue placeholder='Select status' />
               </SelectTrigger>
               <SelectContent>
                 {STATUS_OPTIONS.map((option) => (
@@ -269,7 +269,7 @@ export function EditUserDialog({
           <div className='space-y-2'>
             <Label className='flex items-center gap-2'>
               <Shield className='text-muted-foreground h-4 w-4' />
-              Vai trò <span className='text-destructive'>*</span>
+              Role <span className='text-destructive'>*</span>
             </Label>
             <div className='space-y-2 rounded-md border p-3'>
               {ROLE_OPTIONS.map((option) => (
@@ -304,18 +304,18 @@ export function EditUserDialog({
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
-              Hủy
+              Cancel
             </Button>
             <Button type='submit' disabled={isLoading} className='gap-2'>
               {isLoading ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Đang cập nhật...
+                  Updating...
                 </>
               ) : (
                 <>
                   <Edit className='h-4 w-4' />
-                  Cập nhật
+                  Update
                 </>
               )}
             </Button>

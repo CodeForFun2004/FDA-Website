@@ -49,12 +49,12 @@ export default function SetPasswordModal({
     e.preventDefault();
 
     if (!isPasswordValid) {
-      toast.error('Mật khẩu không đáp ứng yêu cầu bảo mật.');
+      toast.error('Password does not meet security requirements.');
       return;
     }
 
     if (!passwordsMatch) {
-      toast.error('Mật khẩu xác nhận không khớp.');
+      toast.error('Confirmation password does not match.');
       return;
     }
 
@@ -66,16 +66,16 @@ export default function SetPasswordModal({
       });
 
       if (res.success) {
-        toast.success('Đặt lại mật khẩu thành công!');
+        toast.success('Password reset successful!');
         setNewPassword('');
         setConfirmPassword('');
         // Close modal and trigger success callback
         onSuccess?.();
       } else {
-        toast.error(res.message || 'Đặt lại mật khẩu thất bại.');
+        toast.error(res.message || 'Password reset failed.');
       }
     } catch (error: any) {
-      toast.error(error?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(error?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -86,10 +86,10 @@ export default function SetPasswordModal({
       <DialogContent className='sm:max-w-[480px]'>
         <DialogHeader>
           <DialogTitle className='text-xl font-bold'>
-            Đặt mật khẩu mới
+            Set a new password
           </DialogTitle>
           <DialogDescription className='text-muted-foreground text-sm'>
-            Vui lòng đặt mật khẩu cho tài khoản của bạn để bảo mật hơn.
+            Please set a password for your account to keep it secure.
           </DialogDescription>
         </DialogHeader>
 
@@ -97,7 +97,7 @@ export default function SetPasswordModal({
           {/* Email Display (Optional) */}
           {email && (
             <div className='rounded-lg bg-slate-50 p-3'>
-              <p className='text-muted-foreground text-xs'>Tài khoản</p>
+              <p className='text-muted-foreground text-xs'>Account</p>
               <p className='font-medium text-slate-800'>{email}</p>
             </div>
           )}
@@ -105,14 +105,14 @@ export default function SetPasswordModal({
           {/* New Password */}
           <div className='space-y-2'>
             <label className='text-sm font-medium' htmlFor='new-password'>
-              Mật khẩu mới
+              New password
             </label>
             <div className='relative'>
               <Lock className='text-muted-foreground absolute top-2.5 left-3 h-4 w-4' />
               <Input
                 id='new-password'
                 type={showNewPassword ? 'text' : 'password'}
-                placeholder='Nhập mật khẩu mới'
+                placeholder='Enter new password'
                 className='pr-12 pl-9'
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -135,14 +135,14 @@ export default function SetPasswordModal({
           {/* Confirm Password */}
           <div className='space-y-2'>
             <label className='text-sm font-medium' htmlFor='confirm-password'>
-              Xác nhận mật khẩu
+              Confirm password
             </label>
             <div className='relative'>
               <Lock className='text-muted-foreground absolute top-2.5 left-3 h-4 w-4' />
               <Input
                 id='confirm-password'
                 type={showConfirmPassword ? 'text' : 'password'}
-                placeholder='Nhập lại mật khẩu'
+                placeholder='Re-enter password'
                 className='pr-12 pl-9'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -166,28 +166,28 @@ export default function SetPasswordModal({
           {newPassword && (
             <div className='space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3'>
               <p className='text-xs font-medium text-slate-700'>
-                Yêu cầu mật khẩu:
+                Password requirements:
               </p>
               <ul className='space-y-1.5'>
                 <PasswordRule
                   met={passwordRules.minLength}
-                  text='Ít nhất 8 ký tự'
+                  text='At least 8 characters'
                 />
                 <PasswordRule
                   met={passwordRules.hasUpperCase}
-                  text='Có chữ hoa (A-Z)'
+                  text='Contains uppercase (A-Z)'
                 />
                 <PasswordRule
                   met={passwordRules.hasLowerCase}
-                  text='Có chữ thường (a-z)'
+                  text='Contains lowercase (a-z)'
                 />
                 <PasswordRule
                   met={passwordRules.hasNumber}
-                  text='Có số (0-9)'
+                  text='Contains a number (0-9)'
                 />
                 <PasswordRule
                   met={passwordRules.hasSpecial}
-                  text='Có ký tự đặc biệt (!@#$...)'
+                  text='Contains a special character (!@#$...)'
                 />
               </ul>
             </div>
@@ -199,12 +199,12 @@ export default function SetPasswordModal({
               {passwordsMatch ? (
                 <>
                   <CheckCircle2 className='h-4 w-4 text-green-600' />
-                  <span className='text-green-600'>Mật khẩu khớp</span>
+                  <span className='text-green-600'>Passwords match</span>
                 </>
               ) : (
                 <>
                   <div className='h-4 w-4 rounded-full border-2 border-red-500'></div>
-                  <span className='text-red-600'>Mật khẩu không khớp</span>
+                  <span className='text-red-600'>Passwords do not match</span>
                 </>
               )}
             </div>
@@ -219,10 +219,10 @@ export default function SetPasswordModal({
             {loading ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Đang xử lý...
+                Processing...
               </>
             ) : (
-              'Đặt mật khẩu'
+              'Set password'
             )}
           </Button>
         </form>

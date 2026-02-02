@@ -92,7 +92,7 @@ export default function LoginViewPage() {
 
       window.location.assign(authorizationUrl);
     } catch (e: any) {
-      toast.error(e?.message ?? 'Không thể bắt đầu Google Sign-In.');
+      toast.error(e?.message ?? 'Unable to start Google Sign-In.');
     } finally {
       setGoogleLoading(false);
     }
@@ -103,7 +103,7 @@ export default function LoginViewPage() {
       <div className='space-y-2 text-center'>
         <h1 className='text-3xl font-bold'>Welcome Back</h1>
         <p className='text-muted-foreground'>
-          Nhập Email/SĐT để đăng nhập bằng OTP hoặc Password.
+          Enter email/phone to sign in with OTP or password.
         </p>
       </div>
 
@@ -125,13 +125,13 @@ export default function LoginViewPage() {
           </svg>
           <div className='flex-1 text-sm'>
             <p className='font-medium text-blue-900 dark:text-blue-100'>
-              Hệ thống quản lý dành cho Chính quyền
+              Administration portal for authorities
             </p>
             <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
-              Đây là trang đăng nhập dành cho <strong>Admin</strong>,{' '}
-              <strong>Authority</strong> và <strong>Super Admin</strong>. Người
-              dùng thường không thể đăng ký tài khoản. Vui lòng liên hệ quản trị
-              viên để được cấp quyền truy cập.
+              This login page is for <strong>Admin</strong>,{' '}
+              <strong>Authority</strong>, and <strong>Super Admin</strong>.
+              Regular users cannot self-register. Please contact an
+              administrator for access.
             </p>
           </div>
         </div>

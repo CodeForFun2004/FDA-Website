@@ -45,7 +45,7 @@ export function RouteResultCards({
                     <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75'></span>
                     <span className='relative inline-flex h-1.5 w-1.5 rounded-full bg-white'></span>
                   </span>
-                  Đang hiển thị
+                  Displaying
                 </span>
               </div>
             )}
@@ -69,10 +69,10 @@ export function RouteResultCards({
                   <div className='min-w-0 flex-1'>
                     <h3 className='truncate text-sm font-bold text-slate-900'>
                       {isSafest
-                        ? 'Lộ trình An toàn nhất'
+                        ? 'Safest route'
                         : route.type === 'Fastest'
-                          ? 'Lộ trình Nhanh nhất'
-                          : 'Lộ trình Thay thế'}
+                          ? 'Fastest route'
+                          : 'Alternative route'}
                     </h3>
                     <p className='truncate text-[10px] font-medium text-slate-500'>
                       {route.summary}
@@ -98,7 +98,7 @@ export function RouteResultCards({
                 <div className='grid grid-cols-3 gap-1.5 border-t border-b border-slate-100 py-2'>
                   <div className='rounded-md bg-slate-50 p-1 text-center'>
                     <p className='text-[8px] font-bold text-slate-400 uppercase'>
-                      Thời gian
+                      Time
                     </p>
                     <p className='text-xs font-black text-slate-800'>
                       {route.duration}
@@ -106,7 +106,7 @@ export function RouteResultCards({
                   </div>
                   <div className='rounded-md bg-slate-50 p-1 text-center'>
                     <p className='text-[8px] font-bold text-slate-400 uppercase'>
-                      Cự ly
+                      Distance
                     </p>
                     <p className='text-xs font-black text-slate-800'>
                       {route.distance}
@@ -119,7 +119,7 @@ export function RouteResultCards({
                     )}
                   >
                     <p className='text-[8px] font-bold text-slate-400 uppercase'>
-                      Rủi ro
+                      Risk
                     </p>
                     <p
                       className={cn(
@@ -130,10 +130,10 @@ export function RouteResultCards({
                       )}
                     >
                       {route.riskLevel === 'Low'
-                        ? 'THẤP'
+                        ? 'LOW'
                         : route.riskLevel === 'Medium'
-                          ? 'VỪA'
-                          : 'CAO'}
+                          ? 'MEDIUM'
+                          : 'HIGH'}
                     </p>
                   </div>
                 </div>
@@ -171,7 +171,7 @@ export function RouteResultCards({
                   )}
                 >
                   <Navigation className='mr-1.5 h-3 w-3' />
-                  {isSelected ? 'Bắt đầu' : 'Xem'}
+                  {isSelected ? 'Start' : 'View'}
                 </Button>
               </div>
             </Card>

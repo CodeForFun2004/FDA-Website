@@ -114,7 +114,7 @@ export function ProfileMenu({
       const res = await getUserProfileApi();
       setProfile(res.profile);
     } catch (e: any) {
-      toast.error(e?.message ?? 'Không lấy được hồ sơ.');
+      toast.error(e?.message ?? 'Unable to load profile.');
       // giữ fallback tối thiểu để modal vẫn mở được
       setProfile(
         (prev) =>
@@ -214,7 +214,7 @@ export function ProfileMenu({
               }}
             >
               <LogOut className='h-4 w-4' />
-              Đăng xuất
+              Sign out
             </Button>
           </div>
         </div>

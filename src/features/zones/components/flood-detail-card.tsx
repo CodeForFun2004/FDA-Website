@@ -3,13 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui/common';
-import {
-  AlertTriangle,
-  Droplets,
-  Navigation,
-  Clock,
-  Activity
-} from 'lucide-react';
+import { AlertTriangle, Droplets, Clock, Activity, MapPin } from 'lucide-react';
 import type { FloodStationProperties } from '@/features/zones/api/flood-severity.api';
 
 export type FloodFeatureProps = {
@@ -18,47 +12,73 @@ export type FloodFeatureProps = {
 };
 
 export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
-  // Config color based on severityLevel
-  // 0: Safe (Green), 1: Caution (Yellow), 2: Warning (Orange), 3: Critical (Red)
-  const getSeverityConfig = (level: number) => {
-    switch (level) {
-      case 3:
-        return {
-          label: 'Nguy cơ cao',
-          color: 'text-red-600',
-          bg: 'bg-red-500',
-          ping: true,
-          icon: null
-        };
-      case 2:
-        return {
-          label: 'Cảnh báo',
-          color: 'text-orange-600',
-          bg: 'bg-orange-500',
-          ping: false,
-          icon: <AlertTriangle className='mr-1 h-3 w-3' />
-        };
-      case 1:
-        return {
-          label: 'Chú ý',
-          color: 'text-yellow-600',
-          bg: 'bg-yellow-500',
-          ping: false,
-          icon: <Activity className='mr-1 h-3 w-3' />
-        };
-      default:
-        return {
-          label: 'An toàn',
-          color: 'text-emerald-600',
-          bg: 'bg-emerald-500',
-          ping: false,
-          icon: <Droplets className='mr-1 h-3 w-3' />
-        };
+  const severityKey =
+    properties.severity ??
+    (properties.severityLevel === 3
+      ? 'critical'
+      : properties.severityLevel === 2
+        ? 'warning'
+        : properties.severityLevel === 1
+          ? 'caution'
+          : 'safe');
+
+  const severityConfig: Record<
+    string,
+    {
+      label: string;
+      color: string;
+      bg: string;
+      softBg: string;
+      icon: React.ReactNode;
+    }
+  > = {
+    critical: {
+      label: properties.alertLevel ?? 'CRITICAL',
+      color: 'text-red-600',
+      bg: 'bg-red-500',
+      softBg: 'bg-red-50',
+      icon: null
+    },
+    warning: {
+      label: properties.alertLevel ?? 'WARNING',
+      color: 'text-orange-600',
+      bg: 'bg-orange-500',
+      softBg: 'bg-orange-50',
+      icon: <AlertTriangle className='mr-1 h-3 w-3' />
+    },
+    caution: {
+      label: properties.alertLevel ?? 'CAUTION',
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-500',
+      softBg: 'bg-yellow-50',
+      icon: <Activity className='mr-1 h-3 w-3' />
+    },
+    safe: {
+      label: properties.alertLevel ?? 'SAFE',
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-500',
+      softBg: 'bg-emerald-50',
+      icon: <Droplets className='mr-1 h-3 w-3' />
+    },
+    unknown: {
+      label: properties.alertLevel ?? 'NO DATA',
+      color: 'text-slate-600',
+      bg: 'bg-slate-400',
+      softBg: 'bg-slate-50',
+      icon: <Droplets className='mr-1 h-3 w-3' />
     }
   };
 
-  const config = getSeverityConfig(properties.severityLevel ?? 0);
+  const config = severityConfig[severityKey] ?? severityConfig.unknown;
   const displayStationCode = properties.stationCode ?? properties.code ?? 'N/A';
+  const unit = properties.unit ?? 'cm';
+
+  const formatNumber = (value: number | null | undefined, digits = 1) => {
+    if (value === null || value === undefined || !Number.isFinite(value))
+      return '--';
+    if (Number.isInteger(value)) return String(value);
+    return value.toFixed(digits);
+  };
 
   // Format date
   const formattedDate = properties.measuredAt
@@ -77,14 +97,6 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
     properties.code ??
     properties.stationName;
 
-  console.log('Rendering FloodDetailCard for station:', {
-    stationId: properties.stationId,
-    stationCode: properties.stationCode,
-    apiId: properties.id,
-    apiCode: properties.code,
-    resolvedStationId
-  });
-
   return (
     <div className='pointer-events-auto w-full max-w-xs'>
       <Card className='pointer-events-auto overflow-hidden rounded-2xl border-none bg-white/95 shadow-xl backdrop-blur-md'>
@@ -95,27 +107,13 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
               <h2 className='text-lg leading-tight font-bold text-slate-800'>
                 {properties.stationName || `Trạm ${displayStationCode}`}
               </h2>
-              <div className='mt-1.5 flex items-center gap-2'>
-                <span
-                  className={`flex items-center text-[10px] font-bold ${config.color}`}
-                >
-                  {config.ping ? (
-                    <span className='relative mr-1 flex h-2 w-2'>
-                      <span
-                        className={`absolute inline-flex h-full w-full animate-ping rounded-full ${config.bg} opacity-75`}
-                      ></span>
-                      <span
-                        className={`relative inline-flex h-2 w-2 rounded-full ${config.bg}`}
-                      ></span>
-                    </span>
-                  ) : (
-                    config.icon
-                  )}
-                  {config.label}
+              <div className='mt-1.5 flex items-center gap-2 text-[10px]'>
+                <span className='font-semibold text-slate-500'>
+                  {displayStationCode}
                 </span>
-                <span className='text-[10px] text-slate-400'>•</span>
-                <span className='text-[10px] font-medium text-slate-500 uppercase'>
-                  {properties.stationStatus}
+                <span className='text-slate-300'>•</span>
+                <span className='font-medium text-slate-500 uppercase'>
+                  {properties.stationStatus ?? 'unknown'}
                 </span>
               </div>
             </div>
@@ -132,27 +130,57 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
 
         {/* Content Body */}
         <div className='px-4 pb-4'>
-          <div className='mb-3 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3'>
-            <div>
-              <p className='text-[10px] whitespace-nowrap text-slate-500'>
-                Mực nước hiện tại
-              </p>
+          <div className='mb-3 flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-xs text-slate-600'>
+            <MapPin className='mt-0.5 h-4 w-4 text-slate-500' />
+            <div className='min-w-0'>
+              <div className='font-semibold text-slate-700'>
+                {properties.roadName ?? 'Không có thông tin đường'}
+              </div>
+              <div className='text-slate-500'>
+                {properties.locationDesc ?? 'Không có mô tả vị trí'}
+              </div>
+            </div>
+          </div>
+
+          <div className='mb-3 grid grid-cols-2 gap-3'>
+            <div
+              className={`rounded-xl border border-transparent ${config.softBg} p-3`}
+            >
+              <p className='text-[10px] text-slate-500'>Mực nước</p>
               <div className='flex items-baseline gap-1'>
-                <span className='text-3xl font-bold tracking-tight text-slate-800'>
-                  {properties.waterLevel?.toFixed(2) ?? '--'}
+                <span className={`text-3xl font-bold ${config.color}`}>
+                  {formatNumber(properties.waterLevel, 1)}
                 </span>
                 <span className='text-xs font-semibold text-slate-500'>
-                  {properties.unit}
+                  {unit}
                 </span>
               </div>
             </div>
-            <div className='flex flex-col justify-center'>
-              <p className='text-[10px] whitespace-nowrap text-slate-500'>
-                Mã trạm
-              </p>
-              <p className='mt-0.5 text-sm leading-tight font-semibold break-words text-slate-700'>
-                {displayStationCode}
-              </p>
+            <div className='rounded-xl bg-slate-50 p-3'>
+              <p className='text-[10px] text-slate-500'>Cảnh báo</p>
+              <div className='mt-1 flex items-center gap-2'>
+                <span className={`h-2.5 w-2.5 rounded-full ${config.bg}`} />
+                <span className={`text-xs font-bold ${config.color}`}>
+                  {config.label}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className='mb-3 grid grid-cols-2 gap-3 text-xs text-slate-600'>
+            <div className='rounded-xl bg-slate-50 p-3'>
+              <div className='text-[10px] text-slate-500'>
+                Chiều cao cảm biến
+              </div>
+              <div className='mt-1 text-lg font-semibold text-slate-800'>
+                {formatNumber(properties.sensorHeight, 0)} {unit}
+              </div>
+            </div>
+            <div className='rounded-xl bg-slate-50 p-3'>
+              <div className='text-[10px] text-slate-500'>Khoảng cách</div>
+              <div className='mt-1 text-lg font-semibold text-slate-800'>
+                {formatNumber(properties.distance, 1)} {unit}
+              </div>
             </div>
           </div>
 
@@ -169,8 +197,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
             <Button
               asChild
               size='sm'
-              variant='outline'
-              className='h-7 rounded-lg border-blue-200 px-2 text-[10px] font-semibold text-blue-600 hover:bg-blue-50'
+              className={`h-8 rounded-lg px-3 text-xs font-semibold text-white ${config.bg} hover:opacity-90`}
             >
               <Link
                 href={
@@ -179,7 +206,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
                     : '/admin/flood-history'
                 }
               >
-                View detail
+                Chi tiết
               </Link>
             </Button>
           </div>

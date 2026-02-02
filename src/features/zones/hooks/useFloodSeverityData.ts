@@ -11,12 +11,45 @@ type Args = {
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
+const DEFAULT_ZOOM = 12;
+const METERS_PER_PIXEL_AT_ZOOM_0 = 156543.03392;
+const DEG_TO_RAD = Math.PI / 180;
+
 const isMapReady = (map: maplibregl.Map) => {
   if (typeof map.isStyleLoaded === 'function' && !map.isStyleLoaded())
     return false;
   if (typeof (map as any).loaded === 'function' && !(map as any).loaded())
     return false;
   return true;
+};
+
+const toNumber = (value: unknown) => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  return null;
+};
+
+const resolveRadiusMeters = (properties: any) => {
+  const direct =
+    toNumber(properties?.radiusMeters) ??
+    toNumber(properties?.radius) ??
+    toNumber(properties?.alertRadius);
+  if (direct !== null) return direct;
+
+  const distance = toNumber(properties?.distance);
+  if (distance === null) return null;
+
+  const unit = String(properties?.unit ?? '').toLowerCase();
+  if (unit === 'cm') return distance / 100;
+  if (unit === 'm' || unit === 'meter' || unit === 'meters') return distance;
+  return distance;
+};
+
+const metersToPixels = (meters: number, latitude: number, zoom: number) => {
+  const metersPerPixel =
+    (METERS_PER_PIXEL_AT_ZOOM_0 * Math.cos(latitude * DEG_TO_RAD)) /
+    Math.pow(2, zoom);
+  if (!Number.isFinite(metersPerPixel) || metersPerPixel <= 0) return 0;
+  return meters / metersPerPixel;
 };
 
 export function useFloodSeverityData({
@@ -37,7 +70,7 @@ export function useFloodSeverityData({
 
     const b = map.getBounds();
     const bounds = `${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()}`;
-    const zoom = Math.round(map.getZoom());
+    const zoom = Math.round(map.getZoom() ?? DEFAULT_ZOOM);
 
     const key = `${bounds}|${zoom}`;
     if (key === lastKeyRef.current) return;
@@ -58,9 +91,36 @@ export function useFloodSeverityData({
       });
       if (ac.signal.aborted) return;
 
-      setData(geojson);
+      const features = (geojson?.features ?? []).map((feature: any) => {
+        const properties = feature?.properties ?? {};
+        const coordinates = feature?.geometry?.coordinates;
+        const latitude = Array.isArray(coordinates)
+          ? toNumber(coordinates[1])
+          : null;
+        const radiusMeters = resolveRadiusMeters(properties);
+        const radiusPx =
+          latitude !== null && radiusMeters !== null && radiusMeters > 0
+            ? metersToPixels(radiusMeters, latitude, zoom)
+            : null;
+
+        return {
+          ...feature,
+          properties: {
+            ...properties,
+            radiusMeters,
+            radiusPx
+          }
+        };
+      });
+
+      const nextGeojson = {
+        ...geojson,
+        features
+      };
+
+      setData(nextGeojson);
       setStatus('success');
-      onData?.(geojson);
+      onData?.(nextGeojson);
     } catch (e) {
       if ((e as any)?.name === 'AbortError') return;
       setStatus('error');

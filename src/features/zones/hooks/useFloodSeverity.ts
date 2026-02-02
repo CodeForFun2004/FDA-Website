@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import type maplibregl from 'maplibre-gl';
+import type { FeatureCollection } from 'geojson';
 
 type Args = {
   mapRef: React.RefObject<maplibregl.Map | null>;
@@ -10,7 +11,10 @@ type Args = {
   data?: any;
 };
 
-const EMPTY_GEOJSON = { type: 'FeatureCollection', features: [] };
+const EMPTY_GEOJSON: FeatureCollection = {
+  type: 'FeatureCollection',
+  features: []
+};
 
 export function useFloodSeverity({ mapRef, enabled, opacity, data }: Args) {
   const ensureLayer = React.useCallback(

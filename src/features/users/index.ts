@@ -5,6 +5,6 @@ export {
   type UseUsersResult
 } from './hooks/useUsers';
 
-export { UsersView, type UsersViewProps } from './views/users-view';
+export { default as UsersView } from './views/users-view';
 export { CreateUserDialog, type CreateUserDialogProps } from './components';
 export type { User, Role } from './types';

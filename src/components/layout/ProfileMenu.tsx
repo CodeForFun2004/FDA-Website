@@ -76,7 +76,7 @@ type ProfileMenuProps = {
     name: string;
     email: string;
     avatarUrl?: string | null;
-    role?: string;
+    roles?: string[];
   };
 
   onLogout?: () => void;
@@ -125,13 +125,13 @@ export function ProfileMenu({
             fullName: user.name,
             phoneNumber: null,
             avatarUrl: user.avatarUrl ?? null,
-            roles: user.role ? [user.role] : ['USER']
+            roles: user.roles && user.roles.length > 0 ? user.roles : ['USER']
           } as UserProfile)
       );
     } finally {
       setLoadingProfile(false);
     }
-  }, [user.email, user.name, user.avatarUrl, user.role]);
+  }, [user.email, user.name, user.avatarUrl, user.roles]);
 
   const openProfileModal = async () => {
     setOpen(false);
@@ -153,7 +153,9 @@ export function ProfileMenu({
         <div className='hidden text-left sm:block'>
           <div className='text-sm leading-4 font-medium'>{user.name}</div>
           <div className='text-muted-foreground text-xs leading-4'>
-            {user.role || 'Member'}
+            {user.roles && user.roles.length > 0
+              ? user.roles.join(', ')
+              : 'Member'}
           </div>
         </div>
         <ChevronDown

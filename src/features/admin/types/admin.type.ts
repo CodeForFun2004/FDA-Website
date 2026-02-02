@@ -50,6 +50,7 @@ export type CreateUserRequest = {
   password: string;
   fullName: string;
   phoneNumber?: string;
+  status?: string;
   roleNames: string[];
 };
 

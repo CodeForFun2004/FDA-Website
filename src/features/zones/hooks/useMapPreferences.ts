@@ -16,32 +16,16 @@ import {
   getUserMapPreferences,
   putUserMapPreferences
 } from '../api/map-preferences.api';
-
-/**
- * TODO: chỉnh hàm này theo auth-store của project bạn.
- * - Nếu token đang nằm trong localStorage key khác => sửa tại đây
- */
-function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const storageVal = localStorage.getItem('fda_auth');
-    if (!storageVal) return null;
-    const parsed = JSON.parse(storageVal);
-    // Zustand persist structure: { state: { accessToken: ... }, version: ... }
-    return parsed?.state?.accessToken ?? null;
-  } catch (error) {
-    console.error('Error parsing fda_auth from localStorage', error);
-    return null;
-  }
-}
+import { getAccessToken } from '@/lib/auth-utils';
+import { useAuthStore } from '@/features/authenticate/store/auth-store';
 
 type SyncState = 'idle' | 'saving' | 'unsynced' | 'offline' | 'error';
 
 export function useMapPreferences() {
   const [prefs, setPrefs] = React.useState<MapLayerPrefs>(DEFAULT_MAP_PREFS);
   const [syncState, setSyncState] = React.useState<SyncState>('idle');
-  const token = getAccessToken();
-  const isAuthenticated = !!token;
+  const authStatus = useAuthStore((state) => state.status);
+  const isAuthenticated = authStatus === 'authenticated';
 
   // helper: merge patch
   const setPrefsPartial = React.useCallback((patch: Partial<MapLayerPrefs>) => {
@@ -59,19 +43,20 @@ export function useMapPreferences() {
 
   // initial load
   React.useEffect(() => {
-    if (!isAuthenticated) {
-      // guest
-      const guest = readGuestPrefs();
-      setPrefs(guest ?? DEFAULT_MAP_PREFS);
-      setSyncState('idle');
-      return;
-    }
-
-    // logged-in
     (async () => {
+      const token = await getAccessToken();
+      if (!token) {
+        // guest
+        const guest = readGuestPrefs();
+        setPrefs(guest ?? DEFAULT_MAP_PREFS);
+        setSyncState('idle');
+        return;
+      }
+
+      // logged-in
       try {
         const guest = readGuestPrefs();
-        const server = await getUserMapPreferences(token!);
+        const server = await getUserMapPreferences(token);
 
         setPrefs(server);
 
@@ -104,7 +89,7 @@ export function useMapPreferences() {
         const pending = readPendingPrefs();
         if (pending && navigator.onLine) {
           setSyncState('saving');
-          await putUserMapPreferences(token!, pending);
+          await putUserMapPreferences(token, pending);
           clearPendingPrefs();
           setSyncState('idle');
         }
@@ -120,7 +105,13 @@ export function useMapPreferences() {
 
   // Debounced saver (logged-in)
   const debouncedSave = React.useMemo(() => {
-    return debounce(async (nextPrefs: MapLayerPrefs, jwt: string) => {
+    return debounce(async (nextPrefs: MapLayerPrefs) => {
+      const jwt = await getAccessToken();
+      if (!jwt) {
+        writeGuestPrefs(nextPrefs);
+        setSyncState('idle');
+        return;
+      }
       if (!navigator.onLine) {
         writePendingPrefs(nextPrefs);
         setSyncState('offline');
@@ -150,7 +141,7 @@ export function useMapPreferences() {
 
     // logged-in: debounce PUT
     // debouncedSave(prefs, token!);
-  }, [prefs, isAuthenticated, token, debouncedSave]);
+  }, [prefs, isAuthenticated, debouncedSave]);
 
   // retry pending when back online
   React.useEffect(() => {
@@ -158,7 +149,9 @@ export function useMapPreferences() {
 
     const onOnline = async () => {
       const pending = readPendingPrefs();
-      if (!pending || !token) return;
+      if (!pending) return;
+      const token = await getAccessToken();
+      if (!token) return;
 
       try {
         setSyncState('saving');
@@ -172,10 +165,11 @@ export function useMapPreferences() {
 
     window.addEventListener('online', onOnline);
     return () => window.removeEventListener('online', onOnline);
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated]);
 
   // Manual save function
   const saveManual = React.useCallback(async () => {
+    const token = await getAccessToken();
     if (!token) return;
     try {
       setSyncState('saving');
@@ -184,7 +178,7 @@ export function useMapPreferences() {
     } catch {
       setSyncState('unsynced');
     }
-  }, [prefs, token]);
+  }, [prefs]);
 
   // Removed auto-save effect to rely on manual save as requested
   // React.useEffect(() => { ... }, [prefs...]);

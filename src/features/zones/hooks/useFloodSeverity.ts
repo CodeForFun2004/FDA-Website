@@ -2,34 +2,39 @@
 
 import * as React from 'react';
 import type maplibregl from 'maplibre-gl';
-import { getFloodSeverityGeoJSON } from '../api/flood-severity.api';
+import type { FeatureCollection } from 'geojson';
 
 type Args = {
   mapRef: React.RefObject<maplibregl.Map | null>;
   enabled: boolean;
   opacity: number; // 0..1
-  onData?: (geojson: any) => void;
+  data?: any;
 };
 
-export function useFloodSeverity({ mapRef, enabled, opacity, onData }: Args) {
-  const abortRef = React.useRef<AbortController | null>(null);
-  const lastKeyRef = React.useRef<string>('');
+const EMPTY_GEOJSON: FeatureCollection = {
+  type: 'FeatureCollection',
+  features: []
+};
 
+export function useFloodSeverity({ mapRef, enabled, opacity, data }: Args) {
   const ensureLayer = React.useCallback(
     (map: maplibregl.Map) => {
       const sourceId = 'flood-severity';
-      const layerId = 'flood-severity-circle';
+      const markerLayerId = 'flood-severity-circle';
+      const criticalLayerId = 'flood-severity-critical-radius';
+
+      if (!map.isStyleLoaded()) return;
 
       if (!map.getSource(sourceId)) {
         map.addSource(sourceId, {
           type: 'geojson',
-          data: { type: 'FeatureCollection', features: [] }
+          data: EMPTY_GEOJSON
         });
       }
 
-      if (!map.getLayer(layerId)) {
+      if (!map.getLayer(markerLayerId)) {
         map.addLayer({
-          id: layerId,
+          id: markerLayerId,
           type: 'circle',
           source: sourceId,
           paint: {
@@ -38,32 +43,63 @@ export function useFloodSeverity({ mapRef, enabled, opacity, onData }: Args) {
               ['linear'],
               ['zoom'],
               8,
-              4,
+              5,
               12,
-              7,
+              8,
               16,
-              10
+              12
             ],
             'circle-color': [
-              'match',
-              ['get', 'severityLevel'],
-              0,
-              '#22c55e', // safe
-              1,
-              '#eab308', // caution
-              2,
-              '#f97316', // warning
-              3,
-              '#ef4444', // critical
-              '#94a3b8'
+              'coalesce',
+              ['get', 'markerColor'],
+              [
+                'match',
+                ['get', 'severity'],
+                'safe',
+                '#10B981',
+                'caution',
+                '#FBBF24',
+                'warning',
+                '#F97316',
+                'critical',
+                '#EF4444',
+                '#64748B'
+              ]
             ],
-            'circle-stroke-color': '#0f172a',
-            'circle-stroke-width': 1,
+            'circle-stroke-color': '#ffffff',
+            'circle-stroke-width': 2,
             'circle-opacity': opacity
           }
         });
       } else {
-        map.setPaintProperty(layerId, 'circle-opacity', opacity);
+        map.setPaintProperty(markerLayerId, 'circle-opacity', opacity);
+      }
+
+      if (!map.getLayer(criticalLayerId)) {
+        map.addLayer({
+          id: criticalLayerId,
+          type: 'circle',
+          source: sourceId,
+          filter: ['==', ['get', 'severity'], 'critical'],
+          paint: {
+            'circle-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              8,
+              ['coalesce', ['get', 'radiusPx'], 30],
+              12,
+              ['coalesce', ['get', 'radiusPx'], 70],
+              16,
+              ['coalesce', ['get', 'radiusPx'], 140]
+            ],
+            'circle-color': '#EF4444',
+            'circle-opacity': 0.18,
+            'circle-stroke-color': '#EF4444',
+            'circle-stroke-opacity': 0.6,
+            'circle-stroke-width': 2
+          }
+        });
       }
     },
     [opacity]
@@ -71,9 +107,11 @@ export function useFloodSeverity({ mapRef, enabled, opacity, onData }: Args) {
 
   const removeLayer = React.useCallback((map: maplibregl.Map) => {
     const sourceId = 'flood-severity';
-    const layerId = 'flood-severity-circle';
+    const markerLayerId = 'flood-severity-circle';
+    const criticalLayerId = 'flood-severity-critical-radius';
 
-    if (map.getLayer(layerId)) map.removeLayer(layerId);
+    if (map.getLayer(criticalLayerId)) map.removeLayer(criticalLayerId);
+    if (map.getLayer(markerLayerId)) map.removeLayer(markerLayerId);
     if (map.getSource(sourceId)) map.removeSource(sourceId);
   }, []);
 
@@ -82,44 +120,13 @@ export function useFloodSeverity({ mapRef, enabled, opacity, onData }: Args) {
     if (src?.setData) src.setData(geojson);
   }, []);
 
-  const fetchAndUpdate = React.useCallback(async () => {
+  const syncLayer = React.useCallback(() => {
     const map = mapRef.current;
-    if (!map || !enabled) return;
-
+    if (!map || !enabled || !map.isStyleLoaded()) return;
     ensureLayer(map);
+    setData(map, data ?? EMPTY_GEOJSON);
+  }, [data, enabled, ensureLayer, mapRef, setData]);
 
-    const b = map.getBounds();
-    const bounds = `${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()}`;
-    const zoom = Math.round(map.getZoom());
-
-    const key = `${bounds}|${zoom}`;
-    if (key === lastKeyRef.current) return;
-    lastKeyRef.current = key;
-
-    abortRef.current?.abort();
-    const ac = new AbortController();
-    abortRef.current = ac;
-
-    try {
-      const geojson = await getFloodSeverityGeoJSON({
-        bounds,
-        zoom,
-        signal: ac.signal
-      });
-      if (ac.signal.aborted) return;
-
-      onData?.(geojson);
-
-      // update
-      setData(map, geojson);
-    } catch (e) {
-      if ((e as any)?.name === 'AbortError') return;
-      // bạn có thể toast lỗi ở đây nếu muốn
-      // console.error("Flood severity fetch failed", e);
-    }
-  }, [enabled, ensureLayer, mapRef, onData, setData]);
-
-  // bind events
   React.useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -129,24 +136,23 @@ export function useFloodSeverity({ mapRef, enabled, opacity, onData }: Args) {
       return;
     }
 
-    // initial
-    fetchAndUpdate();
-
-    let t: any = null;
-    const schedule = () => {
-      clearTimeout(t);
-      t = setTimeout(() => fetchAndUpdate(), 400);
+    const handleLoad = () => {
+      syncLayer();
     };
 
-    map.on('moveend', schedule);
-    map.on('zoomend', schedule);
+    if (map.isStyleLoaded()) {
+      syncLayer();
+    } else {
+      map.once('load', handleLoad);
+    }
+
+    map.on('style.load', handleLoad);
 
     return () => {
-      clearTimeout(t);
-      map.off('moveend', schedule);
-      map.off('zoomend', schedule);
+      map.off('style.load', handleLoad);
+      map.off('load', handleLoad);
     };
-  }, [enabled, fetchAndUpdate, mapRef, removeLayer]);
+  }, [enabled, mapRef, removeLayer, syncLayer]);
 
   // update opacity
   React.useEffect(() => {

@@ -15,7 +15,7 @@ function mapAdminUserToUser(adminUser: AdminUser): User {
     id: adminUser.id,
     name: adminUser.fullName || adminUser.email.split('@')[0], // Fallback to email prefix if no name
     email: adminUser.email,
-    role: mapRoleFromBackend(adminUser.roles),
+    roles: mapRolesFromBackend(adminUser.roles),
     status: mapStatusFromBackend(adminUser.status),
     isAdminCreated: adminUser.isAdminCreated,
     createdAt: adminUser.createdAt,
@@ -24,13 +24,12 @@ function mapAdminUserToUser(adminUser: AdminUser): User {
 }
 
 /**
- * Map backend roles array to single Role for display
- * Takes the first role or defaults to 'USER'
+ * Map backend roles array to frontend Role list
  */
-function mapRoleFromBackend(
+function mapRolesFromBackend(
   roles: string[]
-): 'ADMIN' | 'USER' | 'SUPER_ADMIN' | 'AUTHORITY' {
-  if (!roles || roles.length === 0) return 'USER';
+): Array<'ADMIN' | 'USER' | 'SUPER_ADMIN' | 'AUTHORITY'> {
+  if (!roles || roles.length === 0) return ['USER'];
 
   // Map backend role names to frontend Role type
   const roleMap: Record<
@@ -51,7 +50,9 @@ function mapRoleFromBackend(
     authority: 'AUTHORITY'
   };
 
-  return roleMap[roles[0]] || 'USER';
+  const normalized = roles.map((role) => roleMap[role]).filter(Boolean);
+
+  return normalized.length > 0 ? normalized : ['USER'];
 }
 
 /**

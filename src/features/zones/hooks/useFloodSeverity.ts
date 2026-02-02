@@ -2,28 +2,28 @@
 
 import * as React from 'react';
 import type maplibregl from 'maplibre-gl';
-import { getFloodSeverityGeoJSON } from '../api/flood-severity.api';
 
 type Args = {
   mapRef: React.RefObject<maplibregl.Map | null>;
   enabled: boolean;
   opacity: number; // 0..1
-  onData?: (geojson: any) => void;
+  data?: any;
 };
 
-export function useFloodSeverity({ mapRef, enabled, opacity, onData }: Args) {
-  const abortRef = React.useRef<AbortController | null>(null);
-  const lastKeyRef = React.useRef<string>('');
+const EMPTY_GEOJSON = { type: 'FeatureCollection', features: [] };
 
+export function useFloodSeverity({ mapRef, enabled, opacity, data }: Args) {
   const ensureLayer = React.useCallback(
     (map: maplibregl.Map) => {
       const sourceId = 'flood-severity';
       const layerId = 'flood-severity-circle';
 
+      if (!map.isStyleLoaded()) return;
+
       if (!map.getSource(sourceId)) {
         map.addSource(sourceId, {
           type: 'geojson',
-          data: { type: 'FeatureCollection', features: [] }
+          data: EMPTY_GEOJSON
         });
       }
 
@@ -82,44 +82,13 @@ export function useFloodSeverity({ mapRef, enabled, opacity, onData }: Args) {
     if (src?.setData) src.setData(geojson);
   }, []);
 
-  const fetchAndUpdate = React.useCallback(async () => {
+  const syncLayer = React.useCallback(() => {
     const map = mapRef.current;
-    if (!map || !enabled) return;
-
+    if (!map || !enabled || !map.isStyleLoaded()) return;
     ensureLayer(map);
+    setData(map, data ?? EMPTY_GEOJSON);
+  }, [data, enabled, ensureLayer, mapRef, setData]);
 
-    const b = map.getBounds();
-    const bounds = `${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()}`;
-    const zoom = Math.round(map.getZoom());
-
-    const key = `${bounds}|${zoom}`;
-    if (key === lastKeyRef.current) return;
-    lastKeyRef.current = key;
-
-    abortRef.current?.abort();
-    const ac = new AbortController();
-    abortRef.current = ac;
-
-    try {
-      const geojson = await getFloodSeverityGeoJSON({
-        bounds,
-        zoom,
-        signal: ac.signal
-      });
-      if (ac.signal.aborted) return;
-
-      onData?.(geojson);
-
-      // update
-      setData(map, geojson);
-    } catch (e) {
-      if ((e as any)?.name === 'AbortError') return;
-      // bạn có thể toast lỗi ở đây nếu muốn
-      // console.error("Flood severity fetch failed", e);
-    }
-  }, [enabled, ensureLayer, mapRef, onData, setData]);
-
-  // bind events
   React.useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -129,24 +98,23 @@ export function useFloodSeverity({ mapRef, enabled, opacity, onData }: Args) {
       return;
     }
 
-    // initial
-    fetchAndUpdate();
-
-    let t: any = null;
-    const schedule = () => {
-      clearTimeout(t);
-      t = setTimeout(() => fetchAndUpdate(), 400);
+    const handleLoad = () => {
+      syncLayer();
     };
 
-    map.on('moveend', schedule);
-    map.on('zoomend', schedule);
+    if (map.isStyleLoaded()) {
+      syncLayer();
+    } else {
+      map.once('load', handleLoad);
+    }
+
+    map.on('style.load', handleLoad);
 
     return () => {
-      clearTimeout(t);
-      map.off('moveend', schedule);
-      map.off('zoomend', schedule);
+      map.off('style.load', handleLoad);
+      map.off('load', handleLoad);
     };
-  }, [enabled, fetchAndUpdate, mapRef, removeLayer]);
+  }, [enabled, mapRef, removeLayer, syncLayer]);
 
   // update opacity
   React.useEffect(() => {

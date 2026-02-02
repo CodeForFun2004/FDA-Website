@@ -12,6 +12,7 @@ import {
   setOverlayVisibility
 } from '../../map/utils';
 import { useFloodSeverity } from '../../hooks/useFloodSeverity';
+import { useFloodSeverityData } from '../../hooks/useFloodSeverityData';
 import { useFloodStationsStore } from '../../store/flood-stations-store';
 
 import { FloodDetailCard } from '../flood-detail-card';
@@ -35,9 +36,6 @@ const ENABLE_FLOOD_ROADS_MOCK = true; // <-- đổi false nếu chưa muốn ran
 export default function MapView({ prefs }: Props) {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const mapRef = React.useRef<maplibregl.Map | null>(null);
-
-  // giữ cache flood severity geojson để rehydrate khi setStyle
-  const floodDataCacheRef = React.useRef<any>(null);
 
   // ✅ giữ cache flood roads geojson để rehydrate khi setStyle
   const floodRoadsCacheRef = React.useRef<FloodRoadFC | null>(null);
@@ -266,15 +264,19 @@ export default function MapView({ prefs }: Props) {
     prefs.opacity?.weather
   ]);
 
-  // Flood severity hook: fetch + update geojson source
-  useFloodSeverity({
+  const { data: floodGeojson } = useFloodSeverityData({
     mapRef,
-    enabled: prefs.overlays.flood,
-    opacity: (prefs.opacity?.flood ?? 80) / 100,
     onData: (geojson) => {
-      floodDataCacheRef.current = geojson;
       setStationsFromGeojson(geojson);
     }
+  });
+
+  // Flood severity layer: render only (independent from data fetching)
+  useFloodSeverity({
+    mapRef,
+    enabled: true,
+    opacity: (prefs.opacity?.flood ?? 80) / 100,
+    data: floodGeojson
   });
 
   return (

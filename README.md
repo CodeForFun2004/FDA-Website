@@ -36,22 +36,8 @@ Routes live in `src/app`:
 
 Feature modules live in `src/features` (e.g. `zones`, `stations`, `users`, `alerts`, `flood-history`).
 
-## Environment Variables
-
-Create `.env.local` and set the following as needed:
-
-```env
-NEXT_PUBLIC_API_BASE_URL=https://fda.id.vn/api/v1
-NEXT_PUBLIC_API_BASE_URL_TVT=https://fda.id.vn/api/v1
-NEXT_PUBLIC_WEATHER_TILE_URL=<weather tile url>
-NEXT_PUBLIC_MAPBOX_TOKEN=<mapbox token for satellite tiles>
-NEXT_PUBLIC_GEMINI_API_KEY=<gemini api key for route analysis>
-NEXT_PUBLIC_SENTRY_DSN=<optional>
-NEXT_PUBLIC_SENTRY_DISABLED=true
-JWT_SECRET=<server-side middleware verification secret>
-```
-
 Notes:
+
 - OSM tiles are used by default; Mapbox token is only needed for satellite mode.
 - Sentry variables are optional.
 

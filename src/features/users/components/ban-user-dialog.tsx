@@ -45,9 +45,9 @@ export function BanUserDialog({
     }) => updateAdminUserApi(userId, { status: newStatus }),
     onSuccess: (response) => {
       if (response.success) {
-        const action = user?.status === 'Banned' ? 'Mở khóa' : 'Khóa';
-        toast.success(`${action} user thành công!`, {
-          description: `User ${user?.email} đã được ${action.toLowerCase()}.`
+        const actionVerb = user?.status === 'Banned' ? 'unbanned' : 'banned';
+        toast.success(`User ${actionVerb} successfully!`, {
+          description: `User ${user?.email} has been ${actionVerb}.`
         });
         // Invalidate users query to refetch
         queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -56,13 +56,13 @@ export function BanUserDialog({
         // Call onSuccess callback
         onSuccess?.();
       } else {
-        toast.error('Cập nhật thất bại', {
+        toast.error('Update failed', {
           description: response.message
         });
       }
     },
     onError: (error: Error) => {
-      toast.error('Lỗi cập nhật user', {
+      toast.error('User update error', {
         description: error.message
       });
     }
@@ -77,7 +77,7 @@ export function BanUserDialog({
 
   const isLoading = banUserMutation.isPending;
   const isBanned = user?.status === 'Banned';
-  const action = isBanned ? 'Mở khóa' : 'Khóa';
+  const action = isBanned ? 'Unban' : 'Ban';
 
   if (!user) return null;
 
@@ -87,18 +87,18 @@ export function BanUserDialog({
         <DialogHeader>
           <DialogTitle className='text-destructive flex items-center gap-2'>
             <Lock className='h-5 w-5' />
-            Xác nhận {action.toLowerCase()} user
+            Confirm {action.toLowerCase()} user
           </DialogTitle>
           <DialogDescription asChild>
             <div className='space-y-2 pt-2'>
               <div>
-                Bạn có chắc chắn muốn {action.toLowerCase()} user{' '}
+                Are you sure you want to {action.toLowerCase()} user{' '}
                 <strong>{user.email}</strong>?
               </div>
               <div className='text-muted-foreground text-sm'>
                 {isBanned
-                  ? 'User sẽ có thể đăng nhập vào hệ thống sau khi được mở khóa.'
-                  : 'User sẽ không thể đăng nhập vào hệ thống sau khi bị khóa.'}
+                  ? 'User will be able to sign in after being unbanned.'
+                  : 'User will not be able to sign in after being banned.'}
               </div>
             </div>
           </DialogDescription>
@@ -109,7 +109,7 @@ export function BanUserDialog({
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
           >
-            Hủy
+            Cancel
           </Button>
           <Button
             onClick={handleToggleBan}
@@ -119,7 +119,7 @@ export function BanUserDialog({
             {isLoading ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Đang cập nhật...
+                Updating...
               </>
             ) : (
               <>

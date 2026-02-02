@@ -25,14 +25,14 @@ export default function LayerPanel({
 }: Props) {
   const syncLabel =
     syncState === 'idle'
-      ? 'Đã đồng bộ'
+      ? 'Synced'
       : syncState === 'saving'
-        ? 'Đang lưu...'
+        ? 'Saving...'
         : syncState === 'offline'
-          ? 'Offline (chờ đồng bộ)'
+          ? 'Offline (pending sync)'
           : syncState === 'unsynced'
-            ? 'Chưa đồng bộ'
-            : 'Lỗi đồng bộ';
+            ? 'Not synced'
+            : 'Sync error';
 
   return (
     <div className='bg-background/95 space-y-4 rounded-2xl border p-4 shadow-lg backdrop-blur'>
@@ -123,7 +123,7 @@ export default function LayerPanel({
       </div>
 
       <div className='text-muted-foreground text-xs'>
-        Tip: Nhấn lưu để áp dụng cài đặt cho lần sau.
+        Tip: Click save to apply these settings next time.
       </div>
 
       {isAuthenticated && (
@@ -132,7 +132,7 @@ export default function LayerPanel({
           disabled={syncState === 'saving'}
           className='bg-primary text-primary-foreground w-full rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50'
         >
-          {syncState === 'saving' ? 'Đang lưu...' : 'Lưu cấu hình'}
+          {syncState === 'saving' ? 'Saving...' : 'Save settings'}
         </button>
       )}
     </div>

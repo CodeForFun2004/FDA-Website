@@ -163,7 +163,7 @@ export default function ZonesPage() {
           <MapPin className='mr-3 h-5 w-5 text-blue-500' />
           <input
             className='w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400'
-            placeholder='Tìm kiếm quận, huyện...'
+            placeholder='Search districts...'
           />
         </div>
       </div>
@@ -180,11 +180,9 @@ export default function ZonesPage() {
       <div className='pointer-events-none absolute right-4 bottom-6 left-4 z-10 flex justify-center'>
         <Card className='animate-in slide-in-from-bottom-4 pointer-events-auto w-full max-w-sm rounded-2xl border-none bg-white/95 p-4 shadow-xl backdrop-blur-md duration-500'>
           <div className='mb-3 flex items-center justify-between'>
-            <h3 className='text-sm font-bold text-slate-800'>
-              Thời gian dự báo
-            </h3>
+            <h3 className='text-sm font-bold text-slate-800'>Forecast time</h3>
             <span className='text-xs font-bold text-blue-600'>
-              +{forecastHour} giờ
+              +{forecastHour} hr
             </span>
           </div>
 
@@ -214,7 +212,7 @@ export default function ZonesPage() {
                 forecastHour === 0 && 'text-blue-600'
               )}
             >
-              Hiện tại
+              Now
             </span>
             <span
               onClick={() => setForecastHour(1)}
@@ -223,7 +221,7 @@ export default function ZonesPage() {
                 forecastHour === 1 && 'text-blue-600'
               )}
             >
-              +1 giờ
+              +1 hr
             </span>
             <span
               onClick={() => setForecastHour(2)}
@@ -232,7 +230,7 @@ export default function ZonesPage() {
                 forecastHour === 2 && 'text-blue-600'
               )}
             >
-              +2 giờ
+              +2 hr
             </span>
             <span
               onClick={() => setForecastHour(3)}
@@ -241,7 +239,7 @@ export default function ZonesPage() {
                 forecastHour === 3 && 'text-blue-600'
               )}
             >
-              +3 giờ
+              +3 hr
             </span>
           </div>
         </Card>

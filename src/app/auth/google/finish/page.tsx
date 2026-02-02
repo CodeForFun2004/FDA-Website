@@ -47,7 +47,7 @@ export default function GoogleFinishPage() {
       });
 
       setSessionCookie();
-      toast.success('Đăng nhập Google thành công!');
+      toast.success('Google sign-in successful!');
 
       // xoá hash khỏi url (đỡ lộ token)
       window.history.replaceState(null, '', '/auth/google/finish');

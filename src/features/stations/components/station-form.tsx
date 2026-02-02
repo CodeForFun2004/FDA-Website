@@ -121,7 +121,7 @@ export default function StationForm({
               control={formControl}
               name='name'
               label='Station Name'
-              placeholder='Trạm Quan Trắc Giao Thông Cầu Rồng'
+              placeholder='Dragon Bridge Traffic Monitoring Station'
               required
             />
 
@@ -142,7 +142,7 @@ export default function StationForm({
               control={formControl}
               name='roadName'
               label='Road Name'
-              placeholder='Đường 2 tháng 9'
+              placeholder='2 September Street'
             />
           </div>
 
@@ -150,7 +150,7 @@ export default function StationForm({
             control={formControl}
             name='locationDesc'
             label='Location Description'
-            placeholder='Nằm ở phía Tây cầu Rồng, gần bảo tàng...'
+            placeholder='Located on the west side of Dragon Bridge, near the museum...'
             config={{
               maxLength: 500,
               showCharCount: true,

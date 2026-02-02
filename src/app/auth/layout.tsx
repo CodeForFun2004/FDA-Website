@@ -33,12 +33,11 @@ export default function AuthLayout({
           </div>
 
           <h2 className='text-4xl leading-tight font-bold'>
-            Hệ thống Giám sát Lũ lụt
+            Flood Monitoring System
           </h2>
 
           <p className='text-lg text-blue-100'>
-            Cập nhật dữ liệu thời gian thực và gợi ý lộ trình an toàn cho cộng
-            đồng.
+            Real-time data updates and safe route suggestions for the community.
           </p>
 
           <div className='flex justify-center gap-4 pt-8'>

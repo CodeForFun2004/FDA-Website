@@ -26,8 +26,8 @@ export function UserCellAction({ data }: UserCellActionProps) {
 
   const handleEdit = () => {
     if (!data.isAdminCreated) {
-      toast.error('Lỗi cập nhật user', {
-        description: 'Bạn chỉ có thể chỉnh sửa user được tạo bởi admin.'
+      toast.error('User update error', {
+        description: 'You can only edit users created by admin.'
       });
       return;
     }

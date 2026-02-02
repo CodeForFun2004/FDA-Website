@@ -26,10 +26,10 @@ export default function AuthorityDashboard() {
       {/* Header */}
       <div>
         <h1 className='text-3xl font-bold tracking-tight'>
-          Cổng Thông Tin Chính Quyền
+          Government Information Portal
         </h1>
         <p className='text-muted-foreground mt-1'>
-          Hệ thống giám sát và quản lý ngập lụt FDA - Khu vực{' '}
+          FDA flood monitoring and management system - Area{' '}
           {user?.fullName || 'Authority'}
         </p>
       </div>
@@ -43,18 +43,18 @@ export default function AuthorityDashboard() {
             </div>
             <div>
               <CardTitle className='text-blue-900 dark:text-blue-100'>
-                Xin chào, {user?.fullName || 'Cán bộ'}!
+                Welcome, {user?.fullName || 'Officer'}!
               </CardTitle>
               <CardDescription className='text-blue-700 dark:text-blue-300'>
-                Vai trò: Cán bộ chính quyền
+                Role: Government staff
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <p className='text-sm text-blue-800 dark:text-blue-200'>
-            Bạn có quyền truy cập vào các chức năng giám sát và báo cáo ngập lụt
-            trong khu vực quản lý.
+            You can access monitoring and flood reporting features in your
+            managed area.
           </p>
         </CardContent>
       </Card>
@@ -63,66 +63,64 @@ export default function AuthorityDashboard() {
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>
-              Khu vực quản lý
-            </CardTitle>
+            <CardTitle className='text-sm font-medium'>Managed areas</CardTitle>
             <IconBuildingCommunity className='text-muted-foreground h-4 w-4' />
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold'>12</div>
             <p className='text-muted-foreground text-xs'>
-              Phường/Xã đang giám sát
+              Wards/communes monitored
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>Trạm giám sát</CardTitle>
+            <CardTitle className='text-sm font-medium'>
+              Monitoring stations
+            </CardTitle>
             <IconMapPin className='text-muted-foreground h-4 w-4' />
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold'>24</div>
-            <p className='text-muted-foreground text-xs'>Đang hoạt động</p>
+            <p className='text-muted-foreground text-xs'>Active</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>Cảnh báo ngập</CardTitle>
+            <CardTitle className='text-sm font-medium'>Flood alerts</CardTitle>
             <IconAlertTriangle className='text-muted-foreground h-4 w-4' />
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold text-orange-600'>3</div>
             <p className='text-muted-foreground text-xs'>
-              Điểm ngập đang cảnh báo
+              Flood points under alert
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>
-              Dữ liệu cảm biến
-            </CardTitle>
+            <CardTitle className='text-sm font-medium'>Sensor data</CardTitle>
             <IconDeviceAnalytics className='text-muted-foreground h-4 w-4' />
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold'>98.5%</div>
-            <p className='text-muted-foreground text-xs'>Tỷ lệ hoạt động</p>
+            <p className='text-muted-foreground text-xs'>Uptime</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
             <CardTitle className='text-sm font-medium'>
-              Người dân theo dõi
+              Citizen followers
             </CardTitle>
             <IconUsers className='text-muted-foreground h-4 w-4' />
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold'>2,345</div>
-            <p className='text-muted-foreground text-xs'>+12% trong tháng</p>
+            <p className='text-muted-foreground text-xs'>+12% this month</p>
           </CardContent>
         </Card>
       </div>
@@ -131,36 +129,34 @@ export default function AuthorityDashboard() {
       <div className='grid gap-4 md:grid-cols-2'>
         <Card>
           <CardHeader>
-            <CardTitle>Chức năng chính</CardTitle>
-            <CardDescription>
-              Các tính năng dành cho cán bộ chính quyền
-            </CardDescription>
+            <CardTitle>Key functions</CardTitle>
+            <CardDescription>Features for government staff</CardDescription>
           </CardHeader>
           <CardContent className='space-y-3'>
             <div className='flex items-start gap-3 rounded-lg border p-3'>
               <IconMapPin className='text-primary mt-0.5 h-5 w-5' />
               <div>
-                <p className='text-sm font-medium'>Giám sát trạm đo</p>
+                <p className='text-sm font-medium'>Monitor stations</p>
                 <p className='text-muted-foreground text-xs'>
-                  Theo dõi tình trạng ngập lụt theo thời gian thực
+                  Track flood conditions in real time
                 </p>
               </div>
             </div>
             <div className='flex items-start gap-3 rounded-lg border p-3'>
               <IconAlertTriangle className='text-primary mt-0.5 h-5 w-5' />
               <div>
-                <p className='text-sm font-medium'>Quản lý cảnh báo</p>
+                <p className='text-sm font-medium'>Manage alerts</p>
                 <p className='text-muted-foreground text-xs'>
-                  Xem và phản hồi các cảnh báo ngập lụt
+                  View and respond to flood alerts
                 </p>
               </div>
             </div>
             <div className='flex items-start gap-3 rounded-lg border p-3'>
               <IconDeviceAnalytics className='text-primary mt-0.5 h-5 w-5' />
               <div>
-                <p className='text-sm font-medium'>Báo cáo thống kê</p>
+                <p className='text-sm font-medium'>Analytics reports</p>
                 <p className='text-muted-foreground text-xs'>
-                  Tạo và xem báo cáo ngập lụt định kỳ
+                  Create and view periodic flood reports
                 </p>
               </div>
             </div>
@@ -170,33 +166,32 @@ export default function AuthorityDashboard() {
         <Card className='border-amber-200 bg-amber-50/50 dark:border-amber-900/50 dark:bg-amber-950/20'>
           <CardHeader>
             <CardTitle className='text-amber-900 dark:text-amber-100'>
-              Đang phát triển
+              In development
             </CardTitle>
             <CardDescription className='text-amber-700 dark:text-amber-300'>
-              Các tính năng sắp ra mắt
+              Upcoming features
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className='text-sm text-amber-800 dark:text-amber-200'>
-              Chúng tôi đang phát triển thêm các tính năng dành riêng cho cán bộ
-              chính quyền:
+              We are building additional features for government staff:
             </p>
             <ul className='mt-3 space-y-2 text-sm text-amber-800 dark:text-amber-200'>
               <li className='flex items-start gap-2'>
                 <span className='text-amber-600 dark:text-amber-400'>•</span>
-                <span>Dashboard tùy chỉnh theo khu vực</span>
+                <span>Area-specific dashboards</span>
               </li>
               <li className='flex items-start gap-2'>
                 <span className='text-amber-600 dark:text-amber-400'>•</span>
-                <span>Công cụ phân tích xu hướng ngập</span>
+                <span>Flood trend analysis tools</span>
               </li>
               <li className='flex items-start gap-2'>
                 <span className='text-amber-600 dark:text-amber-400'>•</span>
-                <span>Thông báo tự động qua SMS/Email</span>
+                <span>Automatic SMS/Email notifications</span>
               </li>
               <li className='flex items-start gap-2'>
                 <span className='text-amber-600 dark:text-amber-400'>•</span>
-                <span>Quản lý người dùng khu vực</span>
+                <span>Area user management</span>
               </li>
             </ul>
           </CardContent>
@@ -207,8 +202,8 @@ export default function AuthorityDashboard() {
       <Card>
         <CardContent className='pt-6'>
           <p className='text-muted-foreground text-center text-sm'>
-            💡 <strong>Lưu ý:</strong> Hệ thống đang trong giai đoạn hoàn thiện.
-            Nếu bạn cần hỗ trợ, vui lòng liên hệ bộ phận kỹ thuật.
+            💡 <strong>Note:</strong> The system is still being finalized. If
+            you need support, please contact the technical team.
           </p>
         </CardContent>
       </Card>

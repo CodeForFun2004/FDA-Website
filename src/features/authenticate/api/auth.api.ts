@@ -131,7 +131,7 @@ export async function initGoogleOAuthApi(params: {
   } catch (e: any) {
     if (e?.name === 'AbortError') {
       throw new Error(
-        'Init Google OAuth timeout (BE không phản hồi trong 15s)'
+        'Init Google OAuth timeout (backend did not respond within 15s)'
       );
     }
     throw e;

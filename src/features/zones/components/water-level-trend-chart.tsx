@@ -11,7 +11,7 @@ export type WaterLevelTrendChartProps = {
 // Generate mock trend data
 const generateTrendData = () => [
   { time: '-1h', value: 0.3, type: 'past' },
-  { time: 'Hiện tại', value: 0.5, type: 'current' },
+  { time: 'Now', value: 0.5, type: 'current' },
   { time: '+1h', value: 0.8, type: 'forecast' },
   { time: '+2h', value: 1.1, type: 'forecast' }
 ];

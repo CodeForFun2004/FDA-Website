@@ -68,7 +68,7 @@ export default function GoogleCallbackPage() {
         window.location.pathname + window.location.search
       );
 
-      toast.success('Đăng nhập Google thành công!');
+      toast.success('Google sign-in successful!');
       window.location.replace(returnUrl);
     } catch (e: any) {
       const msg = e?.message ?? 'Failed to persist tokens.';

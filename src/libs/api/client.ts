@@ -1,6 +1,6 @@
 // src/lib/api/client.ts
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
-import { debugAuthState } from '@/lib/auth-utils';
+import { debugAuthState } from '@/libs/auth-utils';
 
 export class ApiError extends Error {
   status: number;

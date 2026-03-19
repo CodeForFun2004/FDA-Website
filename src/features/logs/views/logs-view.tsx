@@ -18,7 +18,7 @@ import {
   LoadingState,
   Input
 } from '@/components/ui/common';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/libs/utils';
 import {
   Search,
   Download,

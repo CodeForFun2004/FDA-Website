@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useInfobar, type InfobarContent } from '@/components/ui/infobar';
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 
 interface InfoButtonProps
   extends Omit<React.ComponentProps<typeof Button>, 'content'> {

@@ -9,8 +9,8 @@ import {
   Polyline
 } from '@react-google-maps/api';
 import { LoadingState } from '@/components/ui/common';
-import { analyzeRouteWithGemini, mockGeocode } from '@/lib/api';
-import { RouteAnalysis } from '@/lib/types';
+import { analyzeRouteWithGemini, mockGeocode } from '@/libs/api';
+import { RouteAnalysis } from '@/libs/types';
 import { FloatingInputPanel } from '../components/floating-input-panel';
 import { RouteResultCards } from '../components/route-result-cards';
 

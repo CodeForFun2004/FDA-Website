@@ -1,5 +1,5 @@
 // src/features/admin/api/admin.ts
-import { apiFetch } from '@/lib/api/client';
+import { apiFetch } from '@/libs/api/client';
 import type {
   GetUsersResponse,
   GetUserByIdResponse,

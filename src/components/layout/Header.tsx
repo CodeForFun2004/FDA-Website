@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Menu, Sun, Moon, Bell, Search } from 'lucide-react';
 
-import { useAppStore } from '../../lib/store';
+import { useAppStore } from '../../libs/store';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 
 import { Button, Input } from '../../components/ui/common';
@@ -123,15 +123,15 @@ export const Header = () => {
                   : s.user
               }));
 
-              toast.success(res.message || 'Cập nhật hồ sơ thành công');
+              toast.success(res.message || 'Profile updated successfully');
             }}
             onChangePassword={async (payload) => {
               if (payload.newPassword !== payload.confirmPassword) {
-                toast.error('Mật khẩu mới và xác nhận không khớp');
+                toast.error('New password and confirmation do not match');
                 return;
               }
               const res = await changePasswordApi(payload);
-              toast.success(res.message || 'Đổi mật khẩu thành công');
+              toast.success(res.message || 'Password changed successfully');
             }}
           />
         </div>

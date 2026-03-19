@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { useRouter } from '@/lib/router';
+import { useRouter } from '@/libs/router';
 
 function safeDecode(v: string) {
   try {

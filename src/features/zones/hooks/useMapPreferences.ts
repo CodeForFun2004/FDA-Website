@@ -16,7 +16,7 @@ import {
   getUserMapPreferences,
   putUserMapPreferences
 } from '../api/map-preferences.api';
-import { getAccessToken } from '@/lib/auth-utils';
+import { getAccessToken } from '@/libs/auth-utils';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 
 type SyncState = 'idle' | 'saving' | 'unsynced' | 'offline' | 'error';

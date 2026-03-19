@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 
 // Format: The chart config is an object that contains the configuration for each data key
 export interface ChartConfig {

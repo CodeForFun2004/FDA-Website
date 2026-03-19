@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useRouter } from '@/lib/router';
+import { useRouter } from '@/libs/router';
 import Link from 'next/link';
 import { Button, Input } from '../../../components/ui/common';
 import {

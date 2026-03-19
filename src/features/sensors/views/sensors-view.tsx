@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useDevices, useSensorReadings } from '@/lib/api';
+import { useDevices, useSensorReadings } from '@/libs/api';
 import {
   Card,
   CardContent,
@@ -32,8 +32,8 @@ import {
   Ruler,
   Signal
 } from 'lucide-react';
-import { formatDate, cn } from '@/lib/utils';
-import { Device } from '@/lib/types';
+import { formatDate, cn } from '@/libs/utils';
+import { Device } from '@/libs/types';
 
 export default function SensorsPage() {
   const { data: devices, isLoading: isLoadingDevices } = useDevices();

@@ -1,6 +1,6 @@
 import type { Station } from '../types/station.type';
 import { stationsApi } from '../api/station.api';
-import { searchParamsCache } from '@/lib/searchparams';
+import { searchParamsCache } from '@/libs/searchparams';
 
 import { StationTable } from './station-tables';
 import { columns } from './station-tables/columns';

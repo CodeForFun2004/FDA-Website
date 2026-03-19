@@ -1,7 +1,7 @@
 // features/areas/components/area-listing.tsx
 
 import { areasApi } from '../api/area.api';
-import { searchParamsCache } from '@/lib/searchparams';
+import { searchParamsCache } from '@/libs/searchparams';
 import { AreaTable } from './areas-tables';
 import { columns } from './areas-tables/columns';
 

@@ -5,7 +5,7 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import type { User } from '@/features/users/types';
 import type { Column, ColumnDef } from '@tanstack/react-table';
 import { CheckCircle2, MinusCircle, Text, XCircle } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/libs/utils';
 import { UserCellAction } from './cell-action';
 
 export const ROLE_OPTIONS = [

@@ -31,7 +31,7 @@ import {
   Droplets,
   ArrowUpRight
 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/libs/utils';
 
 // ===== Sub-components =====
 
@@ -264,7 +264,7 @@ export function DashboardView({
 
           <CardContent>
             <div className='space-y-6'>
-              {alertList.slice(0, 4).map((alert) => (
+              {alertList.slice(0, 4).map((alert: Alert) => (
                 <AlertItem key={alert.id} alert={alert} />
               ))}
             </div>

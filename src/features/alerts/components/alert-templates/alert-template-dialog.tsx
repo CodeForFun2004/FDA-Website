@@ -109,7 +109,7 @@ export function AlertTemplateDialog({
   const onSubmit = async (values: FormValues) => {
     try {
       if (isEditing) {
-        await updateMutation.mutateAsync({ id: template.id, data: values });
+        await updateMutation.mutateAsync({ id: template!.id, data: values });
         toast.success('Template updated successfully');
       } else {
         await createMutation.mutateAsync({ data: values });

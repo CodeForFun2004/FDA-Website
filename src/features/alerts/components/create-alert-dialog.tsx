@@ -146,6 +146,7 @@ export function CreateStationDialog({
     const payload: StationUpsertPayload = {
       code: values.code,
       name: values.name,
+      administrativeAreaId: '550e8400-e29b-41d4-a716-446655440000',
       locationDesc: values.locationDesc || null,
       roadName: values.roadName || null,
       direction: values.direction || null,

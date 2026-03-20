@@ -4,20 +4,33 @@ import {
   CreateAlertTemplatePayload,
   UpdateAlertTemplatePayload
 } from '../types/alert-template.type';
+import { getAccessToken } from '@/libs/auth-utils';
 
 export const ALERT_TEMPLATES_KEY = ['alert-templates'];
 
-export const useAlertTemplates = (token?: string) => {
+export const useAlertTemplates = () => {
   return useQuery({
     queryKey: ALERT_TEMPLATES_KEY,
-    queryFn: () => alertTemplatesApi.getTemplates(token)
+    queryFn: async () => {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+      return alertTemplatesApi.getTemplates(token);
+    }
   });
 };
 
-export const useAlertTemplate = (id: string, token?: string) => {
+export const useAlertTemplate = (id: string) => {
   return useQuery({
     queryKey: [...ALERT_TEMPLATES_KEY, id],
-    queryFn: () => alertTemplatesApi.getTemplateById(id, token),
+    queryFn: async () => {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+      return alertTemplatesApi.getTemplateById(id, token);
+    },
     enabled: !!id
   });
 };
@@ -25,13 +38,13 @@ export const useAlertTemplate = (id: string, token?: string) => {
 export const useCreateAlertTemplate = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      data,
-      token
-    }: {
-      data: CreateAlertTemplatePayload;
-      token?: string;
-    }) => alertTemplatesApi.createTemplate(data, token),
+    mutationFn: async ({ data }: { data: CreateAlertTemplatePayload }) => {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+      return alertTemplatesApi.createTemplate(data, token);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ALERT_TEMPLATES_KEY });
     }
@@ -41,15 +54,19 @@ export const useCreateAlertTemplate = () => {
 export const useUpdateAlertTemplate = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
-      data,
-      token
+      data
     }: {
       id: string;
       data: UpdateAlertTemplatePayload;
-      token?: string;
-    }) => alertTemplatesApi.updateTemplate(id, data, token),
+    }) => {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+      return alertTemplatesApi.updateTemplate(id, data, token);
+    },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ALERT_TEMPLATES_KEY });
       queryClient.invalidateQueries({ queryKey: [...ALERT_TEMPLATES_KEY, id] });
@@ -60,8 +77,13 @@ export const useUpdateAlertTemplate = () => {
 export const useDeleteAlertTemplate = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, token }: { id: string; token?: string }) =>
-      alertTemplatesApi.deleteTemplate(id, token),
+    mutationFn: async ({ id }: { id: string }) => {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+      return alertTemplatesApi.deleteTemplate(id, token);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ALERT_TEMPLATES_KEY });
     }
@@ -70,14 +92,21 @@ export const useDeleteAlertTemplate = () => {
 
 export const usePreviewAlertTemplate = () => {
   return useMutation({
-    mutationFn: ({
-      id,
-      previewData,
-      token
-    }: {
-      id: string;
-      previewData: Record<string, any>;
-      token?: string;
-    }) => alertTemplatesApi.previewTemplate(id, previewData, token)
+    mutationFn: async (body: {
+      templateId: string;
+      titleTemplate: string;
+      bodyTemplate: string;
+      stationName?: string;
+      waterLevel?: number;
+      threshold?: number;
+      severity?: string;
+      address?: string;
+    }) => {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+      return alertTemplatesApi.previewTemplate(body, token);
+    }
   });
 };

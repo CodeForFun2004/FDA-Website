@@ -8,7 +8,8 @@ import type {
   UpdateUserRequest,
   UpdateUserResponse,
   DeleteUserResponse,
-  GetAdminStatsResponse
+  GetAdminStatsResponse,
+  GetAdministrativeAreasResponse
 } from '../types/admin.type';
 
 // ===== API Functions =====
@@ -118,4 +119,26 @@ export function getAdminStatsApi() {
   return apiFetch<GetAdminStatsResponse>('/admin/stats', {
     method: 'GET'
   });
+}
+
+/**
+ * GET /admin/administrative-areas
+ * Get list of administrative areas (requires auth)
+ */
+export function getAdministrativeAreasApi(params?: {
+  searchTerm?: string;
+  level?: string;
+  parentId?: string;
+}) {
+  const searchParams = new URLSearchParams();
+  searchParams.set('pageNumber', '1');
+  searchParams.set('pageSize', '100');
+  if (params?.searchTerm) searchParams.set('searchTerm', params.searchTerm);
+  if (params?.level) searchParams.set('level', params.level);
+  if (params?.parentId) searchParams.set('parentId', params.parentId);
+
+  return apiFetch<GetAdministrativeAreasResponse>(
+    `/admin/administrative-areas?${searchParams.toString()}`,
+    { method: 'GET' }
+  );
 }

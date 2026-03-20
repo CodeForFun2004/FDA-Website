@@ -100,3 +100,24 @@ export type GetAdminStatsResponse = {
   message: string;
   stats: AdminStats;
 };
+
+// ============================================================
+// Administrative Areas
+// ============================================================
+
+export type AdministrativeArea = {
+  id: string;
+  name: string;
+  level: string;
+  parentId: string | null;
+  code: string;
+  geometry: string | null;
+};
+
+export type GetAdministrativeAreasResponse = {
+  success: boolean;
+  message: string;
+  statusCode: number;
+  administrativeAreas: AdministrativeArea[];
+  totalCount: number;
+};

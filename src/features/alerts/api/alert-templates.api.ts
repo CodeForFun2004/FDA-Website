@@ -3,39 +3,92 @@ import {
   CreateAlertTemplatePayload,
   UpdateAlertTemplatePayload
 } from '../types/alert-template.type';
-import {
-  getAlertTemplatesMock,
-  getAlertTemplateByIdMock,
-  createAlertTemplateMock,
-  updateAlertTemplateMock,
-  deleteAlertTemplateMock,
-  previewAlertTemplateMock
-} from '../mocks/alert-templates-mock';
 
-// Change this boolean to switch to real API calls when the backend is ready
-const USE_MOCK = true;
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const BASE_URL = `${API_BASE_URL}/admin/alert-templates`;
 
-// Define base URL for real API
-// const BASE_URL = '/api/v1/admin/alert-templates';
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+export class ApiError extends Error {
+  status: number;
+  payload?: unknown;
+
+  constructor(message: string, status: number, payload?: unknown) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
+async function fetchJson<T>(
+  url: string,
+  method: HttpMethod,
+  body?: unknown,
+  accessToken?: string
+): Promise<T> {
+  const hasBody = body !== undefined && body !== null;
+
+  const headers: Record<string, string> = {};
+  if (hasBody) {
+    headers['Content-Type'] = 'application/json';
+  }
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: hasBody ? JSON.stringify(body) : undefined,
+    cache: 'no-store'
+  });
+
+  const contentType = res.headers.get('content-type') || '';
+  const data = contentType.includes('application/json')
+    ? await res.json().catch(() => null)
+    : await res.text().catch(() => null);
+
+  if (!res.ok) {
+    const msg =
+      (data && (data.message || data.error || data.msg)) ||
+      `Request failed (${res.status})`;
+    throw new ApiError(msg, res.status, data);
+  }
+
+  return data as T;
+}
 
 export const alertTemplatesApi = {
   getTemplates: async (token?: string): Promise<AlertTemplate[]> => {
-    if (USE_MOCK) return getAlertTemplatesMock();
-    // Real implementation goes here
-    throw new Error('Real API not implemented yet');
+    const res = await fetchJson<{
+      success: boolean;
+      templates: AlertTemplate[];
+    }>(BASE_URL, 'GET', undefined, token);
+    return res.templates;
   },
 
   getTemplateById: async (
     id: string,
     token?: string
   ): Promise<AlertTemplate> => {
-    if (USE_MOCK) return getAlertTemplateByIdMock(id);
-    throw new Error('Real API not implemented yet');
+    const res = await fetchJson<{
+      success: boolean;
+      message: string;
+      id: string;
+      template: AlertTemplate;
+    }>(`${BASE_URL}/${id}`, 'GET', undefined, token);
+    return res.template;
   },
 
   createTemplate: async (data: CreateAlertTemplatePayload, token?: string) => {
-    if (USE_MOCK) return createAlertTemplateMock(data);
-    throw new Error('Real API not implemented yet');
+    return fetchJson<{ success: boolean; message: string; id: string }>(
+      BASE_URL,
+      'POST',
+      data,
+      token
+    );
   },
 
   updateTemplate: async (
@@ -43,21 +96,42 @@ export const alertTemplatesApi = {
     data: UpdateAlertTemplatePayload,
     token?: string
   ) => {
-    if (USE_MOCK) return updateAlertTemplateMock(id, data);
-    throw new Error('Real API not implemented yet');
+    return fetchJson<{ success: boolean; message: string }>(
+      `${BASE_URL}/${id}`,
+      'PUT',
+      data,
+      token
+    );
   },
 
   deleteTemplate: async (id: string, token?: string) => {
-    if (USE_MOCK) return deleteAlertTemplateMock(id);
-    throw new Error('Real API not implemented yet');
+    return fetchJson<{ success: boolean; message: string }>(
+      `${BASE_URL}/${id}`,
+      'DELETE',
+      undefined,
+      token
+    );
   },
 
   previewTemplate: async (
-    id: string,
-    previewData: Record<string, any>,
+    body: {
+      templateId: string;
+      titleTemplate: string;
+      bodyTemplate: string;
+      stationName?: string;
+      waterLevel?: number;
+      threshold?: number;
+      severity?: string;
+      address?: string;
+    },
     token?: string
   ) => {
-    if (USE_MOCK) return previewAlertTemplateMock(id, previewData);
-    throw new Error('Real API not implemented yet');
+    const res = await fetchJson<{
+      success: boolean;
+      message: string;
+      title: string;
+      body: string;
+    }>(`${BASE_URL}/preview`, 'POST', body, token);
+    return { title: res.title, body: res.body };
   }
 };

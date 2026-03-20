@@ -1,8 +1,8 @@
 // src/features/stations/components/EditStationDialog.tsx
 'use client';
 
-import React, { useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Dialog,
   DialogContent,
@@ -20,15 +20,15 @@ import { FormSelect } from '@/components/forms/form-select';
 import { FormTextarea } from '@/components/forms/form-textarea';
 import { Form } from '@/components/ui/form';
 import { stationsApi } from '@/features/stations/api/station.api';
+import { getAdministrativeAreasApi } from '@/features/admin/api/admin.api';
 import type {
   Station,
   StationUpsertPayload
 } from '@/features/stations/types/station.type';
 import { Loader2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { getAccessToken } from '@/features/stations/utils/auth';
 
-// Helpers
 const toNumberOrUndefined = (v: unknown) => {
   if (v === '' || v === null || v === undefined) return undefined;
   const n = Number(v);
@@ -38,17 +38,19 @@ const toNumberOrUndefined = (v: unknown) => {
 const formSchema = z.object({
   code: z.string().min(2, { message: 'Code must be at least 2 characters.' }),
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  administrativeAreaId: z
+    .string()
+    .min(1, { message: 'Administrative area is required.' }),
+  type: z.string().optional().nullable(),
   locationDesc: z.string().optional().nullable(),
   roadName: z.string().optional().nullable(),
   direction: z.string().optional().nullable(),
-
   latitude: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-90).max(90))
     .optional(),
   longitude: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
-
   status: z.enum(['active', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
@@ -58,13 +60,14 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
     .nullable(),
-
+  calibrationOffset: z
+    .preprocess((v) => toNumberOrUndefined(v), z.number().min(0).max(50))
+    .optional()
+    .nullable(),
   installedAt: z.string().optional().nullable()
 });
 
 type StationFormValues = z.infer<typeof formSchema>;
-
-import { getAccessToken } from '@/features/stations/utils/auth';
 
 export type EditStationDialogProps = {
   open: boolean;
@@ -80,13 +83,26 @@ export function EditStationDialog({
   onSuccess
 }: EditStationDialogProps) {
   const queryClient = useQueryClient();
-  const router = useRouter();
+
+  const { data: areasData, isLoading: isLoadingAreas } = useQuery({
+    queryKey: ['administrative-areas'],
+    queryFn: () => getAdministrativeAreasApi(),
+    staleTime: 5 * 60 * 1000
+  });
+
+  const areaOptions =
+    areasData?.administrativeAreas?.map((area) => ({
+      label: area.name,
+      value: area.id
+    })) ?? [];
 
   const form = useForm({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       code: '',
       name: '',
+      administrativeAreaId: '',
+      type: '',
       locationDesc: '',
       roadName: '',
       direction: '',
@@ -95,19 +111,20 @@ export function EditStationDialog({
       status: 'active' as const,
       thresholdWarning: null,
       thresholdCritical: null,
+      calibrationOffset: null,
       installedAt: null
     }
   });
 
-  // Type-safe control
   const formControl = form.control as unknown as Control<StationFormValues>;
 
-  // Update form when station data changes
   useEffect(() => {
     if (station) {
       form.reset({
         code: station.code ?? '',
         name: station.name ?? '',
+        administrativeAreaId: (station as any).administrativeAreaId ?? '',
+        type: (station as any).type ?? '',
         locationDesc: station.locationDesc ?? '',
         roadName: station.roadName ?? '',
         direction: station.direction ?? '',
@@ -116,12 +133,12 @@ export function EditStationDialog({
         status: (station.status as StationFormValues['status']) ?? 'active',
         thresholdWarning: station.thresholdWarning ?? null,
         thresholdCritical: station.thresholdCritical ?? null,
+        calibrationOffset: (station as any).calibrationOffset ?? null,
         installedAt: station.installedAt ?? null
       } as any);
     }
   }, [station, form]);
 
-  // Update station mutation
   const updateStationMutation = useMutation({
     mutationFn: async ({
       id,
@@ -131,29 +148,16 @@ export function EditStationDialog({
       data: StationUpsertPayload;
     }) => {
       const token = await getAccessToken();
-
       if (!token) {
         throw new Error('Authentication required. Please log in again.');
       }
-
-      console.log('🔑 Token retrieved: Valid token obtained');
-      console.log('📤 Updating station with ID:', id);
-      console.log('📦 Payload:', data);
-
       return stationsApi.updateStationFull(id, data, token);
     },
     onSuccess: async (response) => {
       if (response.success) {
-        // Invalidate and refetch stations query immediately
         await queryClient.invalidateQueries({ queryKey: ['stations'] });
-
-        // Show success toast after UI updates
         toast.success('Station updated successfully!');
-
-        // Close dialog
         onOpenChange(false);
-
-        // Call onSuccess callback
         onSuccess?.();
       } else {
         toast.error('Failed to update station', {
@@ -177,6 +181,8 @@ export function EditStationDialog({
     const payload: StationUpsertPayload = {
       code: values.code,
       name: values.name,
+      administrativeAreaId: values.administrativeAreaId,
+      type: values.type || null,
       locationDesc: values.locationDesc || null,
       roadName: values.roadName || null,
       direction: values.direction || null,
@@ -185,6 +191,7 @@ export function EditStationDialog({
       status: values.status,
       thresholdWarning: values.thresholdWarning ?? null,
       thresholdCritical: values.thresholdCritical ?? null,
+      calibrationOffset: values.calibrationOffset ?? null,
       installedAt: values.installedAt || null,
       lastSeenAt: station.lastSeenAt || null
     };
@@ -240,6 +247,16 @@ export function EditStationDialog({
 
             <FormSelect
               control={formControl}
+              name='administrativeAreaId'
+              label='Administrative Area'
+              placeholder={isLoadingAreas ? 'Loading areas...' : 'Select area'}
+              required
+              disabled={isLoading || isLoadingAreas}
+              options={areaOptions}
+            />
+
+            <FormSelect
+              control={formControl}
               name='status'
               label='Status'
               placeholder='Select status'
@@ -249,6 +266,20 @@ export function EditStationDialog({
                 { label: 'Active', value: 'active' },
                 { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
+              ]}
+            />
+
+            <FormSelect
+              control={formControl}
+              name='type'
+              label='Station Type'
+              placeholder='Select type'
+              disabled={isLoading}
+              options={[
+                { label: 'Urban Lowland', value: 'urban_lowland' },
+                { label: 'Riverbank', value: 'riverbank' },
+                { label: 'Drainage', value: 'drainage' },
+                { label: 'Floodgate', value: 'floodgate' }
               ]}
             />
 
@@ -334,6 +365,18 @@ export function EditStationDialog({
               type='number'
               step='0.0001'
               min={0}
+              disabled={isLoading}
+            />
+
+            <FormInput
+              control={formControl}
+              name='calibrationOffset'
+              label='Calibration Offset (±cm)'
+              placeholder='5'
+              type='number'
+              step='0.1'
+              min={0}
+              max={50}
               disabled={isLoading}
             />
           </div>

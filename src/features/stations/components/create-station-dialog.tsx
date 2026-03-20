@@ -1,8 +1,8 @@
 // src/features/stations/components/CreateStationDialog.tsx
 'use client';
 
-import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Dialog,
   DialogContent,
@@ -20,12 +20,12 @@ import { FormSelect } from '@/components/forms/form-select';
 import { FormTextarea } from '@/components/forms/form-textarea';
 import { Form } from '@/components/ui/form';
 import { stationsApi } from '@/features/stations/api/station.api';
+import { getAdministrativeAreasApi } from '@/features/admin/api/admin.api';
 import type { StationUpsertPayload } from '@/features/stations/types/station.type';
 import { Loader2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { getAccessToken } from '@/features/stations/utils/auth';
 
-// Helpers
 const toNumberOrUndefined = (v: unknown) => {
   if (v === '' || v === null || v === undefined) return undefined;
   const n = Number(v);
@@ -35,17 +35,19 @@ const toNumberOrUndefined = (v: unknown) => {
 const formSchema = z.object({
   code: z.string().min(2, { message: 'Code must be at least 2 characters.' }),
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  administrativeAreaId: z
+    .string()
+    .min(1, { message: 'Administrative area is required.' }),
+  type: z.string().optional().nullable(),
   locationDesc: z.string().optional().nullable(),
   roadName: z.string().optional().nullable(),
   direction: z.string().optional().nullable(),
-
   latitude: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-90).max(90))
     .optional(),
   longitude: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
-
   status: z.enum(['active', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
@@ -55,13 +57,14 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
     .nullable(),
-
+  calibrationOffset: z
+    .preprocess((v) => toNumberOrUndefined(v), z.number().min(0).max(50))
+    .optional()
+    .nullable(),
   installedAt: z.string().optional().nullable()
 });
 
 type StationFormValues = z.infer<typeof formSchema>;
-
-import { getAccessToken } from '@/features/stations/utils/auth';
 
 export type CreateStationDialogProps = {
   open: boolean;
@@ -75,13 +78,26 @@ export function CreateStationDialog({
   onSuccess
 }: CreateStationDialogProps) {
   const queryClient = useQueryClient();
-  const router = useRouter();
+
+  const { data: areasData, isLoading: isLoadingAreas } = useQuery({
+    queryKey: ['administrative-areas'],
+    queryFn: () => getAdministrativeAreasApi(),
+    staleTime: 5 * 60 * 1000
+  });
+
+  const areaOptions =
+    areasData?.administrativeAreas?.map((area) => ({
+      label: area.name,
+      value: area.id
+    })) ?? [];
 
   const form = useForm({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       code: '',
       name: '',
+      administrativeAreaId: '',
+      type: '',
       locationDesc: '',
       roadName: '',
       direction: '',
@@ -90,44 +106,29 @@ export function CreateStationDialog({
       status: 'active' as const,
       thresholdWarning: null,
       thresholdCritical: null,
+      calibrationOffset: null,
       installedAt: null
     }
   });
 
-  // Type-safe control
   const formControl = form.control as unknown as Control<StationFormValues>;
 
-  // Create station mutation
   const createStationMutation = useMutation({
     mutationFn: async (data: StationUpsertPayload) => {
       const token = await getAccessToken();
-
       if (!token) {
         throw new Error('Authentication required. Please log in again.');
       }
-
-      console.log('🔑 Token retrieved: Valid token obtained');
-      console.log('📤 Creating station with data:', data);
-
       return stationsApi.createStation(data, token);
     },
     onSuccess: async (response) => {
       if (response.success) {
-        // Invalidate and refetch stations query immediately
         await queryClient.invalidateQueries({ queryKey: ['stations'] });
-
-        // Show success toast after UI updates
         toast.success('Station created successfully!', {
           description: `Station: ${response.data.name}`
         });
-
-        // Reset form
         form.reset();
-
-        // Close dialog
         onOpenChange(false);
-
-        // Call onSuccess callback
         onSuccess?.();
       } else {
         toast.error('Failed to create station', {
@@ -146,6 +147,8 @@ export function CreateStationDialog({
     const payload: StationUpsertPayload = {
       code: values.code,
       name: values.name,
+      administrativeAreaId: values.administrativeAreaId,
+      type: values.type || null,
       locationDesc: values.locationDesc || null,
       roadName: values.roadName || null,
       direction: values.direction || null,
@@ -154,6 +157,7 @@ export function CreateStationDialog({
       status: values.status,
       thresholdWarning: values.thresholdWarning ?? null,
       thresholdCritical: values.thresholdCritical ?? null,
+      calibrationOffset: values.calibrationOffset ?? null,
       installedAt: values.installedAt || null,
       lastSeenAt: null
     };
@@ -210,6 +214,16 @@ export function CreateStationDialog({
 
             <FormSelect
               control={formControl}
+              name='administrativeAreaId'
+              label='Administrative Area'
+              placeholder={isLoadingAreas ? 'Loading areas...' : 'Select area'}
+              required
+              disabled={isLoading || isLoadingAreas}
+              options={areaOptions}
+            />
+
+            <FormSelect
+              control={formControl}
               name='status'
               label='Status'
               placeholder='Select status'
@@ -219,6 +233,20 @@ export function CreateStationDialog({
                 { label: 'Active', value: 'active' },
                 { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
+              ]}
+            />
+
+            <FormSelect
+              control={formControl}
+              name='type'
+              label='Station Type'
+              placeholder='Select type'
+              disabled={isLoading}
+              options={[
+                { label: 'Urban Lowland', value: 'urban_lowland' },
+                { label: 'Riverbank', value: 'riverbank' },
+                { label: 'Drainage', value: 'drainage' },
+                { label: 'Floodgate', value: 'floodgate' }
               ]}
             />
 
@@ -304,6 +332,18 @@ export function CreateStationDialog({
               type='number'
               step='0.0001'
               min={0}
+              disabled={isLoading}
+            />
+
+            <FormInput
+              control={formControl}
+              name='calibrationOffset'
+              label='Calibration Offset (±cm)'
+              placeholder='5'
+              type='number'
+              step='0.1'
+              min={0}
+              max={50}
               disabled={isLoading}
             />
           </div>

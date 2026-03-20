@@ -8,7 +8,13 @@ import type {
   StationUpsertPayload,
   CreateStationResponse,
   UpdateStationResponse,
-  DeleteStationResponse
+  DeleteStationResponse,
+  ComponentUpsertPayload,
+  GetComponentsResponse,
+  GetComponentByIdResponse,
+  CreateComponentResponse,
+  UpdateComponentResponse,
+  DeleteComponentResponse
 } from '../types/station.type';
 
 const API_BASE_URL =
@@ -17,10 +23,10 @@ const API_PREFIX = `${API_BASE_URL}/stations`;
 
 const ENDPOINTS = {
   list: `${API_PREFIX}/stations`,
-  byId: (id: string) => `${API_PREFIX}/station/${id}`, // GET
-  create: `${API_PREFIX}/station`, // POST
-  update: (id: string) => `${API_PREFIX}/station/${id}`, // PUT (full body)
-  delete: (id: string) => `${API_PREFIX}/station/${id}` // DELETE
+  byId: (id: string) => `${API_PREFIX}/station/${id}`,
+  create: `${API_PREFIX}/station`,
+  update: (id: string) => `${API_PREFIX}/station/${id}`,
+  delete: (id: string) => `${API_PREFIX}/station/${id}`
 };
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -98,6 +104,7 @@ function buildFullUpdatePayload(
   return {
     code: patch.code ?? station.code,
     name: patch.name ?? station.name,
+    type: patch.type ?? (station as any).type ?? null,
     locationDesc: patch.locationDesc ?? station.locationDesc ?? null,
     latitude: patch.latitude ?? station.latitude,
     longitude: patch.longitude ?? station.longitude,
@@ -108,8 +115,12 @@ function buildFullUpdatePayload(
       patch.thresholdWarning ?? station.thresholdWarning ?? null,
     thresholdCritical:
       patch.thresholdCritical ?? station.thresholdCritical ?? null,
+    calibrationOffset:
+      patch.calibrationOffset ?? (station as any).calibrationOffset ?? null,
     installedAt: patch.installedAt ?? station.installedAt ?? null,
-    lastSeenAt: patch.lastSeenAt ?? station.lastSeenAt ?? null
+    lastSeenAt: patch.lastSeenAt ?? station.lastSeenAt ?? null,
+    administrativeAreaId:
+      patch.administrativeAreaId ?? (station as any).administrativeAreaId ?? ''
   };
 }
 
@@ -118,7 +129,8 @@ export const stationsApi = {
   async getStations(filters: StationListFilters): Promise<GetStationsResponse> {
     // Build query string with filters
     const queryParams: Record<string, any> = {};
-    if (filters.name) queryParams.searchTerm = filters.name;
+    if (filters.searchTerm) queryParams.searchTerm = filters.searchTerm;
+    else if (filters.name) queryParams.searchTerm = filters.name;
     if (filters.status) queryParams.status = filters.status;
     if (filters.page) queryParams.pageNumber = filters.page;
     if (filters.perPage) queryParams.pageSize = filters.perPage;
@@ -188,6 +200,75 @@ export const stationsApi = {
   ): Promise<DeleteStationResponse> {
     return fetchJson<DeleteStationResponse>(
       ENDPOINTS.delete(id),
+      'DELETE',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  // ============================================================
+  // Component APIs (FE-31)
+  // ============================================================
+
+  async getComponents(
+    stationId: string,
+    accessToken?: string
+  ): Promise<GetComponentsResponse> {
+    return fetchJson<GetComponentsResponse>(
+      `${ENDPOINTS.byId(stationId)}/components`,
+      'GET',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  async getComponentById(
+    stationId: string,
+    componentId: string,
+    accessToken?: string
+  ): Promise<GetComponentByIdResponse> {
+    return fetchJson<GetComponentByIdResponse>(
+      `${ENDPOINTS.byId(stationId)}/components/${componentId}`,
+      'GET',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  async createComponent(
+    stationId: string,
+    payload: ComponentUpsertPayload,
+    accessToken?: string
+  ): Promise<CreateComponentResponse> {
+    return fetchJson<CreateComponentResponse>(
+      `${ENDPOINTS.byId(stationId)}/components`,
+      'POST',
+      payload,
+      { accessToken }
+    );
+  },
+
+  async updateComponent(
+    stationId: string,
+    componentId: string,
+    payload: ComponentUpsertPayload,
+    accessToken?: string
+  ): Promise<UpdateComponentResponse> {
+    return fetchJson<UpdateComponentResponse>(
+      `${ENDPOINTS.byId(stationId)}/components/${componentId}`,
+      'PUT',
+      payload,
+      { accessToken }
+    );
+  },
+
+  async deleteComponent(
+    stationId: string,
+    componentId: string,
+    accessToken?: string
+  ): Promise<DeleteComponentResponse> {
+    return fetchJson<DeleteComponentResponse>(
+      `${ENDPOINTS.byId(stationId)}/components/${componentId}`,
       'DELETE',
       undefined,
       { accessToken }

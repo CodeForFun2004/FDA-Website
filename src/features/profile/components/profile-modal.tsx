@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/common';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import { sendOtpApi } from '@/features/authenticate/api/auth.api';
 import { updatePhoneNumberApi } from '@/features/profile/api/user-profile.api';
 
@@ -94,7 +94,7 @@ function extractErrorMessage(err: any) {
     ? data.errors.map((e: any) => e?.message).filter(Boolean)
     : [];
   if (messages.length) return messages.join(' ');
-  return data?.message ?? err?.message ?? 'Đổi mật khẩu thất bại.';
+  return data?.message ?? err?.message ?? 'Change password failed.';
 }
 
 function AvatarCircle({
@@ -333,9 +333,11 @@ export function ProfileModal({
           {/* header */}
           <div className='border-input flex items-center justify-between border-b px-5 py-4'>
             <div>
-              <div className='text-base font-semibold'>Hồ sơ cá nhân</div>
+              <div className='text-base font-semibold'>
+                Personnal Information
+              </div>
               <div className='text-muted-foreground text-sm'>
-                Xem & cập nhật thông tin tài khoản
+                View & update account information
               </div>
             </div>
             <button
@@ -399,10 +401,10 @@ export function ProfileModal({
                   <div className='border-input bg-background rounded-2xl border p-4'>
                     <div className='mb-3 flex items-center justify-between gap-3'>
                       <div className='text-sm font-semibold'>
-                        Thông tin tài khoản
+                        Account Information
                       </div>
                       <div className='text-muted-foreground text-xs'>
-                        ID: <span className='font-mono'>{user.id}</span>
+                        {/* ID: <span className='font-mono'>{user.id}</span> */}
                       </div>
                     </div>
 
@@ -410,13 +412,13 @@ export function ProfileModal({
                       {/* Editable: fullName */}
                       <InfoBlock
                         icon={User}
-                        label='Họ tên'
-                        hint='Có thể cập nhật'
+                        label='Full Name'
+                        hint='Can be updated'
                       >
                         <Input
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          placeholder='Nhập họ tên'
+                          placeholder='Enter full name'
                         />
                       </InfoBlock>
 
@@ -426,11 +428,7 @@ export function ProfileModal({
                       </InfoBlock>
 
                       {/* Readonly: phoneNumber */}
-                      <InfoBlock
-                        icon={Phone}
-                        label='Số điện thoại'
-                        hint='Hiện API chưa hỗ trợ cập nhật'
-                      >
+                      <InfoBlock icon={Phone} label='Phone Number'>
                         <Input
                           value={user.phoneNumber ?? ''}
                           disabled
@@ -439,10 +437,7 @@ export function ProfileModal({
                       </InfoBlock>
 
                       {/* provider/status */}
-                      <InfoBlock
-                        icon={ShieldCheck}
-                        label='Provider / Trạng thái'
-                      >
+                      <InfoBlock icon={ShieldCheck} label='Provider / Status'>
                         <div className='grid grid-cols-2 gap-2'>
                           <Input
                             value={user.provider ?? ''}
@@ -458,17 +453,17 @@ export function ProfileModal({
                       </InfoBlock>
 
                       {/* verification */}
-                      <InfoBlock icon={ShieldCheck} label='Xác minh'>
+                      <InfoBlock icon={ShieldCheck} label='Verification Status'>
                         <div className='space-y-2 text-sm'>
                           <div className='flex items-center justify-between gap-2'>
                             <span className='text-muted-foreground'>Email</span>
                             {user.emailVerifiedAt ? (
                               <span className='inline-flex items-center gap-1 text-emerald-600'>
-                                <ShieldCheck className='h-4 w-4' /> Đã xác minh
+                                <ShieldCheck className='h-4 w-4' /> Verified
                               </span>
                             ) : (
                               <span className='text-muted-foreground inline-flex items-center gap-1'>
-                                <ShieldX className='h-4 w-4' /> Chưa xác minh
+                                <ShieldX className='h-4 w-4' /> Not Verified
                               </span>
                             )}
                           </div>
@@ -477,11 +472,11 @@ export function ProfileModal({
                             <span className='text-muted-foreground'>SĐT</span>
                             {user.phoneVerifiedAt ? (
                               <span className='inline-flex items-center gap-1 text-emerald-600'>
-                                <ShieldCheck className='h-4 w-4' /> Đã xác minh
+                                <ShieldCheck className='h-4 w-4' /> Verified
                               </span>
                             ) : (
                               <span className='text-muted-foreground inline-flex items-center gap-1'>
-                                <ShieldX className='h-4 w-4' /> Chưa xác minh
+                                <ShieldX className='h-4 w-4' /> Not Verified
                               </span>
                             )}
                           </div>
@@ -527,7 +522,7 @@ export function ProfileModal({
                           setAvatarFile(null);
                         }}
                       >
-                        Hủy
+                        Cancel
                       </Button>
 
                       <Button
@@ -549,7 +544,7 @@ export function ProfileModal({
                           }
                         }}
                       >
-                        {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+                        {saving ? 'Saving...' : 'Save Changes'}
                       </Button>
                     </div>
                   </div>
@@ -558,11 +553,11 @@ export function ProfileModal({
                   <div className='border-input bg-background rounded-2xl border p-4'>
                     <div className='mb-3 flex items-center gap-2 text-sm font-semibold'>
                       <KeyRound className='h-4 w-4' />
-                      Đổi mật khẩu
+                      Change Password
                     </div>
 
                     <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-                      <InfoBlock icon={KeyRound} label='Mật khẩu hiện tại'>
+                      <InfoBlock icon={KeyRound} label='Current Password'>
                         <div className='relative'>
                           <Input
                             type={showPw.current ? 'text' : 'password'}
@@ -573,7 +568,7 @@ export function ProfileModal({
                                 currentPassword: e.target.value
                               }))
                             }
-                            placeholder='Nhập mật khẩu hiện tại'
+                            placeholder='Enter current password'
                             autoComplete='current-password'
                           />
                           <button
@@ -593,7 +588,7 @@ export function ProfileModal({
                         </div>
                       </InfoBlock>
 
-                      <InfoBlock icon={KeyRound} label='Mật khẩu mới'>
+                      <InfoBlock icon={KeyRound} label='New Password'>
                         <div className='relative'>
                           <Input
                             type={showPw.next ? 'text' : 'password'}
@@ -604,7 +599,7 @@ export function ProfileModal({
                                 newPassword: e.target.value
                               }))
                             }
-                            placeholder='Nhập mật khẩu mới'
+                            placeholder='Enter new password'
                             autoComplete='new-password'
                           />
                           <button
@@ -624,7 +619,7 @@ export function ProfileModal({
                         </div>
                       </InfoBlock>
 
-                      <InfoBlock icon={KeyRound} label='Xác nhận mật khẩu mới'>
+                      <InfoBlock icon={KeyRound} label='Confirm New Password'>
                         <div className='relative'>
                           <Input
                             type={showPw.confirm ? 'text' : 'password'}
@@ -635,7 +630,7 @@ export function ProfileModal({
                                 confirmPassword: e.target.value
                               }))
                             }
-                            placeholder='Nhập lại mật khẩu mới'
+                            placeholder='Confirm new password'
                             autoComplete='new-password'
                           />
                           <button
@@ -656,8 +651,8 @@ export function ProfileModal({
                       </InfoBlock>
 
                       <div className='border-input bg-muted/30 text-muted-foreground rounded-2xl border p-3 text-xs sm:col-span-2'>
-                        Tip: Mật khẩu mới phải trùng “Xác nhận”. Nếu backend có
-                        rule độ mạnh mật khẩu, bạn có thể validate thêm tại đây.
+                        Tip: Use a strong password that you haven't used before
+                        on this site.
                       </div>
                     </div>
 
@@ -689,11 +684,13 @@ export function ProfileModal({
                             !pw.newPassword ||
                             !pw.confirmPassword
                           ) {
-                            toast.error('Vui lòng nhập đầy đủ thông tin.');
+                            toast.error('Please fill in all fields.');
                             return;
                           }
                           if (pw.newPassword !== pw.confirmPassword) {
-                            toast.error('Mật khẩu xác nhận không khớp.');
+                            toast.error(
+                              'Password confirmation does not match.'
+                            );
                             return;
                           }
 
@@ -714,7 +711,7 @@ export function ProfileModal({
                           }
                         }}
                       >
-                        {changingPw ? 'Đang đổi...' : 'Đổi mật khẩu'}
+                        {changingPw ? 'Changing...' : 'Change Password'}
                       </Button>
                     </div>
                   </div>
@@ -722,11 +719,11 @@ export function ProfileModal({
                   // PHONE NUMBER TAB
                   <div className='border-input bg-background rounded-2xl border p-4'>
                     <div className='mb-3 text-sm font-semibold'>
-                      Cập nhật số điện thoại
+                      Update Phone Number
                     </div>
 
                     <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-                      <InfoBlock icon={Phone} label='Số điện thoại mới'>
+                      <InfoBlock icon={Phone} label='New Phone Number'>
                         <Input
                           value={newPhoneNumber}
                           onChange={(e) => setNewPhoneNumber(e.target.value)}
@@ -735,11 +732,11 @@ export function ProfileModal({
                         />
                       </InfoBlock>
 
-                      <InfoBlock icon={KeyRound} label='OTP xác nhận'>
+                      <InfoBlock icon={KeyRound} label='OTP Verification'>
                         <Input
                           value={otpCode}
                           onChange={(e) => setOtpCode(e.target.value)}
-                          placeholder='Nhập OTP'
+                          placeholder='Enter OTP'
                           inputMode='numeric'
                           maxLength={6}
                         />
@@ -748,13 +745,15 @@ export function ProfileModal({
                       <div className='border-input bg-muted/30 text-muted-foreground rounded-2xl border p-3 text-xs sm:col-span-2'>
                         {secondsLeft !== null ? (
                           <span>
-                            OTP sẽ hết hạn sau{' '}
-                            <b>{Math.max(0, secondsLeft)}s</b>. Nếu chưa nhận
-                            được, hãy gửi lại OTP.
+                            OTP will expire in{' '}
+                            <b>{Math.max(0, secondsLeft)}s</b>. If you haven't
+                            received it, please request a new one.
                           </span>
                         ) : (
                           <span>
-                            Nhập số điện thoại mới để nhận OTP xác nhận.
+                            Enter your new phone number to receive an OTP for
+                            verification. If you haven't received it, please
+                            request a new one.
                           </span>
                         )}
                       </div>
@@ -767,7 +766,7 @@ export function ProfileModal({
                         disabled={otpSending}
                         onClick={async () => {
                           if (!newPhoneNumber.trim()) {
-                            toast.error('Vui lòng nhập số điện thoại.');
+                            toast.error('Please enter a new phone number.');
                             return;
                           }
 
@@ -777,11 +776,15 @@ export function ProfileModal({
                               identifier: newPhoneNumber.trim()
                             });
                             if (!res?.success) {
-                              toast.error(res?.message || 'Gửi OTP thất bại.');
+                              toast.error(
+                                res?.message || 'Failed to send OTP.'
+                              );
                               return;
                             }
                             setOtpExpiresAt(res.expiresAt ?? null);
-                            toast.success(res?.message || 'Đã gửi OTP.');
+                            toast.success(
+                              res?.message || 'OTP sent successfully.'
+                            );
                           } catch (error: any) {
                             toast.error(extractErrorMessage(error));
                           } finally {
@@ -789,7 +792,7 @@ export function ProfileModal({
                           }
                         }}
                       >
-                        {otpSending ? 'Đang gửi...' : 'Gửi OTP'}
+                        {otpSending ? 'Sending...' : 'Send OTP'}
                       </Button>
 
                       <Button
@@ -797,7 +800,7 @@ export function ProfileModal({
                         disabled={updatingPhone}
                         onClick={async () => {
                           if (!newPhoneNumber.trim() || !otpCode.trim()) {
-                            toast.error('Vui lòng nhập số điện thoại và OTP.');
+                            toast.error('Please fill in all fields.');
                             return;
                           }
 
@@ -809,14 +812,13 @@ export function ProfileModal({
                             });
                             if (!res?.success) {
                               toast.error(
-                                res?.message ||
-                                  'Cập nhật số điện thoại thất bại.'
+                                res?.message || 'Failed to update phone number.'
                               );
                               return;
                             }
                             toast.success(
                               res?.message ||
-                                'Cập nhật số điện thoại thành công.'
+                                'Phone number updated successfully.'
                             );
                             onOpenChange(false);
                           } catch (error: any) {
@@ -826,7 +828,7 @@ export function ProfileModal({
                           }
                         }}
                       >
-                        {updatingPhone ? 'Đang cập nhật...' : 'Cập nhật'}
+                        {updatingPhone ? 'Updating...' : 'Update Phone Number'}
                       </Button>
                     </div>
                   </div>

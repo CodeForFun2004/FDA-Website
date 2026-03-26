@@ -8,7 +8,7 @@ import {
   ArrowUpRight,
   Droplets
 } from 'lucide-react';
-import { Zone } from '@/lib/types';
+import { Zone } from '@/libs/types';
 import { WaterLevelTrendChart } from './water-level-trend-chart';
 
 export type ZoneDetailCardProps = {

@@ -3,8 +3,8 @@
 import React, { useEffect } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
-import { useAppStore } from '@/lib/store';
-import { cn } from '@/lib/utils';
+import { useAppStore } from '@/libs/store';
+import { cn } from '@/libs/utils';
 
 export default function AdminShell({
   children

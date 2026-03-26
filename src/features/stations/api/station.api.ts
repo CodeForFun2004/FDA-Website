@@ -8,7 +8,18 @@ import type {
   StationUpsertPayload,
   CreateStationResponse,
   UpdateStationResponse,
-  DeleteStationResponse
+  DeleteStationResponse,
+  ComponentUpsertPayload,
+  GetComponentsResponse,
+  GetComponentByIdResponse,
+  CreateComponentResponse,
+  UpdateComponentResponse,
+  DeleteComponentResponse,
+  GetCalibrationResponse,
+  UpdateCalibrationResponse,
+  GetStationStatusResponse,
+  GetOnlineStationsResponse,
+  GetOfflineStationsResponse
 } from '../types/station.type';
 
 const API_BASE_URL =
@@ -17,10 +28,13 @@ const API_PREFIX = `${API_BASE_URL}/stations`;
 
 const ENDPOINTS = {
   list: `${API_PREFIX}/stations`,
-  byId: (id: string) => `${API_PREFIX}/station/${id}`, // GET
-  create: `${API_PREFIX}/station`, // POST
-  update: (id: string) => `${API_PREFIX}/station/${id}`, // PUT (full body)
-  delete: (id: string) => `${API_PREFIX}/station/${id}` // DELETE
+  byId: (id: string) => `${API_PREFIX}/station/${id}`,
+  create: `${API_PREFIX}/station`,
+  update: (id: string) => `${API_PREFIX}/station/${id}`,
+  delete: (id: string) => `${API_PREFIX}/station/${id}`,
+  statusById: (id: string) => `${API_PREFIX}/${id}/status`,
+  onlineStations: `${API_PREFIX}/status/online`,
+  offlineStations: `${API_PREFIX}/status/offline`
 };
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -108,6 +122,8 @@ function buildFullUpdatePayload(
       patch.thresholdWarning ?? station.thresholdWarning ?? null,
     thresholdCritical:
       patch.thresholdCritical ?? station.thresholdCritical ?? null,
+    calibrationOffset:
+      patch.calibrationOffset ?? station.calibrationOffset ?? null,
     installedAt: patch.installedAt ?? station.installedAt ?? null,
     lastSeenAt: patch.lastSeenAt ?? station.lastSeenAt ?? null
   };
@@ -118,7 +134,8 @@ export const stationsApi = {
   async getStations(filters: StationListFilters): Promise<GetStationsResponse> {
     // Build query string with filters
     const queryParams: Record<string, any> = {};
-    if (filters.name) queryParams.searchTerm = filters.name;
+    if (filters.searchTerm) queryParams.searchTerm = filters.searchTerm;
+    else if (filters.name) queryParams.searchTerm = filters.name;
     if (filters.status) queryParams.status = filters.status;
     if (filters.page) queryParams.pageNumber = filters.page;
     if (filters.perPage) queryParams.pageSize = filters.perPage;
@@ -188,6 +205,145 @@ export const stationsApi = {
   ): Promise<DeleteStationResponse> {
     return fetchJson<DeleteStationResponse>(
       ENDPOINTS.delete(id),
+      'DELETE',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  // ============================================================
+  // Station Status APIs (FE-32)
+  // URL: /api/v1/stations/{id}/status
+  // ============================================================
+
+  async getStationStatus(
+    stationId: string,
+    accessToken?: string
+  ): Promise<GetStationStatusResponse> {
+    return fetchJson<GetStationStatusResponse>(
+      ENDPOINTS.statusById(stationId),
+      'GET',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  async getOnlineStations(
+    accessToken?: string
+  ): Promise<GetOnlineStationsResponse> {
+    return fetchJson<GetOnlineStationsResponse>(
+      ENDPOINTS.onlineStations,
+      'GET',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  async getOfflineStations(
+    accessToken?: string
+  ): Promise<GetOfflineStationsResponse> {
+    return fetchJson<GetOfflineStationsResponse>(
+      ENDPOINTS.offlineStations,
+      'GET',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  // ============================================================
+  // Calibration APIs (FE-33)
+  // URL: /api/v1/stations/{stationId}/calibration
+  // ============================================================
+
+  async getCalibration(
+    stationId: string,
+    accessToken?: string
+  ): Promise<GetCalibrationResponse> {
+    return fetchJson<GetCalibrationResponse>(
+      `${API_PREFIX}/${stationId}/calibration`,
+      'GET',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  async updateCalibration(
+    stationId: string,
+    calibrationOffset: number,
+    accessToken?: string
+  ): Promise<UpdateCalibrationResponse> {
+    return fetchJson<UpdateCalibrationResponse>(
+      `${API_PREFIX}/${stationId}/calibration`,
+      'PUT',
+      { calibrationOffset },
+      { accessToken }
+    );
+  },
+
+  // ============================================================
+  // Component APIs (FE-31)
+  // URL: /api/v1/stations/{stationId}/components
+  // ============================================================
+
+  async getComponents(
+    stationId: string,
+    accessToken?: string
+  ): Promise<GetComponentsResponse> {
+    return fetchJson<GetComponentsResponse>(
+      `${API_PREFIX}/${stationId}/components`,
+      'GET',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  async getComponentById(
+    stationId: string,
+    componentId: string,
+    accessToken?: string
+  ): Promise<GetComponentByIdResponse> {
+    return fetchJson<GetComponentByIdResponse>(
+      `${API_PREFIX}/${stationId}/components/${componentId}`,
+      'GET',
+      undefined,
+      { accessToken }
+    );
+  },
+
+  async createComponent(
+    stationId: string,
+    payload: ComponentUpsertPayload,
+    accessToken?: string
+  ): Promise<CreateComponentResponse> {
+    return fetchJson<CreateComponentResponse>(
+      `${API_PREFIX}/${stationId}/components`,
+      'POST',
+      payload,
+      { accessToken }
+    );
+  },
+
+  async updateComponent(
+    stationId: string,
+    componentId: string,
+    payload: ComponentUpsertPayload,
+    accessToken?: string
+  ): Promise<UpdateComponentResponse> {
+    return fetchJson<UpdateComponentResponse>(
+      `${API_PREFIX}/${stationId}/components/${componentId}`,
+      'PUT',
+      payload,
+      { accessToken }
+    );
+  },
+
+  async deleteComponent(
+    stationId: string,
+    componentId: string,
+    accessToken?: string
+  ): Promise<DeleteComponentResponse> {
+    return fetchJson<DeleteComponentResponse>(
+      `${API_PREFIX}/${stationId}/components/${componentId}`,
       'DELETE',
       undefined,
       { accessToken }

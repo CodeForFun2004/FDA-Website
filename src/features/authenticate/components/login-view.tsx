@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from '@/lib/router';
+import { useRouter } from '@/libs/router';
 import Link from 'next/link';
 import { Button } from '../../../components/ui/common';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';

@@ -3,8 +3,8 @@
 import React from 'react';
 import { Card, Button } from '@/components/ui/common';
 import { Navigation, AlertTriangle, ShieldCheck, Clock } from 'lucide-react';
-import { RouteAnalysis } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { RouteAnalysis } from '@/libs/types';
+import { cn } from '@/libs/utils';
 
 export type RouteResultCardsProps = {
   routes: RouteAnalysis[];

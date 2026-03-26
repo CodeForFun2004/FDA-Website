@@ -1,6 +1,6 @@
 // features/user-alert-subscription/api/alert-subscription.api.ts
 
-import { apiFetch } from '@/lib/api/client';
+import { apiFetch } from '@/libs/api/client';
 import type {
   GetAlertSubscriptionsResponse,
   AlertSubscriptionListFilters,

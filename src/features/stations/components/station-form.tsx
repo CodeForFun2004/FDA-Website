@@ -35,7 +35,7 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
 
-  status: z.enum(['active', 'offline', 'maintenance']),
+  status: z.enum(['online', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
@@ -43,9 +43,7 @@ const formSchema = z.object({
   thresholdCritical: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
-    .nullable(),
-
-  installedAt: z.string().optional().nullable()
+    .nullable()
 });
 
 export type StationFormValues = z.infer<typeof formSchema>;
@@ -68,10 +66,9 @@ export default function StationForm({
       direction: initialData?.direction ?? '',
       latitude: initialData?.latitude ?? undefined,
       longitude: initialData?.longitude ?? undefined,
-      status: (initialData?.status as StationFormValues['status']) ?? 'active',
+      status: (initialData?.status as StationFormValues['status']) ?? 'online',
       thresholdWarning: initialData?.thresholdWarning ?? null,
-      thresholdCritical: initialData?.thresholdCritical ?? null,
-      installedAt: initialData?.installedAt ?? null
+      thresholdCritical: initialData?.thresholdCritical ?? null
     }),
     [initialData]
   );
@@ -132,7 +129,7 @@ export default function StationForm({
               placeholder='Select status'
               required
               options={[
-                { label: 'Active', value: 'active' },
+                { label: 'Online', value: 'online' },
                 { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
               ]}
@@ -164,13 +161,6 @@ export default function StationForm({
               name='direction'
               label='Direction'
               placeholder='upstream / downstream / road section...'
-            />
-
-            <FormInput
-              control={formControl}
-              name='installedAt'
-              label='Installed At (ISO)'
-              placeholder='2026-01-13T10:00:00+00:00'
             />
           </div>
 

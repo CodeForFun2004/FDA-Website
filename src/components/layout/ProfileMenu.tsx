@@ -5,7 +5,7 @@ import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/common';
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 
 // ✅ ProfileModal mới (đã đồng bộ API) export: ProfileModal, UserProfile, ProfileUpdatePayload, ChangePasswordPayload
 import {

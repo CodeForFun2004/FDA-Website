@@ -1,0 +1,24 @@
+import {
+  createSearchParamsCache,
+  createSerializer,
+  parseAsInteger,
+  parseAsString
+} from 'nuqs/server';
+
+export const searchParams = {
+  page: parseAsInteger.withDefault(1),
+  perPage: parseAsInteger.withDefault(10),
+  name: parseAsString,
+  searchTerm: parseAsString,
+  status: parseAsString,
+  gender: parseAsString,
+  category: parseAsString,
+  userEmail: parseAsString,
+  severity: parseAsString
+  // advanced filter
+  // filters: getFiltersStateParser().withDefault([]),
+  // joinOperator: parseAsStringEnum(['and', 'or']).withDefault('and')
+};
+
+export const searchParamsCache = createSearchParamsCache(searchParams);
+export const serialize = createSerializer(searchParams);

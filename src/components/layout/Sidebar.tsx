@@ -15,11 +15,12 @@ import {
   FileText,
   Waypoints,
   Droplets,
-  SmartphoneNfc
+  SmartphoneNfc,
+  Newspaper
 } from 'lucide-react';
 
-import { useAppStore } from '@/lib/store';
-import { cn } from '@/lib/utils';
+import { useAppStore } from '@/libs/store';
+import { cn } from '@/libs/utils';
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, exact: true },
@@ -28,12 +29,18 @@ const navItems = [
     href: '/admin/flood-history',
     icon: LayoutDashboard
   },
+  {
+    label: 'Analytics',
+    href: '/admin/analytics',
+    icon: LayoutDashboard
+  },
   { label: 'Users & Roles', href: '/admin/users', icon: Users },
   { label: 'Stations', href: '/admin/stations', icon: SmartphoneNfc },
   { label: 'IoT Devices', href: '/admin/devices', icon: Radio },
   { label: 'Sensors Data', href: '/admin/sensors', icon: Activity },
   { label: 'Areas', href: '/admin/areas', icon: MapPinCheck },
-  { label: 'Flood Alerts', href: '/admin/alerts', icon: AlertTriangle },
+  { label: 'Alerts Template', href: '/admin/alerts', icon: AlertTriangle },
+  { label: 'News & Updates', href: '/admin/news', icon: Newspaper },
   {
     label: 'Alert Subscriptions',
     href: '/admin/user-alert-subscription',

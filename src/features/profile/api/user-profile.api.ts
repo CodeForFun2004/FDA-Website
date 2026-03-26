@@ -1,5 +1,5 @@
 // src/features/profile/api/user-profile.ts
-import { apiFetch } from '@/lib/api/client';
+import { apiFetch } from '@/libs/api/client';
 
 // ===== Types =====
 export type ApiProfile = {

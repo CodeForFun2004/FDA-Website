@@ -1,0 +1,263 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AlertTemplate } from '../../types/alert-template.type';
+import { usePreviewAlertTemplate } from '../../hooks/useAlertTemplates';
+import { toast } from 'sonner';
+import {
+  IconPlayerPlay,
+  IconRefresh,
+  IconEye,
+  IconEditCircle,
+  IconAlertCircle
+} from '@tabler/icons-react';
+
+import { PushPreview } from './previews/push-preview';
+import { EmailPreview } from './previews/email-preview';
+import { SmsPreview } from './previews/sms-preview';
+import { InAppPreview } from './previews/inapp-preview';
+
+interface AlertTemplatePreviewDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  template: AlertTemplate | null;
+}
+
+const DEFAULT_TEST_DATA = {
+  stationName: 'Trạm Thủy văn Cần Thơ',
+  waterLevel: '4.12',
+  threshold: '3.50',
+  severity: 'warning',
+  address: 'Quận Ninh Kiều, TP. Cần Thơ'
+};
+
+const CHANNELS = ['Push', 'Email', 'SMS', 'InApp'] as const;
+
+export function AlertTemplatePreviewDialog({
+  open,
+  onOpenChange,
+  template
+}: AlertTemplatePreviewDialogProps) {
+  const previewMutation = usePreviewAlertTemplate();
+  const [previewResult, setPreviewResult] = useState<{
+    title: string;
+    body: string;
+  } | null>(null);
+
+  const [testData, setTestData] = useState<Record<string, string>>({
+    ...DEFAULT_TEST_DATA
+  });
+
+  const activeChannel = template?.channel ?? 'Push';
+
+  const handleTestChange = (field: string, value: string) => {
+    setTestData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleReset = () => {
+    setTestData({ ...DEFAULT_TEST_DATA });
+    setPreviewResult(null);
+  };
+
+  const handlePreview = async () => {
+    if (!template) return;
+    try {
+      const result = await previewMutation.mutateAsync({
+        templateId: template.id,
+        titleTemplate: template.titleTemplate,
+        bodyTemplate: template.bodyTemplate,
+        ...testData,
+        waterLevel: Number(testData.waterLevel) || 0,
+        threshold: Number(testData.threshold) || 0
+      });
+      setPreviewResult(result);
+      toast.success('Preview generated');
+    } catch (error: any) {
+      toast.error('Preview failed', { description: error.message });
+    }
+  };
+
+  // Detect unreplaced variables in the rendered result
+  const unreplacedVars = useMemo(() => {
+    if (!previewResult) return [];
+    const combined = `${previewResult.title} ${previewResult.body}`;
+    const matches = combined.match(/\{\{([^}]+)\}\}/g);
+    return matches ? Array.from(new Set(matches)) : [];
+  }, [previewResult]);
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(val) => {
+        onOpenChange(val);
+        if (!val) {
+          setPreviewResult(null);
+          setTestData({ ...DEFAULT_TEST_DATA });
+        }
+      }}
+    >
+      <DialogContent className='gap-0 overflow-hidden p-0 sm:max-w-5xl'>
+        {/* Header */}
+        <DialogHeader className='bg-muted/30 border-b px-8 py-5'>
+          <DialogTitle className='text-xl'>
+            Preview Template: {template?.name}
+          </DialogTitle>
+          <DialogDescription>
+            Test the template rendering with sample data before publishing
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Two-Column Body */}
+        <div className='flex min-h-[550px] flex-col lg:flex-row'>
+          {/* ─── Left Column: Input Data ─── */}
+          <div className='flex-1 border-r p-8'>
+            <div className='mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400'>
+              <IconEditCircle className='size-5' />
+              <h2 className='text-base font-bold'>Sample Data</h2>
+            </div>
+
+            <div className='space-y-4'>
+              {Object.entries(testData).map(([key, value]) => (
+                <div key={key} className='flex flex-col gap-1.5'>
+                  <Label className='text-xs font-semibold text-slate-600 dark:text-slate-400'>
+                    {`{{${key}}}`}
+                  </Label>
+                  <Input
+                    value={value}
+                    onChange={(e) => handleTestChange(key, e.target.value)}
+                    className='h-9 text-sm'
+                    placeholder={`Enter ${key}...`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className='mt-8 flex flex-col gap-3'>
+              <Button
+                onClick={handlePreview}
+                disabled={previewMutation.isPending}
+                className='w-full gap-2 shadow-lg'
+              >
+                <IconPlayerPlay className='size-4' />
+                Generate Preview
+              </Button>
+              <Button
+                variant='outline'
+                onClick={handleReset}
+                className='w-full gap-2'
+              >
+                <IconRefresh className='size-4' />
+                Reset Data
+              </Button>
+            </div>
+          </div>
+
+          {/* ─── Right Column: Render Result ─── */}
+          <div className='bg-muted/20 flex-[1.2] p-8'>
+            <div className='mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400'>
+              <IconEye className='size-5' />
+              <h2 className='text-base font-bold'>Render Result</h2>
+            </div>
+
+            {/* Channel Tabs */}
+            <Tabs defaultValue={activeChannel} className='w-full'>
+              <TabsList className='mb-6 grid w-full grid-cols-4'>
+                {CHANNELS.map((ch) => {
+                  const enabled = true;
+                  return (
+                    <TabsTrigger
+                      key={ch}
+                      value={ch}
+                      disabled={!enabled}
+                      className={
+                        !enabled ? 'cursor-not-allowed opacity-50' : ''
+                      }
+                    >
+                      {ch}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+
+              <TabsContent value='Push'>
+                <PushPreview
+                  title={previewResult?.title ?? null}
+                  body={previewResult?.body ?? null}
+                />
+              </TabsContent>
+
+              <TabsContent value='Email'>
+                <EmailPreview
+                  title={previewResult?.title ?? null}
+                  body={previewResult?.body ?? null}
+                />
+              </TabsContent>
+
+              <TabsContent value='SMS'>
+                <SmsPreview
+                  title={previewResult?.title ?? null}
+                  body={previewResult?.body ?? null}
+                />
+              </TabsContent>
+
+              <TabsContent value='InApp'>
+                <InAppPreview
+                  title={previewResult?.title ?? null}
+                  body={previewResult?.body ?? null}
+                />
+              </TabsContent>
+            </Tabs>
+
+            {/* Unreplaced Variables Warning */}
+            {unreplacedVars.length > 0 && (
+              <div className='mt-6'>
+                <div className='mb-2 flex items-center justify-between'>
+                  <h3 className='text-sm font-bold text-slate-700 dark:text-slate-300'>
+                    Unreplaced Variables
+                  </h3>
+                  <span className='rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'>
+                    {unreplacedVars.length}{' '}
+                    {unreplacedVars.length === 1 ? 'Error' : 'Errors'}
+                  </span>
+                </div>
+                <div className='bg-background rounded-lg border p-4'>
+                  <ul className='space-y-2'>
+                    {unreplacedVars.map((v) => (
+                      <li
+                        key={v}
+                        className='flex items-center gap-2 font-mono text-xs text-slate-500'
+                      >
+                        <IconAlertCircle className='size-4 text-red-500' />
+                        {v}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <DialogFooter className='border-t px-8 py-4'>
+          <Button variant='outline' onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

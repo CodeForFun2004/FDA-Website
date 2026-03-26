@@ -1,8 +1,8 @@
 import Providers from '@/components/layout/providers';
 
-import { fontVariables } from '@/lib/font';
+import { fontVariables } from '@/libs/font';
 import ThemeProvider from '@/components/layout/theme-toggle/theme-provider';
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
 import NextTopLoader from 'nextjs-toploader';

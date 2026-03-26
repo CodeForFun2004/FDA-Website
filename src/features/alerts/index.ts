@@ -1,5 +1,4 @@
 // src/features/alerts/index.ts
-export { useAlerts } from './hooks/useAlerts';
-export { generateAlerts } from './mocks/alerts-mock';
-export { AlertsView, type AlertsViewProps } from './views/alert-view';
 export type { Alert } from './types';
+export { useAlerts } from './hooks/useAlerts';
+export type { useAlerts as UseAlertsType } from './hooks/useAlerts';

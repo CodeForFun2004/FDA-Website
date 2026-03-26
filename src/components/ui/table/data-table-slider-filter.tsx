@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import { PlusCircle, XCircle } from 'lucide-react';
 
 interface Range {

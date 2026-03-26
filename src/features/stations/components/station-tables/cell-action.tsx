@@ -13,7 +13,12 @@ import type { Station } from '@/features/stations/types/station.type';
 import { EditStationDialog } from '@/features/stations/components/edit-station-dialog';
 import { stationsApi } from '@/features/stations/api/station.api';
 import { getAccessToken } from '@/features/stations/utils/auth';
-import { IconDotsVertical, IconEdit, IconTrash } from '@tabler/icons-react';
+import {
+  IconDotsVertical,
+  IconEdit,
+  IconEye,
+  IconTrash
+} from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -89,6 +94,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+          <DropdownMenuItem
+            onClick={() => router.push(`/admin/stations/${data.id}`)}
+          >
+            <IconEye className='mr-2 h-4 w-4' /> Detail
+          </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => setOpenEdit(true)}>
             <IconEdit className='mr-2 h-4 w-4' /> Update

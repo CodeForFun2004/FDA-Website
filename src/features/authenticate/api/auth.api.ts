@@ -1,5 +1,5 @@
 // src/features/authenticate/api/auth.ts
-import { apiFetch } from '@/lib/api/client';
+import { apiFetch } from '@/libs/api/client';
 import type {
   CheckIdentifierRequest,
   CheckIdentifierResponse,

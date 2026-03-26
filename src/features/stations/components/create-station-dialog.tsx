@@ -1,8 +1,8 @@
 // src/features/stations/components/CreateStationDialog.tsx
 'use client';
 
-import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Dialog,
   DialogContent,
@@ -20,12 +20,12 @@ import { FormSelect } from '@/components/forms/form-select';
 import { FormTextarea } from '@/components/forms/form-textarea';
 import { Form } from '@/components/ui/form';
 import { stationsApi } from '@/features/stations/api/station.api';
+import { getAdministrativeAreasApi } from '@/features/admin/api/admin.api';
 import type { StationUpsertPayload } from '@/features/stations/types/station.type';
 import { Loader2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { getAccessToken } from '@/features/stations/utils/auth';
 
-// Helpers
 const toNumberOrUndefined = (v: unknown) => {
   if (v === '' || v === null || v === undefined) return undefined;
   const n = Number(v);
@@ -38,15 +38,13 @@ const formSchema = z.object({
   locationDesc: z.string().optional().nullable(),
   roadName: z.string().optional().nullable(),
   direction: z.string().optional().nullable(),
-
   latitude: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-90).max(90))
     .optional(),
   longitude: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
-
-  status: z.enum(['active', 'offline', 'maintenance']),
+  status: z.enum(['online', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
@@ -55,13 +53,13 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
     .nullable(),
-
-  installedAt: z.string().optional().nullable()
+  calibrationOffset: z
+    .preprocess((v) => toNumberOrUndefined(v), z.number().min(0).max(50))
+    .optional()
+    .nullable()
 });
 
 type StationFormValues = z.infer<typeof formSchema>;
-
-import { getAccessToken } from '@/features/stations/utils/auth';
 
 export type CreateStationDialogProps = {
   open: boolean;
@@ -75,7 +73,18 @@ export function CreateStationDialog({
   onSuccess
 }: CreateStationDialogProps) {
   const queryClient = useQueryClient();
-  const router = useRouter();
+
+  const { data: areasData, isLoading: isLoadingAreas } = useQuery({
+    queryKey: ['administrative-areas'],
+    queryFn: () => getAdministrativeAreasApi(),
+    staleTime: 5 * 60 * 1000
+  });
+
+  const areaOptions =
+    areasData?.administrativeAreas?.map((area) => ({
+      label: area.name,
+      value: area.id
+    })) ?? [];
 
   const form = useForm({
     resolver: zodResolver(formSchema) as any,
@@ -87,47 +96,31 @@ export function CreateStationDialog({
       direction: '',
       latitude: undefined,
       longitude: undefined,
-      status: 'active' as const,
+      status: 'online' as const,
       thresholdWarning: null,
       thresholdCritical: null,
-      installedAt: null
+      calibrationOffset: null
     }
   });
 
-  // Type-safe control
   const formControl = form.control as unknown as Control<StationFormValues>;
 
-  // Create station mutation
   const createStationMutation = useMutation({
     mutationFn: async (data: StationUpsertPayload) => {
       const token = await getAccessToken();
-
       if (!token) {
         throw new Error('Authentication required. Please log in again.');
       }
-
-      console.log('🔑 Token retrieved: Valid token obtained');
-      console.log('📤 Creating station with data:', data);
-
       return stationsApi.createStation(data, token);
     },
     onSuccess: async (response) => {
       if (response.success) {
-        // Invalidate and refetch stations query immediately
         await queryClient.invalidateQueries({ queryKey: ['stations'] });
-
-        // Show success toast after UI updates
         toast.success('Station created successfully!', {
           description: `Station: ${response.data.name}`
         });
-
-        // Reset form
         form.reset();
-
-        // Close dialog
         onOpenChange(false);
-
-        // Call onSuccess callback
         onSuccess?.();
       } else {
         toast.error('Failed to create station', {
@@ -154,7 +147,8 @@ export function CreateStationDialog({
       status: values.status,
       thresholdWarning: values.thresholdWarning ?? null,
       thresholdCritical: values.thresholdCritical ?? null,
-      installedAt: values.installedAt || null,
+      calibrationOffset: values.calibrationOffset ?? null,
+      installedAt: new Date().toISOString(),
       lastSeenAt: null
     };
 
@@ -216,7 +210,7 @@ export function CreateStationDialog({
               required
               disabled={isLoading}
               options={[
-                { label: 'Active', value: 'active' },
+                { label: 'Online', value: 'online' },
                 { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
               ]}
@@ -250,14 +244,6 @@ export function CreateStationDialog({
               name='direction'
               label='Direction'
               placeholder='upstream / downstream'
-              disabled={isLoading}
-            />
-
-            <FormInput
-              control={formControl}
-              name='installedAt'
-              label='Installed At (ISO)'
-              placeholder='2026-01-13T10:00:00+00:00'
               disabled={isLoading}
             />
           </div>
@@ -304,6 +290,18 @@ export function CreateStationDialog({
               type='number'
               step='0.0001'
               min={0}
+              disabled={isLoading}
+            />
+
+            <FormInput
+              control={formControl}
+              name='calibrationOffset'
+              label='Calibration Offset (±cm)'
+              placeholder='5'
+              type='number'
+              step='0.1'
+              min={0}
+              max={50}
               disabled={isLoading}
             />
           </div>

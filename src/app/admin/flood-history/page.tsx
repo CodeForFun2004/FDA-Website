@@ -28,7 +28,7 @@ import { FloodHistoryGraph } from '@/features/flood-history/components/flood-his
 import { FloodDataQuality } from '@/features/flood-history/components/flood-data-quality';
 import { FloodHeatmap } from '@/features/flood-history/components/flood-heatmap';
 import { FloodBarChart } from '@/features/flood-history/components/flood-bar-chart';
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import { useFloodStationsStore } from '@/features/zones/store/flood-stations-store';
 import { mockAreas } from '@/features/flood-history/mock';
 import type {

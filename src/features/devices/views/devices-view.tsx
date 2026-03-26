@@ -16,7 +16,7 @@ import {
   CardContent,
   LoadingState
 } from '@/components/ui/common';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/libs/utils';
 import { Plus, Battery, BatteryWarning, Settings, MapPin } from 'lucide-react';
 
 // ===== Sub-components =====

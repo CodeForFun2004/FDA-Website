@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { useRouter } from '@/lib/router';
+import { useRouter } from '@/libs/router';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 import { setSessionCookie } from '@/helpers/auth-session';
 

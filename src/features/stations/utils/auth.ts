@@ -8,7 +8,7 @@ import {
   getAccessToken as getAccessTokenGlobal,
   getAccessTokenSync as getAccessTokenSyncGlobal,
   debugAuthState
-} from '@/lib/auth-utils';
+} from '@/libs/auth-utils';
 
 /**
  * Get access token from auth store

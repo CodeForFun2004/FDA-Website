@@ -7,11 +7,11 @@ import {
   Polygon,
   Marker
 } from '@react-google-maps/api';
-import { useZones, useAlerts } from '@/lib/api';
+import { useZones, useAlerts } from '@/libs/api';
 import { Card, LoadingState } from '@/components/ui/common';
 import { MapPin } from 'lucide-react';
-import { Zone } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { Zone } from '@/libs/types';
+import { cn } from '@/libs/utils';
 import { ZoneDetailCard } from '../components/zone-detail-card';
 
 declare const google: any;

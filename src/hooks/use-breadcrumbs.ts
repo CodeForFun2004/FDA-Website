@@ -17,6 +17,7 @@ const segmentTitles: Record<string, string> = {
   devices: 'Devices',
   alerts: 'Alerts',
   sensors: 'Sensors',
+  stations: 'Stations',
   routes: 'Routes',
   zones: 'Zones',
   logs: 'Logs',

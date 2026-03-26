@@ -35,7 +35,7 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
 
-  status: z.enum(['active', 'offline', 'maintenance']),
+  status: z.enum(['online', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
@@ -68,7 +68,7 @@ export default function StationForm({
       direction: initialData?.direction ?? '',
       latitude: initialData?.latitude ?? undefined,
       longitude: initialData?.longitude ?? undefined,
-      status: (initialData?.status as StationFormValues['status']) ?? 'active',
+      status: (initialData?.status as StationFormValues['status']) ?? 'online',
       thresholdWarning: initialData?.thresholdWarning ?? null,
       thresholdCritical: initialData?.thresholdCritical ?? null,
       installedAt: initialData?.installedAt ?? null

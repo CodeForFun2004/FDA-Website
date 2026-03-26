@@ -46,7 +46,7 @@ const formSchema = z.object({
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
 
-  status: z.enum(['active', 'offline', 'maintenance']),
+  status: z.enum(['online', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
@@ -87,7 +87,7 @@ export function CreateStationDialog({
       direction: '',
       latitude: undefined,
       longitude: undefined,
-      status: 'active' as const,
+      status: 'online' as const,
       thresholdWarning: null,
       thresholdCritical: null,
       installedAt: null
@@ -146,7 +146,6 @@ export function CreateStationDialog({
     const payload: StationUpsertPayload = {
       code: values.code,
       name: values.name,
-      administrativeAreaId: '550e8400-e29b-41d4-a716-446655440000',
       locationDesc: values.locationDesc || null,
       roadName: values.roadName || null,
       direction: values.direction || null,
@@ -217,7 +216,7 @@ export function CreateStationDialog({
               required
               disabled={isLoading}
               options={[
-                { label: 'Active', value: 'active' },
+                { label: 'Active', value: 'online' },
                 { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
               ]}

@@ -4,6 +4,7 @@ import { generateMockStations } from '../mocks/stations-mock';
 
 import { StationTable } from './station-tables';
 import { columns } from './station-tables/columns';
+import { StationOverview } from './station-overview';
 
 export default async function StationListingPage() {
   const page = searchParamsCache.get('page');
@@ -65,10 +66,13 @@ export default async function StationListingPage() {
   }
 
   return (
-    <StationTable
-      data={filteredStations}
-      totalItems={totalCount || filteredStations.length}
-      columns={columns}
-    />
+    <div className='space-y-6'>
+      <StationOverview />
+      <StationTable
+        data={filteredStations}
+        totalItems={totalCount || filteredStations.length}
+        columns={columns}
+      />
+    </div>
   );
 }

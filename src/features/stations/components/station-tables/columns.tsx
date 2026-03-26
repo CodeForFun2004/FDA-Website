@@ -14,7 +14,7 @@ import { CheckCircle2, Wrench, XCircle } from 'lucide-react';
 import { CellAction } from './cell-action';
 
 export const STATION_STATUS_OPTIONS = [
-  { label: 'Active', value: 'active' },
+  { label: 'Online', value: 'online' },
   { label: 'Offline', value: 'offline' },
   { label: 'Maintenance', value: 'maintenance' }
 ];
@@ -51,7 +51,7 @@ function formatLastSeen(lastSeenAt: string | null): string {
 
 function getStatusConfig(status: string) {
   switch (status.toLowerCase()) {
-    case 'active':
+    case 'online':
       return {
         variant: 'default' as const,
         className:
@@ -250,7 +250,7 @@ export const columns: ColumnDef<Station>[] = [
           </div>
         );
       }
-      // Placeholder: assume good signal/battery for active stations
+      // Placeholder: assume good signal/battery for online stations
       return (
         <div className='flex items-center justify-center gap-2'>
           <SignalBars activeCount={4} maxBars={4} />

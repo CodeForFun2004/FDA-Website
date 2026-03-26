@@ -38,10 +38,6 @@ const toNumberOrUndefined = (v: unknown) => {
 const formSchema = z.object({
   code: z.string().min(2, { message: 'Code must be at least 2 characters.' }),
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  administrativeAreaId: z
-    .string()
-    .min(1, { message: 'Administrative area is required.' }),
-  type: z.string().optional().nullable(),
   locationDesc: z.string().optional().nullable(),
   roadName: z.string().optional().nullable(),
   direction: z.string().optional().nullable(),
@@ -51,7 +47,7 @@ const formSchema = z.object({
   longitude: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(-180).max(180))
     .optional(),
-  status: z.enum(['active', 'offline', 'maintenance']),
+  status: z.enum(['online', 'offline', 'maintenance']),
   thresholdWarning: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0))
     .optional()
@@ -63,8 +59,7 @@ const formSchema = z.object({
   calibrationOffset: z
     .preprocess((v) => toNumberOrUndefined(v), z.number().min(0).max(50))
     .optional()
-    .nullable(),
-  installedAt: z.string().optional().nullable()
+    .nullable()
 });
 
 type StationFormValues = z.infer<typeof formSchema>;
@@ -101,18 +96,15 @@ export function EditStationDialog({
     defaultValues: {
       code: '',
       name: '',
-      administrativeAreaId: '',
-      type: '',
       locationDesc: '',
       roadName: '',
       direction: '',
       latitude: undefined,
       longitude: undefined,
-      status: 'active' as const,
+      status: 'online' as const,
       thresholdWarning: null,
       thresholdCritical: null,
-      calibrationOffset: null,
-      installedAt: null
+      calibrationOffset: null
     }
   });
 
@@ -123,18 +115,15 @@ export function EditStationDialog({
       form.reset({
         code: station.code ?? '',
         name: station.name ?? '',
-        administrativeAreaId: (station as any).administrativeAreaId ?? '',
-        type: (station as any).type ?? '',
         locationDesc: station.locationDesc ?? '',
         roadName: station.roadName ?? '',
         direction: station.direction ?? '',
         latitude: station.latitude ?? undefined,
         longitude: station.longitude ?? undefined,
-        status: (station.status as StationFormValues['status']) ?? 'active',
+        status: (station.status as StationFormValues['status']) ?? 'online',
         thresholdWarning: station.thresholdWarning ?? null,
         thresholdCritical: station.thresholdCritical ?? null,
-        calibrationOffset: (station as any).calibrationOffset ?? null,
-        installedAt: station.installedAt ?? null
+        calibrationOffset: station.calibrationOffset ?? null
       } as any);
     }
   }, [station, form]);
@@ -181,8 +170,6 @@ export function EditStationDialog({
     const payload: StationUpsertPayload = {
       code: values.code,
       name: values.name,
-      administrativeAreaId: values.administrativeAreaId,
-      type: values.type || null,
       locationDesc: values.locationDesc || null,
       roadName: values.roadName || null,
       direction: values.direction || null,
@@ -192,7 +179,7 @@ export function EditStationDialog({
       thresholdWarning: values.thresholdWarning ?? null,
       thresholdCritical: values.thresholdCritical ?? null,
       calibrationOffset: values.calibrationOffset ?? null,
-      installedAt: values.installedAt || null,
+      installedAt: station.installedAt || null,
       lastSeenAt: station.lastSeenAt || null
     };
 
@@ -247,39 +234,15 @@ export function EditStationDialog({
 
             <FormSelect
               control={formControl}
-              name='administrativeAreaId'
-              label='Administrative Area'
-              placeholder={isLoadingAreas ? 'Loading areas...' : 'Select area'}
-              required
-              disabled={isLoading || isLoadingAreas}
-              options={areaOptions}
-            />
-
-            <FormSelect
-              control={formControl}
               name='status'
               label='Status'
               placeholder='Select status'
               required
               disabled={isLoading}
               options={[
-                { label: 'Active', value: 'active' },
+                { label: 'Online', value: 'online' },
                 { label: 'Offline', value: 'offline' },
                 { label: 'Maintenance', value: 'maintenance' }
-              ]}
-            />
-
-            <FormSelect
-              control={formControl}
-              name='type'
-              label='Station Type'
-              placeholder='Select type'
-              disabled={isLoading}
-              options={[
-                { label: 'Urban Lowland', value: 'urban_lowland' },
-                { label: 'Riverbank', value: 'riverbank' },
-                { label: 'Drainage', value: 'drainage' },
-                { label: 'Floodgate', value: 'floodgate' }
               ]}
             />
 
@@ -311,14 +274,6 @@ export function EditStationDialog({
               name='direction'
               label='Direction'
               placeholder='upstream / downstream'
-              disabled={isLoading}
-            />
-
-            <FormInput
-              control={formControl}
-              name='installedAt'
-              label='Installed At (ISO)'
-              placeholder='2026-01-13T10:00:00+00:00'
               disabled={isLoading}
             />
           </div>

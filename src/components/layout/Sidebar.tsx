@@ -15,7 +15,8 @@ import {
   FileText,
   Waypoints,
   Droplets,
-  SmartphoneNfc
+  SmartphoneNfc,
+  Newspaper
 } from 'lucide-react';
 
 import { useAppStore } from '@/libs/store';
@@ -39,6 +40,7 @@ const navItems = [
   { label: 'Sensors Data', href: '/admin/sensors', icon: Activity },
   { label: 'Areas', href: '/admin/areas', icon: MapPinCheck },
   { label: 'Alerts Template', href: '/admin/alerts', icon: AlertTriangle },
+  { label: 'News & Updates', href: '/admin/news', icon: Newspaper },
   {
     label: 'Alert Subscriptions',
     href: '/admin/user-alert-subscription',

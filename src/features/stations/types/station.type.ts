@@ -1,23 +1,16 @@
 // features/stations/types/station.type.ts
 
-export type StationStatus = 'active' | 'offline' | 'maintenance' | string;
+export type StationStatus = 'online' | 'offline' | 'maintenance';
 export type StationDirection =
   | 'upstream'
   | 'downstream'
   | 'road section'
-  | string;
-export type StationType =
-  | 'urban_lowland'
-  | 'riverbank'
-  | 'drainage'
-  | 'floodgate'
   | string;
 
 export interface Station {
   id: string;
   code: string;
   name: string;
-  type: StationType;
   locationDesc: string | null;
   latitude: number;
   longitude: number;
@@ -29,7 +22,6 @@ export interface Station {
   calibrationOffset: number | null;
   installedAt: string | null;
   lastSeenAt: string | null;
-  administrativeAreaId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -63,7 +55,6 @@ export type StationListFilters = {
 export type StationUpsertPayload = {
   code: string;
   name: string;
-  type?: StationType | null;
   locationDesc: string | null;
   latitude: number;
   longitude: number;
@@ -75,7 +66,6 @@ export type StationUpsertPayload = {
   calibrationOffset?: number | null;
   installedAt: string | null;
   lastSeenAt: string | null;
-  administrativeAreaId: string;
 };
 
 export type CreateStationResponse = {
@@ -96,6 +86,24 @@ export type DeleteStationResponse = {
   message: string;
   statusCode: number;
 };
+
+// ============================================================
+// Calibration Config types (FE-33)
+// ============================================================
+
+export interface GetCalibrationResponse extends ApiEnvelope {
+  stationId: string;
+  calibrationOffset: number;
+  updatedAt: string;
+  updatedBy: string;
+}
+
+export interface UpdateCalibrationResponse extends ApiEnvelope {
+  stationId: string;
+  calibrationOffset: number;
+  updatedAt: string;
+  updatedBy: string;
+}
 
 // ============================================================
 // Component types (FE-31)
@@ -167,3 +175,46 @@ export type DeleteComponentResponse = {
   message: string;
   statusCode: number;
 };
+
+// ============================================================
+// Station Status APIs (FE-32)
+// ============================================================
+
+export interface GetStationStatusResponse extends ApiEnvelope {
+  stationId: string;
+  stationName: string;
+  status: StationStatus;
+  lastSeenAt: string | null;
+  batteryLevel: number | null;
+  signalStrength: number | null;
+  lastReading: {
+    waterLevel: number | null;
+    measuredAt: string | null;
+  } | null;
+  offlineDurationMinutes: number | null;
+}
+
+export interface OnlineStationItem {
+  stationId: string;
+  stationName: string;
+  lastSeenAt: string | null;
+  batteryLevel: number | null;
+  signalStrength: number | null;
+}
+
+export interface GetOnlineStationsResponse extends ApiEnvelope {
+  items: OnlineStationItem[];
+  total: number;
+}
+
+export interface OfflineStationItem {
+  stationId: string;
+  stationName: string;
+  lastSeenAt: string | null;
+  offlineDurationMinutes: number | null;
+}
+
+export interface GetOfflineStationsResponse extends ApiEnvelope {
+  items: OfflineStationItem[];
+  total: number;
+}

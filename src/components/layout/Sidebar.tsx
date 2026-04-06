@@ -8,11 +8,17 @@ import {
   Users,
   Radio,
   Activity,
-  AlertTriangle,
+  CreditCard,
+  Receipt,
+  MessageSquareWarning,
+  BarChart3,
+  History,
+  BellRing,
+  Bell,
+  ShieldCheck,
   Map as MapIcon,
   MapPinCheck,
   Settings,
-  FileText,
   Waypoints,
   Droplets,
   SmartphoneNfc,
@@ -27,30 +33,44 @@ const navItems = [
   {
     label: 'Flood History',
     href: '/admin/flood-history',
-    icon: LayoutDashboard
+    icon: History
   },
   {
     label: 'Analytics',
     href: '/admin/analytics',
-    icon: LayoutDashboard
+    icon: BarChart3
   },
   { label: 'Users & Roles', href: '/admin/users', icon: Users },
+  {
+    label: 'Plan Subscriptions',
+    href: '/admin/plan-subscriptions',
+    icon: CreditCard
+  },
+  {
+    label: 'Subscription Disputes',
+    href: '/admin/subscription-disputes',
+    icon: MessageSquareWarning
+  },
+  {
+    label: 'Billing Payment',
+    href: '/admin/billing-payment',
+    icon: Receipt
+  },
   { label: 'Stations', href: '/admin/stations', icon: SmartphoneNfc },
   { label: 'IoT Devices', href: '/admin/devices', icon: Radio },
   { label: 'Sensors Data', href: '/admin/sensors', icon: Activity },
-  { label: 'Subscriptions', href: '/admin/subscriptions', icon: MapPinCheck },
   { label: 'Areas', href: '/admin/areas', icon: MapPinCheck },
-  { label: 'Alerts Template', href: '/admin/alerts', icon: AlertTriangle },
+  { label: 'Alerts Template', href: '/admin/alerts', icon: BellRing },
   { label: 'News & Updates', href: '/admin/news', icon: Newspaper },
   {
     label: 'Alert Subscriptions',
     href: '/admin/user-alert-subscription',
-    icon: AlertTriangle
+    icon: Bell
   },
   { label: 'Safe Routes', href: '/admin/routes', icon: Waypoints },
   { label: 'Map & Zones', href: '/admin/zones', icon: MapIcon },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
-  { label: 'Logs & Audit', href: '/admin/logs', icon: FileText }
+  { label: 'Logs & Audit', href: '/admin/logs', icon: ShieldCheck }
 ];
 
 export const Sidebar = () => {

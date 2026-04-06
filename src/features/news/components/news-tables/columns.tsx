@@ -42,9 +42,9 @@ function formatDate(dateString: string | null) {
 }
 
 function formatTarget(target: string, targetValue: string | null) {
-  if (target === 'all') return 'Tất cả';
-  if (target === 'region') return `Khu vực: ${targetValue || '—'}`;
-  if (target === 'role') return `Vai trò: ${targetValue || '—'}`;
+  if (target === 'all') return 'All';
+  if (target === 'region') return `Region: ${targetValue || '—'}`;
+  if (target === 'role') return `Role: ${targetValue || '—'}`;
   return target;
 }
 
@@ -55,10 +55,10 @@ export const getNewsColumns = (
     id: 'title',
     accessorKey: 'title',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Tiêu đề' />
+      <DataTableColumnHeader column={column} title='Title' />
     ),
     cell: ({ row }) => (
-      <div className='min-w-[200px]'>
+      <div className='w-full lg:max-w-xs xl:max-w-md'>
         <div className='line-clamp-2 font-medium'>{row.original.title}</div>
         {row.original.summary && (
           <div className='text-muted-foreground mt-0.5 line-clamp-1 text-xs'>
@@ -70,8 +70,8 @@ export const getNewsColumns = (
     enableSorting: true,
     enableColumnFilter: true,
     meta: {
-      label: 'Tiêu đề',
-      placeholder: 'Tìm kiếm tiêu đề...',
+      label: 'Title',
+      placeholder: 'Search titles...',
       variant: 'text',
       icon: Text
     }
@@ -80,7 +80,9 @@ export const getNewsColumns = (
     id: 'status',
     accessorKey: 'status',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Trạng thái' />
+      <div title='Sorting is not supported for this field'>
+        <DataTableColumnHeader column={column} title='Status' />
+      </div>
     ),
     cell: ({ cell }) => {
       const status = String(cell.getValue() ?? '').toLowerCase();
@@ -97,28 +99,28 @@ export const getNewsColumns = (
           variant: 'outline',
           className: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
           icon: Text,
-          label: 'Bản nháp'
+          label: 'Draft'
         },
         pending: {
           variant: 'default',
           className:
             'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
           icon: Clock,
-          label: 'Chờ đăng'
+          label: 'Pending'
         },
         published: {
           variant: 'default',
           className:
             'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
           icon: Globe,
-          label: 'Đã đăng'
+          label: 'Published'
         },
         cancelled: {
           variant: 'outline',
           className:
             'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
           icon: AlertCircle,
-          label: 'Đã hủy'
+          label: 'Cancelled'
         }
       };
       const config = configs[status] ?? {
@@ -138,9 +140,10 @@ export const getNewsColumns = (
         </Badge>
       );
     },
+    enableSorting: false,
     enableColumnFilter: true,
     meta: {
-      label: 'Trạng thái',
+      label: 'Status',
       variant: 'multiSelect',
       options: NEWS_STATUS_OPTIONS
     }
@@ -149,7 +152,9 @@ export const getNewsColumns = (
     id: 'priority',
     accessorKey: 'priority',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Độ ưu tiên' />
+      <div title='Sorting is not supported for this field'>
+        <DataTableColumnHeader column={column} title='Priority' />
+      </div>
     ),
     cell: ({ cell }) => {
       const priority = String(cell.getValue() ?? '').toLowerCase();
@@ -166,28 +171,28 @@ export const getNewsColumns = (
           variant: 'outline',
           className: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
           icon: Text,
-          label: 'Thấp'
+          label: 'Low'
         },
         normal: {
           variant: 'default',
           className:
             'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
           icon: Text,
-          label: 'Bình thường'
+          label: 'Normal'
         },
         high: {
           variant: 'default',
           className:
             'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20',
           icon: AlertTriangle,
-          label: 'Cao'
+          label: 'High'
         },
         urgent: {
           variant: 'default',
           className:
             'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
           icon: AlertTriangle,
-          label: 'Khẩn cấp'
+          label: 'Urgent'
         }
       };
       const config = configs[priority] ?? {
@@ -207,9 +212,10 @@ export const getNewsColumns = (
         </Badge>
       );
     },
+    enableSorting: false,
     enableColumnFilter: true,
     meta: {
-      label: 'Độ ưu tiên',
+      label: 'Priority',
       variant: 'multiSelect',
       options: NEWS_PRIORITY_OPTIONS
     }
@@ -218,67 +224,80 @@ export const getNewsColumns = (
     id: 'target',
     accessorKey: 'target',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Đối tượng' />
+      <div title='Sorting is not supported for this field'>
+        <DataTableColumnHeader column={column} title='Target' />
+      </div>
     ),
     cell: ({ row }) => {
       return (
-        <div className='flex min-w-[120px] items-center gap-1.5'>
+        <div className='flex items-center gap-1.5 whitespace-nowrap'>
           <Target className='text-muted-foreground h-3.5 w-3.5' />
           <span className='text-sm'>
             {formatTarget(row.original.target, row.original.targetValue)}
           </span>
         </div>
       );
-    }
+    },
+    enableSorting: false
   },
   {
     id: 'scheduledAt',
     accessorKey: 'scheduledAt',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Lịch đăng' />
+      <div title='Sorting is not supported for this field'>
+        <DataTableColumnHeader column={column} title='Scheduled At' />
+      </div>
     ),
     cell: ({ cell }) => (
-      <div className='text-muted-foreground min-w-[140px] text-sm'>
+      <div className='text-muted-foreground text-sm whitespace-nowrap'>
         {cell.getValue() ? formatDate(cell.getValue() as string) : '—'}
       </div>
-    )
+    ),
+    enableSorting: false
   },
   {
     id: 'publishedAt',
     accessorKey: 'publishedAt',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Đã đăng lúc' />
+      <DataTableColumnHeader column={column} title='Published At' />
     ),
     cell: ({ cell }) => (
-      <div className='text-muted-foreground min-w-[140px] text-sm'>
+      <div className='text-muted-foreground text-sm whitespace-nowrap'>
         {cell.getValue() ? formatDate(cell.getValue() as string) : '—'}
       </div>
-    )
+    ),
+    enableSorting: true
   },
   {
     id: 'authorName',
     accessorKey: 'authorName',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Tác giả' />
+      <div title='Sorting is not supported for this field'>
+        <DataTableColumnHeader column={column} title='Author' />
+      </div>
     ),
     cell: ({ cell }) => (
-      <div className='min-w-[140px] text-sm'>
+      <div className='text-sm whitespace-nowrap'>
         {String(cell.getValue() ?? '—')}
       </div>
-    )
+    ),
+    enableSorting: false
   },
   {
     id: 'viewCount',
     accessorKey: 'viewCount',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Lượt xem' />
+      <div title='Sorting is not supported for this field'>
+        <DataTableColumnHeader column={column} title='Views' />
+      </div>
     ),
     cell: ({ cell }) => (
-      <div className='flex min-w-[80px] items-center gap-1'>
+      <div className='flex items-center gap-1 whitespace-nowrap'>
         <Eye className='text-muted-foreground h-3.5 w-3.5' />
         <span className='text-sm'>{cell.getValue() as number}</span>
       </div>
-    )
+    ),
+    enableSorting: false
   },
   {
     id: 'actions',

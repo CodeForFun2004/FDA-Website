@@ -17,7 +17,6 @@ import {
   Bell,
   ShieldCheck,
   Map as MapIcon,
-  MapPinCheck,
   Settings,
   Waypoints,
   Droplets,
@@ -57,7 +56,6 @@ const navItems = [
     icon: Receipt
   },
   { label: 'Stations', href: '/admin/stations', icon: SmartphoneNfc },
-  { label: 'Areas', href: '/admin/areas', icon: MapPinCheck },
   { label: 'Alerts Template', href: '/admin/alerts', icon: BellRing },
   { label: 'News & Updates', href: '/admin/news', icon: Newspaper },
   {

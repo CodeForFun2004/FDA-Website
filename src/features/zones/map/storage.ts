@@ -48,11 +48,28 @@ export function clearPendingPrefs() {
 
 // optional helper
 export function sanitizePrefs(p: any): MapLayerPrefs {
+  const adminAreas = p?.overlays?.adminAreas;
+  const stations = p?.overlays?.stations;
+  const legacyFlood = p?.overlays?.flood;
+  const resolvedAdminAreas =
+    typeof adminAreas === 'boolean'
+      ? adminAreas
+      : typeof stations === 'boolean'
+        ? !stations
+        : !legacyFlood;
+  const resolvedStations =
+    typeof stations === 'boolean'
+      ? stations
+      : typeof adminAreas === 'boolean'
+        ? !adminAreas
+        : !!legacyFlood;
+
   // có thể thêm validation nhẹ, fallback default nếu thiếu field
   return {
     baseMap: p?.baseMap === 'satellite' ? 'satellite' : 'standard',
     overlays: {
-      flood: !!p?.overlays?.flood,
+      adminAreas: resolvedAdminAreas,
+      stations: resolvedStations,
       traffic: !!p?.overlays?.traffic,
       weather: !!p?.overlays?.weather
     },

@@ -11,7 +11,7 @@ import {
 import {
   IconMapPin,
   IconAlertTriangle,
-  IconDeviceAnalytics,
+  IconChartLine,
   IconUsers,
   IconBuildingCommunity,
   IconShieldCheck
@@ -102,17 +102,6 @@ export default function AuthorityDashboard() {
 
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>Sensor data</CardTitle>
-            <IconDeviceAnalytics className='text-muted-foreground h-4 w-4' />
-          </CardHeader>
-          <CardContent>
-            <div className='text-2xl font-bold'>98.5%</div>
-            <p className='text-muted-foreground text-xs'>Uptime</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
             <CardTitle className='text-sm font-medium'>
               Citizen followers
             </CardTitle>
@@ -152,7 +141,7 @@ export default function AuthorityDashboard() {
               </div>
             </div>
             <div className='flex items-start gap-3 rounded-lg border p-3'>
-              <IconDeviceAnalytics className='text-primary mt-0.5 h-5 w-5' />
+              <IconChartLine className='text-primary mt-0.5 h-5 w-5' />
               <div>
                 <p className='text-sm font-medium'>Analytics reports</p>
                 <p className='text-muted-foreground text-xs'>

@@ -57,8 +57,6 @@ const navItems = [
     icon: Receipt
   },
   { label: 'Stations', href: '/admin/stations', icon: SmartphoneNfc },
-  { label: 'IoT Devices', href: '/admin/devices', icon: Radio },
-  { label: 'Sensors Data', href: '/admin/sensors', icon: Activity },
   { label: 'Areas', href: '/admin/areas', icon: MapPinCheck },
   { label: 'Alerts Template', href: '/admin/alerts', icon: BellRing },
   { label: 'News & Updates', href: '/admin/news', icon: Newspaper },
@@ -67,7 +65,6 @@ const navItems = [
     href: '/admin/user-alert-subscription',
     icon: Bell
   },
-  { label: 'Safe Routes', href: '/admin/routes', icon: Waypoints },
   { label: 'Map & Zones', href: '/admin/zones', icon: MapIcon },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
   { label: 'Logs & Audit', href: '/admin/logs', icon: ShieldCheck }

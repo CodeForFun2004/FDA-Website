@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 interface AppState {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
+  setOpen: (open: boolean) => void;
 
   theme: 'light' | 'dark';
   setTheme: (theme: 'light' | 'dark') => void;
@@ -14,6 +15,7 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       isSidebarOpen: true,
       toggleSidebar: () => set((s) => ({ isSidebarOpen: !s.isSidebarOpen })),
+      setOpen: (open) => set({ isSidebarOpen: open }),
 
       theme: 'light',
       setTheme: (theme) => set({ theme })

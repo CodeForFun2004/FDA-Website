@@ -43,10 +43,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
     try {
       setPublishing(true);
       await newsApi.publishAnnouncement(data.id);
-      toast.success('Đã đăng thông báo thành công!');
+      toast.success('Announcement published successfully!');
       onRefresh?.();
     } catch (error: any) {
-      toast.error(error?.message || 'Không thể đăng thông báo');
+      toast.error(error?.message || 'Failed to publish announcement');
     } finally {
       setPublishing(false);
     }
@@ -56,10 +56,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
     try {
       setDeleting(true);
       await newsApi.deleteAnnouncement(data.id);
-      toast.success('Đã xóa thông báo!');
+      toast.success('Announcement deleted successfully!');
       onRefresh?.();
     } catch (error: any) {
-      toast.error(error?.message || 'Không thể xóa thông báo');
+      toast.error(error?.message || 'Failed to delete announcement');
     } finally {
       setDeleting(false);
       setDeleteOpen(false);
@@ -88,25 +88,25 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
       />
 
       <Modal
-        title='Xóa thông báo'
+        title='Delete announcement'
         description={
           isSoftDelete
-            ? `Thông báo "${data.title}" sẽ bị ẩn khỏi danh sách (soft delete).`
-            : `Thông báo "${data.title}" sẽ bị xóa vĩnh viễn (hard delete).`
+            ? `Announcement "${data.title}" will be hidden from the list (soft delete).`
+            : `Announcement "${data.title}" will be permanently deleted (hard delete).`
         }
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
       >
         <div className='flex w-full items-center justify-end gap-2 pt-4'>
           <Button variant='outline' onClick={() => setDeleteOpen(false)}>
-            Hủy
+            Cancel
           </Button>
           <Button
             variant='destructive'
             onClick={handleDelete}
             disabled={deleting}
           >
-            {deleting ? 'Đang xóa...' : 'Xóa'}
+            {deleting ? 'Deleting...' : 'Delete'}
           </Button>
         </div>
       </Modal>
@@ -120,21 +120,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setDetailOpen(true)}>
-            <IconEye className='mr-2 h-4 w-4' /> Xem chi tiết
+            <IconEye className='mr-2 h-4 w-4' /> View details
           </DropdownMenuItem>
 
           {canEdit && (
             <DropdownMenuItem onClick={() => setEditOpen(true)}>
-              <IconEdit className='mr-2 h-4 w-4' /> Chỉnh sửa
+              <IconEdit className='mr-2 h-4 w-4' /> Edit
             </DropdownMenuItem>
           )}
 
           {canPublish && (
             <DropdownMenuItem onClick={handlePublish} disabled={publishing}>
               <IconSend className='mr-2 h-4 w-4' />
-              {publishing ? 'Đang đăng...' : 'Đăng ngay'}
+              {publishing ? 'Publishing...' : 'Publish now'}
             </DropdownMenuItem>
           )}
 
@@ -144,7 +144,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
             onClick={() => setDeleteOpen(true)}
             className='text-destructive focus:text-destructive'
           >
-            <IconTrash className='mr-2 h-4 w-4' /> Xóa
+            <IconTrash className='mr-2 h-4 w-4' /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -58,9 +58,9 @@ export const columns: ColumnDef<Alert>[] = [
     header: ({ column }: { column: Column<Alert, unknown> }) => (
       <DataTableColumnHeader column={column} title='Message' />
     ),
-    cell: ({ cell }) => (
+    cell: ({ row }) => (
       <div className='max-w-xs truncate font-medium'>
-        {String(cell.getValue())}
+        {row.original.title || String(row.getValue('message'))}
       </div>
     ),
     meta: {

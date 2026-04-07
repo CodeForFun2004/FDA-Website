@@ -121,3 +121,27 @@ export type GetAdministrativeAreasResponse = {
   administrativeAreas: AdministrativeArea[];
   totalCount: number;
 };
+
+// ============================================================
+// Flood Events (FE-17 support data)
+// ============================================================
+
+export type FloodEvent = {
+  id: string;
+  administrativeAreaId: string;
+  administrativeAreaName?: string | null;
+  startTime: string; // ISO
+  endTime: string; // ISO
+  peakLevel?: number | null;
+  durationHours?: number | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
+
+export type GetFloodEventsResponse = {
+  success: boolean;
+  message: string;
+  statusCode?: number;
+  floodEvents: FloodEvent[];
+  totalCount: number;
+};

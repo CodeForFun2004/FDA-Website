@@ -1,7 +1,14 @@
-import React from 'react';
+import PageContainer from '@/components/layout/page-container';
+import AnalyticsView from '@/features/analytics/views/AnalyticsView';
 
-const page = () => {
-  return <div>Analytics Page</div>;
+export const metadata = {
+  title: 'Admin: Analytics'
 };
 
-export default page;
+export default function Page() {
+  return (
+    <PageContainer scrollable={false}>
+      <AnalyticsView />
+    </PageContainer>
+  );
+}

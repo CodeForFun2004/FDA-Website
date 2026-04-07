@@ -85,7 +85,7 @@ export function EditPlanDialog({
     description: plan.description ?? '',
     priceMonth: String(plan.priceMonth),
     priceYear: String(plan.priceYear),
-    tier: plan.tier,
+    tier: String(plan.tier),
     isActive: plan.isActive,
     sortOrder: String(plan.sortOrder),
     features: plan.features.map((f) => ({
@@ -105,7 +105,7 @@ export function EditPlanDialog({
         description: plan.description ?? '',
         priceMonth: String(plan.priceMonth),
         priceYear: String(plan.priceYear),
-        tier: plan.tier,
+        tier: String(plan.tier),
         isActive: plan.isActive,
         sortOrder: String(plan.sortOrder),
         features: plan.features.map((f) => ({
@@ -188,7 +188,7 @@ export function EditPlanDialog({
 
     const payload: UpdatePlanPayload = {
       code: plan.code,
-      tier: form.tier,
+      tier: Number(form.tier),
       name: form.name.trim(),
       description: form.description.trim(),
       priceMonth: Number(form.priceMonth),

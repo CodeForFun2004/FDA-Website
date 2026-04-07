@@ -49,7 +49,7 @@ const DEFAULT_FORM: FormState = {
   description: '',
   priceMonth: '0',
   priceYear: '0',
-  tier: 'Free',
+  tier: '1',
   sortOrder: '1',
   features: []
 };
@@ -108,7 +108,7 @@ export function CreatePlanDialog({
   const updateFeature = (
     index: number,
     field: keyof FeatureInput,
-    value: string
+    value: string | null
   ) => {
     setForm((prev) => {
       const features = [...prev.features];

@@ -19,39 +19,55 @@ export function formatVndPrice(value: number): string {
   return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
 }
 
-function getTierConfig(tier: string) {
+function getTierConfig(tier: unknown) {
   const configs: Record<
     string,
     { label: string; className: string; dotColor: string }
   > = {
-    Free: {
+    '1': {
       label: 'Free',
       className:
         'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300/50',
       dotColor: 'bg-slate-400'
     },
-    Basic: {
+    '2': {
       label: 'Basic',
       className:
         'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border-blue-300/50',
       dotColor: 'bg-blue-400'
     },
-    Premium: {
+    '3': {
       label: 'Premium',
       className:
         'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300 border-violet-300/50',
       dotColor: 'bg-violet-500'
     },
-    Monitor: {
+    '4': {
       label: 'Monitor',
       className:
         'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300/50',
       dotColor: 'bg-amber-500'
     }
   };
+
+  const raw = String(tier ?? '').trim();
+  const normalized = raw.toLowerCase();
+
+  // Accept: number (1..4), numeric string ("1"), or label ("premium")
+  const key =
+    normalized === '1' || normalized === 'free'
+      ? '1'
+      : normalized === '2' || normalized === 'basic'
+        ? '2'
+        : normalized === '3' || normalized === 'premium'
+          ? '3'
+          : normalized === '4' || normalized === 'monitor'
+            ? '4'
+            : raw;
+
   return (
-    configs[tier] ?? {
-      label: tier,
+    configs[key] ?? {
+      label: raw || '-',
       className: 'bg-gray-100 text-gray-700 border-gray-300/50',
       dotColor: 'bg-gray-400'
     }
@@ -166,8 +182,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
       <DataTableColumnHeader column={column} title='Tier' />
     ),
     cell: ({ cell }) => {
-      const tier = cell.getValue() as string;
-      const config = getTierConfig(tier);
+      const config = getTierConfig(cell.getValue());
       return (
         <Badge
           variant='outline'

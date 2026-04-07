@@ -15,7 +15,7 @@ export interface PricingPlan {
   description: string | null;
   priceMonth: number;
   priceYear: number;
-  tier: string;
+  tier: number;
   isActive: boolean;
   sortOrder: number;
   features: PlanFeature[];
@@ -59,14 +59,14 @@ export type CreatePlanPayload = {
   description: string;
   priceMonth: number;
   priceYear: number;
-  tier: string;
+  tier: number;
   sortOrder: number;
   features: FeatureInput[];
 };
 
 export type UpdatePlanPayload = {
   code: string;
-  tier: string;
+  tier: number;
   name: string;
   description: string;
   priceMonth: number;

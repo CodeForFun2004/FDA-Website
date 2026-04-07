@@ -6,14 +6,11 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
-  Radio,
-  Activity,
   AlertTriangle,
   Map as MapIcon,
   MapPinCheck,
   Settings,
   FileText,
-  Waypoints,
   Droplets,
   SmartphoneNfc,
   Newspaper
@@ -36,8 +33,6 @@ const navItems = [
   },
   { label: 'Users & Roles', href: '/admin/users', icon: Users },
   { label: 'Stations', href: '/admin/stations', icon: SmartphoneNfc },
-  { label: 'IoT Devices', href: '/admin/devices', icon: Radio },
-  { label: 'Sensors Data', href: '/admin/sensors', icon: Activity },
   { label: 'Areas', href: '/admin/areas', icon: MapPinCheck },
   { label: 'Alerts Template', href: '/admin/alerts', icon: AlertTriangle },
   { label: 'News & Updates', href: '/admin/news', icon: Newspaper },
@@ -46,7 +41,6 @@ const navItems = [
     href: '/admin/user-alert-subscription',
     icon: AlertTriangle
   },
-  { label: 'Safe Routes', href: '/admin/routes', icon: Waypoints },
   { label: 'Map & Zones', href: '/admin/zones', icon: MapIcon },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
   { label: 'Logs & Audit', href: '/admin/logs', icon: FileText }

@@ -8,17 +8,9 @@ export default function DashboardPage() {
     console.log('Create alert clicked');
   };
 
-  const handleAddDevice = () => {
-    // TODO: Implement add device modal
-    console.log('Add device clicked');
-  };
-
   return (
     <div className='space-y-6'>
-      <DashboardView
-        onCreateAlert={handleCreateAlert}
-        onAddDevice={handleAddDevice}
-      />
+      <DashboardView onCreateAlert={handleCreateAlert} />
     </div>
   );
 }

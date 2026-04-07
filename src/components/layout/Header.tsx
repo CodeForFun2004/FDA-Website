@@ -1,10 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Menu, Sun, Moon, Bell, Search } from 'lucide-react';
-
+import { PanelLeft, Sun, Moon, Bell, Search } from 'lucide-react';
 import { useAppStore } from '../../libs/store';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import { cn } from '@/libs/utils';
 
 import { Button, Input } from '../../components/ui/common';
 import { clearSessionCookie } from '@/helpers/auth-session';
@@ -16,7 +16,7 @@ import {
 import { ProfileMenu } from './ProfileMenu';
 
 export const Header = () => {
-  const { toggleSidebar, theme, setTheme } = useAppStore();
+  const { theme, setTheme, isSidebarOpen, toggleSidebar } = useAppStore();
   const router = useRouter();
 
   const authUser = useAuthStore((s) => s.user);
@@ -53,24 +53,31 @@ export const Header = () => {
   };
 
   return (
-    <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-30 flex h-16 w-full items-center gap-4 border-b px-6 backdrop-blur'>
+    <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-30 flex h-16 w-full items-center gap-2 border-b px-4 backdrop-blur'>
+      {/* Sidebar Trigger - always visible */}
       <Button
         variant='ghost'
         size='icon'
-        className='lg:hidden'
+        className='h-8 w-8 shrink-0'
         onClick={toggleSidebar}
+        aria-label='Toggle sidebar'
       >
-        <Menu className='h-5 w-5' />
+        <PanelLeft className='h-5 w-5' />
       </Button>
 
-      <div className='flex flex-1 items-center gap-4 md:gap-8'>
-        <form className='hidden max-w-sm flex-1 md:block'>
-          <div className='relative'>
-            <Search className='text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4' />
+      <div className='flex flex-1 items-center gap-4 md:gap-6'>
+        <form className='hidden flex-1 md:block'>
+          <div className='relative flex transition-all duration-300'>
+            <Search className='text-muted-foreground absolute top-2.5 left-3 h-4 w-4' />
             <Input
               type='search'
               placeholder='Search...'
-              className='bg-background w-full pl-8 md:w-[300px] lg:w-[300px]'
+              className={cn(
+                'bg-muted/20 hover:bg-muted/50 focus:bg-background w-full pl-9 transition-all duration-500 ease-in-out',
+                isSidebarOpen
+                  ? 'md:w-[240px] lg:w-[300px]'
+                  : 'md:w-[300px] lg:w-[400px]'
+              )}
             />
           </div>
         </form>

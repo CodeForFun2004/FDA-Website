@@ -52,33 +52,58 @@ type AlertItemProps = {
   alert: Alert;
 };
 
-const AlertItem = ({ alert }: AlertItemProps) => (
-  <div className='flex items-start gap-4 border-b pb-4 last:border-0 last:pb-0'>
-    <div
-      className={`mt-1 rounded-full p-2 ${
-        alert.severity === 'High'
-          ? 'bg-red-100 text-red-600'
-          : alert.severity === 'Medium'
-            ? 'bg-orange-100 text-orange-600'
-            : 'bg-yellow-100 text-yellow-600'
-      }`}
-    >
-      <AlertTriangle className='h-4 w-4' />
-    </div>
+const AlertItem = ({ alert }: AlertItemProps) => {
+  const severityStyles: Record<
+    string,
+    { bg: string; text: string; ring: string }
+  > = {
+    Critical: {
+      bg: 'bg-gradient-to-br from-red-500 to-rose-600',
+      text: 'text-white',
+      ring: 'ring-red-500/20'
+    },
+    High: {
+      bg: 'bg-gradient-to-br from-orange-500 to-amber-600',
+      text: 'text-white',
+      ring: 'ring-orange-500/20'
+    },
+    Medium: {
+      bg: 'bg-gradient-to-br from-yellow-500 to-amber-500',
+      text: 'text-white',
+      ring: 'ring-yellow-500/20'
+    },
+    Low: {
+      bg: 'bg-gradient-to-br from-blue-500 to-indigo-500',
+      text: 'text-white',
+      ring: 'ring-blue-500/20'
+    }
+  };
+  const style = severityStyles[alert.severity] ?? severityStyles.Low;
 
-    <div className='flex-1 space-y-1'>
-      <p className='text-foreground text-sm font-semibold'>{alert.message}</p>
-      <p className='text-muted-foreground text-xs'>{alert.zone}</p>
+  return (
+    <div className='hover:bg-accent/50 flex cursor-pointer items-start gap-3 rounded-xl p-2 transition-colors'>
+      <div
+        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${style.bg} ring-3 ${style.ring} shadow-md`}
+      >
+        <AlertTriangle className={`h-4 w-4 ${style.text}`} />
+      </div>
+      <div className='min-w-0 flex-1'>
+        <p className='text-foreground line-clamp-1 text-sm leading-snug font-semibold'>
+          {alert.title || alert.message}
+        </p>
+        <p className='text-muted-foreground line-clamp-1 text-xs'>
+          {alert.stationName || alert.zone}
+        </p>
+      </div>
+      <div className='text-muted-foreground mt-0.5 text-[11px] font-medium whitespace-nowrap'>
+        {new Date(alert.timestamp).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit'
+        })}
+      </div>
     </div>
-
-    <div className='text-muted-foreground text-xs font-medium whitespace-nowrap'>
-      {new Date(alert.timestamp).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-      })}
-    </div>
-  </div>
-);
+  );
+};
 
 // ===== Main View Component =====
 

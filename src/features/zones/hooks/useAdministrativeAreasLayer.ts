@@ -14,8 +14,6 @@ type Args = {
 const SOURCE_ID = 'administrative-areas';
 const FILL_ID = 'administrative-areas-fill';
 const LINE_ID = 'administrative-areas-outline';
-const FLOOD_BEFORE = 'flood-severity-circle';
-
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
 
 export function useAdministrativeAreasLayer({
@@ -39,7 +37,8 @@ export function useAdministrativeAreasLayer({
       return;
     }
 
-    const beforeId = map.getLayer(FLOOD_BEFORE) ? FLOOD_BEFORE : undefined;
+    /** Thêm lên cùng stack (sau community + stations — map-view gọi moveLayer cố định thứ tự). */
+    const beforeId = undefined;
 
     if (!map.getSource(SOURCE_ID)) {
       map.addSource(SOURCE_ID, {

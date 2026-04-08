@@ -70,6 +70,7 @@ export function sanitizePrefs(p: any): MapLayerPrefs {
     overlays: {
       adminAreas: resolvedAdminAreas,
       stations: resolvedStations,
+      communityReports: !!p?.overlays?.communityReports,
       traffic: !!p?.overlays?.traffic,
       weather: !!p?.overlays?.weather
     },

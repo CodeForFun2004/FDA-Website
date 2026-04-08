@@ -90,12 +90,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
       })
     : 'N/A';
 
-  const resolvedStationId =
-    properties.stationId ??
-    properties.id ??
-    properties.stationCode ??
-    properties.code ??
-    properties.stationName;
+  const stationDetailId = properties.stationId ?? properties.id ?? null;
 
   return (
     <div className='pointer-events-auto w-full max-w-xs'>
@@ -201,9 +196,9 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
             >
               <Link
                 href={
-                  resolvedStationId
-                    ? `/admin/flood-history?stationId=${resolvedStationId}`
-                    : '/admin/flood-history'
+                  stationDetailId
+                    ? `/admin/stations/${stationDetailId}`
+                    : '/admin/stations'
                 }
               >
                 Chi tiết

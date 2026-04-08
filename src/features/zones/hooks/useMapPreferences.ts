@@ -23,6 +23,9 @@ type SyncState = 'idle' | 'saving' | 'unsynced' | 'offline' | 'error';
 
 export function useMapPreferences() {
   const [prefs, setPrefs] = React.useState<MapLayerPrefs>(DEFAULT_MAP_PREFS);
+  /** Layer nặng (admin polygon + stations) chỉ áp dụng lên map sau Save — tránh lag khi chỉnh toggle. */
+  const [appliedPrefs, setAppliedPrefs] =
+    React.useState<MapLayerPrefs>(DEFAULT_MAP_PREFS);
   const [syncState, setSyncState] = React.useState<SyncState>('idle');
   const authStatus = useAuthStore((state) => state.status);
   const isAuthenticated = authStatus === 'authenticated';
@@ -48,7 +51,9 @@ export function useMapPreferences() {
       if (!token) {
         // guest
         const guest = readGuestPrefs();
-        setPrefs(normalizePrefs(guest ?? DEFAULT_MAP_PREFS));
+        const n = normalizePrefs(guest ?? DEFAULT_MAP_PREFS);
+        setPrefs(n);
+        setAppliedPrefs(n);
         setSyncState('idle');
         return;
       }
@@ -58,7 +63,9 @@ export function useMapPreferences() {
         const guest = readGuestPrefs();
         const server = await getUserMapPreferences(token);
 
-        setPrefs(normalizePrefs(server));
+        const serverN = normalizePrefs(server);
+        setPrefs(serverN);
+        setAppliedPrefs(serverN);
 
         // Login transition sync:
         // nếu có guest prefs và server đang default => sync guest lên server
@@ -70,13 +77,17 @@ export function useMapPreferences() {
         ) {
           setSyncState(navigator.onLine ? 'saving' : 'offline');
           if (navigator.onLine) {
-            await putUserMapPreferences(token!, normalizePrefs(guest));
-            setPrefs(normalizePrefs(guest));
+            const g = normalizePrefs(guest);
+            await putUserMapPreferences(token!, g);
+            setPrefs(g);
+            setAppliedPrefs(g);
             setSyncState('idle');
             clearGuestPrefs();
           } else {
-            writePendingPrefs(normalizePrefs(guest));
-            setPrefs(normalizePrefs(guest));
+            const g = normalizePrefs(guest);
+            writePendingPrefs(g);
+            setPrefs(g);
+            setAppliedPrefs(g);
             setSyncState('offline');
           }
         } else {
@@ -90,13 +101,18 @@ export function useMapPreferences() {
         if (pending && navigator.onLine) {
           setSyncState('saving');
           await putUserMapPreferences(token, pending);
+          const pn = normalizePrefs(pending);
+          setPrefs(pn);
+          setAppliedPrefs(pn);
           clearPendingPrefs();
           setSyncState('idle');
         }
       } catch {
         // nếu server lỗi thì vẫn cho user dùng local (fallback)
         const fallback = readGuestPrefs() ?? DEFAULT_MAP_PREFS;
-        setPrefs(normalizePrefs(fallback));
+        const n = normalizePrefs(fallback);
+        setPrefs(n);
+        setAppliedPrefs(n);
         setSyncState('error');
       }
     })();
@@ -156,6 +172,9 @@ export function useMapPreferences() {
       try {
         setSyncState('saving');
         await putUserMapPreferences(token, pending);
+        const pn = normalizePrefs(pending);
+        setPrefs(pn);
+        setAppliedPrefs(pn);
         clearPendingPrefs();
         setSyncState('idle');
       } catch {
@@ -170,10 +189,17 @@ export function useMapPreferences() {
   // Manual save function
   const saveManual = React.useCallback(async () => {
     const token = await getAccessToken();
-    if (!token) return;
+    const next = normalizePrefs(prefs);
+    if (!token) {
+      writeGuestPrefs(next);
+      setAppliedPrefs(next);
+      setSyncState('idle');
+      return;
+    }
     try {
       setSyncState('saving');
-      await putUserMapPreferences(token, prefs);
+      await putUserMapPreferences(token, next);
+      setAppliedPrefs(next);
       setSyncState('idle');
     } catch {
       setSyncState('unsynced');
@@ -183,7 +209,14 @@ export function useMapPreferences() {
   // Removed auto-save effect to rely on manual save as requested
   // React.useEffect(() => { ... }, [prefs...]);
 
-  return { prefs, setPrefsPartial, syncState, isAuthenticated, saveManual };
+  return {
+    prefs,
+    appliedPrefs,
+    setPrefsPartial,
+    syncState,
+    isAuthenticated,
+    saveManual
+  };
 }
 
 function shallowEqualPrefs(a: MapLayerPrefs, b: MapLayerPrefs) {
@@ -191,6 +224,7 @@ function shallowEqualPrefs(a: MapLayerPrefs, b: MapLayerPrefs) {
     a.baseMap === b.baseMap &&
     a.overlays.adminAreas === b.overlays.adminAreas &&
     a.overlays.stations === b.overlays.stations &&
+    a.overlays.communityReports === b.overlays.communityReports &&
     a.overlays.traffic === b.overlays.traffic &&
     a.overlays.weather === b.overlays.weather &&
     (a.opacity?.flood ?? 80) === (b.opacity?.flood ?? 80) &&
@@ -206,7 +240,9 @@ function normalizePrefs(p: MapLayerPrefs): MapLayerPrefs {
     : typeof (p as any)?.overlays?.flood === 'boolean'
       ? Boolean((p as any).overlays.flood)
       : DEFAULT_MAP_PREFS.overlays.stations;
-  const adminAreas = hasAdminAreas ? p.overlays.adminAreas : !stations;
+  const adminAreas = hasAdminAreas
+    ? p.overlays.adminAreas
+    : DEFAULT_MAP_PREFS.overlays.adminAreas;
 
   return {
     ...p,

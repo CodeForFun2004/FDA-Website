@@ -67,7 +67,7 @@ function Inner() {
 
       {/* Legend góc trái dưới */}
       <div className='absolute bottom-3 left-3 z-50'>
-        <LegendFlood visible={prefs.overlays.flood} />
+        <LegendFlood visible={prefs.overlays.stations} />
       </div>
     </div>
   );

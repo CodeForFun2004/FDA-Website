@@ -3,7 +3,8 @@ export type BaseMap = 'standard' | 'satellite';
 export type MapLayerPrefs = {
   baseMap: BaseMap;
   overlays: {
-    flood: boolean;
+    adminAreas: boolean;
+    stations: boolean;
     traffic: boolean;
     weather: boolean;
   };

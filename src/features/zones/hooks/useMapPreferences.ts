@@ -48,7 +48,7 @@ export function useMapPreferences() {
       if (!token) {
         // guest
         const guest = readGuestPrefs();
-        setPrefs(guest ?? DEFAULT_MAP_PREFS);
+        setPrefs(normalizePrefs(guest ?? DEFAULT_MAP_PREFS));
         setSyncState('idle');
         return;
       }
@@ -58,7 +58,7 @@ export function useMapPreferences() {
         const guest = readGuestPrefs();
         const server = await getUserMapPreferences(token);
 
-        setPrefs(server);
+        setPrefs(normalizePrefs(server));
 
         // Login transition sync:
         // nếu có guest prefs và server đang default => sync guest lên server
@@ -70,13 +70,13 @@ export function useMapPreferences() {
         ) {
           setSyncState(navigator.onLine ? 'saving' : 'offline');
           if (navigator.onLine) {
-            await putUserMapPreferences(token!, guest);
-            setPrefs(guest);
+            await putUserMapPreferences(token!, normalizePrefs(guest));
+            setPrefs(normalizePrefs(guest));
             setSyncState('idle');
             clearGuestPrefs();
           } else {
-            writePendingPrefs(guest);
-            setPrefs(guest);
+            writePendingPrefs(normalizePrefs(guest));
+            setPrefs(normalizePrefs(guest));
             setSyncState('offline');
           }
         } else {
@@ -96,7 +96,7 @@ export function useMapPreferences() {
       } catch {
         // nếu server lỗi thì vẫn cho user dùng local (fallback)
         const fallback = readGuestPrefs() ?? DEFAULT_MAP_PREFS;
-        setPrefs(fallback);
+        setPrefs(normalizePrefs(fallback));
         setSyncState('error');
       }
     })();
@@ -189,10 +189,36 @@ export function useMapPreferences() {
 function shallowEqualPrefs(a: MapLayerPrefs, b: MapLayerPrefs) {
   return (
     a.baseMap === b.baseMap &&
-    a.overlays.flood === b.overlays.flood &&
+    a.overlays.adminAreas === b.overlays.adminAreas &&
+    a.overlays.stations === b.overlays.stations &&
     a.overlays.traffic === b.overlays.traffic &&
     a.overlays.weather === b.overlays.weather &&
     (a.opacity?.flood ?? 80) === (b.opacity?.flood ?? 80) &&
     (a.opacity?.weather ?? 70) === (b.opacity?.weather ?? 70)
   );
+}
+
+function normalizePrefs(p: MapLayerPrefs): MapLayerPrefs {
+  const hasAdminAreas = typeof p?.overlays?.adminAreas === 'boolean';
+  const hasStations = typeof p?.overlays?.stations === 'boolean';
+  const stations = hasStations
+    ? p.overlays.stations
+    : typeof (p as any)?.overlays?.flood === 'boolean'
+      ? Boolean((p as any).overlays.flood)
+      : DEFAULT_MAP_PREFS.overlays.stations;
+  const adminAreas = hasAdminAreas ? p.overlays.adminAreas : !stations;
+
+  return {
+    ...p,
+    overlays: {
+      ...DEFAULT_MAP_PREFS.overlays,
+      ...p.overlays,
+      adminAreas,
+      stations
+    },
+    opacity: {
+      ...DEFAULT_MAP_PREFS.opacity,
+      ...(p.opacity ?? {})
+    }
+  };
 }

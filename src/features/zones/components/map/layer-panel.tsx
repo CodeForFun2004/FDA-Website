@@ -1,6 +1,7 @@
 'use client';
 
 import type { MapLayerPrefs } from '../../map/map.type';
+import { StationListPanel } from './station-list-panel';
 
 // Nếu bạn dùng shadcn:
 // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,15 +75,52 @@ export default function LayerPanel({
 
       {/* Overlays */}
       <div className='space-y-3'>
-        <div className='text-sm font-medium'>Overlays</div>
+        <div className='text-sm font-medium'>Data layer</div>
 
-        <ToggleRow
-          label='Flood severity'
-          value={prefs.overlays.flood}
-          onChange={(v) =>
-            setPrefsPartial({ overlays: { ...prefs.overlays, flood: v } })
-          }
-        />
+        <div className='grid grid-cols-2 gap-2'>
+          <button
+            className={`rounded-xl border px-3 py-2 text-sm ${
+              prefs.overlays.adminAreas
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-background'
+            }`}
+            onClick={() =>
+              setPrefsPartial({
+                overlays: {
+                  ...prefs.overlays,
+                  adminAreas: true,
+                  stations: false
+                }
+              })
+            }
+          >
+            Admin Areas
+          </button>
+          <button
+            className={`rounded-xl border px-3 py-2 text-sm ${
+              prefs.overlays.stations
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-background'
+            }`}
+            onClick={() =>
+              setPrefsPartial({
+                overlays: {
+                  ...prefs.overlays,
+                  adminAreas: false,
+                  stations: true
+                }
+              })
+            }
+          >
+            Stations
+          </button>
+        </div>
+
+        {prefs.overlays.stations && (
+          <StationListPanel enabled={prefs.overlays.stations} />
+        )}
+
+        <div className='border-t pt-3 text-sm font-medium'>Other overlays</div>
 
         <ToggleRow
           label='Traffic'
@@ -106,7 +144,7 @@ export default function LayerPanel({
         <div className='text-sm font-medium'>Opacity</div>
 
         <OpacityRow
-          label='Flood'
+          label='Stations'
           value={prefs.opacity?.flood ?? 80}
           onChange={(val) =>
             setPrefsPartial({ opacity: { ...prefs.opacity, flood: val } })

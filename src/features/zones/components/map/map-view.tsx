@@ -13,15 +13,22 @@ import {
   setOverlayVisibility
 } from '../../map/utils';
 import { useFloodSeverity } from '../../hooks/useFloodSeverity';
-import { useFloodSeverityData } from '../../hooks/useFloodSeverityData';
+import { useStationsMapLayerData } from '../../hooks/useStationsMapLayerData';
 import { useAdministrativeAreasMapData } from '../../hooks/useAdministrativeAreasMapData';
 import { useAdministrativeAreasLayer } from '../../hooks/useAdministrativeAreasLayer';
+import { useCommunityReportsMapData } from '../../hooks/useCommunityReportsMapData';
+import {
+  useCommunityReportsLayer,
+  COMMUNITY_REPORTS_LAYER_ID
+} from '../../hooks/useCommunityReportsLayer';
 import { useSatelliteAnalysisOverlay } from '../../hooks/useSatelliteAnalysisOverlay';
 import { pickBestAdminAreaFeature } from '../../lib/pick-admin-area-feature';
 import { useFloodStationsStore } from '../../store/flood-stations-store';
 
 import { FloodDetailCard } from '../flood-detail-card';
 import { AreaDetailCard } from '../area-detail-card';
+import { CommunityReportCard } from '../community-report-card';
+import type { CommunityFloodReport } from '../../api/flood-reports-community.api';
 
 // ✅ Flood roads overlay (new)
 import {
@@ -36,6 +43,7 @@ type Props = {
 };
 
 const FLOOD_LAYER_ID = 'flood-severity-circle';
+const FLOOD_CRITICAL_LAYER_ID = 'flood-severity-critical-radius';
 const AREA_FILL_LAYER_ID = 'administrative-areas-fill';
 const AREA_LINE_LAYER_ID = 'administrative-areas-outline';
 const FLOOD_ROADS_MOCK_URL = '/mock/fda_danang_flood_roads_mock.geojson';
@@ -62,6 +70,8 @@ export default function MapView({ prefs }: Props) {
     React.useState<any>(null);
   const [satelliteOverlayFc, setSatelliteOverlayFc] =
     React.useState<FeatureCollection | null>(null);
+  const [selectedCommunityReport, setSelectedCommunityReport] =
+    React.useState<CommunityFloodReport | null>(null);
 
   const onSatelliteGeoJson = React.useCallback(
     (fc: FeatureCollection | null) => {
@@ -274,13 +284,14 @@ export default function MapView({ prefs }: Props) {
     applyOverlays(map, prefs);
   }, [
     prefs.overlays.stations,
+    prefs.overlays.communityReports,
     prefs.overlays.traffic, // ✅ traffic toggle => flood roads
     prefs.overlays.weather,
     prefs.opacity?.flood,
     prefs.opacity?.weather
   ]);
 
-  const { data: floodGeojson } = useFloodSeverityData({
+  const { data: floodGeojson } = useStationsMapLayerData({
     mapRef,
     enabled: prefs.overlays.stations,
     onData: (geojson) => {
@@ -294,7 +305,17 @@ export default function MapView({ prefs }: Props) {
     isError: isAdminAreasError,
     error: adminAreasError,
     canFetch: canFetchAdminAreas
-  } = useAdministrativeAreasMapData();
+  } = useAdministrativeAreasMapData(prefs.overlays.adminAreas);
+
+  const communityReportsQuery = useCommunityReportsMapData(
+    prefs.overlays.communityReports
+  );
+
+  useCommunityReportsLayer({
+    mapRef,
+    enabled: prefs.overlays.communityReports,
+    data: communityReportsQuery.featureCollection
+  });
 
   // Flood severity layer: render only (independent from data fetching)
   useFloodSeverity({
@@ -321,6 +342,50 @@ export default function MapView({ prefs }: Props) {
     fitBounds: true
   });
 
+  /** Stations (dưới) → Community 🚩 (giữa) → Admin (trên). */
+  React.useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const reorder = () => {
+      if (!map.isStyleLoaded()) return;
+      try {
+        if (
+          map.getLayer(COMMUNITY_REPORTS_LAYER_ID) &&
+          map.getLayer(AREA_FILL_LAYER_ID)
+        ) {
+          map.moveLayer(COMMUNITY_REPORTS_LAYER_ID, AREA_FILL_LAYER_ID);
+        }
+        if (
+          map.getLayer(FLOOD_LAYER_ID) &&
+          map.getLayer(COMMUNITY_REPORTS_LAYER_ID)
+        ) {
+          map.moveLayer(FLOOD_LAYER_ID, COMMUNITY_REPORTS_LAYER_ID);
+        }
+        if (
+          map.getLayer(FLOOD_CRITICAL_LAYER_ID) &&
+          map.getLayer(COMMUNITY_REPORTS_LAYER_ID)
+        ) {
+          map.moveLayer(FLOOD_CRITICAL_LAYER_ID, COMMUNITY_REPORTS_LAYER_ID);
+        }
+      } catch {
+        /* layer có thể chưa tạo */
+      }
+    };
+    map.on('idle', reorder);
+    queueMicrotask(reorder);
+    return () => {
+      map.off('idle', reorder);
+    };
+  }, [
+    prefs.overlays.stations,
+    prefs.overlays.communityReports,
+    prefs.overlays.adminAreas
+  ]);
+
+  React.useEffect(() => {
+    if (!prefs.overlays.communityReports) setSelectedCommunityReport(null);
+  }, [prefs.overlays.communityReports]);
+
   React.useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -332,6 +397,7 @@ export default function MapView({ prefs }: Props) {
       });
       if (features && features.length > 0) {
         setSelectedAreaFeature(null);
+        setSelectedCommunityReport(null);
         setSelectedFeature(features[0].properties);
       }
     };
@@ -345,6 +411,7 @@ export default function MapView({ prefs }: Props) {
       // Nhiều polygon chồng ranh → không dùng features[0] (dễ sai phường / sai areaId).
       const area = pickBestAdminAreaFeature(features as any);
       setSelectedFeature(null);
+      setSelectedCommunityReport(null);
       setSelectedAreaFeature(area);
 
       const g = area.geometry;
@@ -360,16 +427,55 @@ export default function MapView({ prefs }: Props) {
       );
     };
 
+    const onCommunityClick = (e: any) => {
+      if (!prefs.overlays.communityReports) return;
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: [COMMUNITY_REPORTS_LAYER_ID]
+      });
+      if (!features?.length) return;
+      const id = String(features[0].properties?.id ?? '');
+      const list = communityReportsQuery.data ?? [];
+      const row = list.find((r) => r.id === id);
+      if (!row) return;
+      setSelectedFeature(null);
+      setSelectedAreaFeature(null);
+      setSelectedCommunityReport(row);
+    };
+
     map.on('click', FLOOD_LAYER_ID, onStationClick);
     map.on('click', AREA_FILL_LAYER_ID, onAreaClick);
     map.on('click', AREA_LINE_LAYER_ID, onAreaClick);
+    map.on('click', COMMUNITY_REPORTS_LAYER_ID, onCommunityClick);
 
     return () => {
       map.off('click', FLOOD_LAYER_ID, onStationClick);
       map.off('click', AREA_FILL_LAYER_ID, onAreaClick);
       map.off('click', AREA_LINE_LAYER_ID, onAreaClick);
+      map.off('click', COMMUNITY_REPORTS_LAYER_ID, onCommunityClick);
     };
-  }, [prefs.overlays.adminAreas, prefs.overlays.stations]);
+  }, [
+    prefs.overlays.adminAreas,
+    prefs.overlays.stations,
+    prefs.overlays.communityReports,
+    communityReportsQuery.data
+  ]);
+
+  React.useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const onEnter = () => {
+      map.getCanvas().style.cursor = 'pointer';
+    };
+    const onLeave = () => {
+      map.getCanvas().style.cursor = '';
+    };
+    map.on('mouseenter', COMMUNITY_REPORTS_LAYER_ID, onEnter);
+    map.on('mouseleave', COMMUNITY_REPORTS_LAYER_ID, onLeave);
+    return () => {
+      map.off('mouseenter', COMMUNITY_REPORTS_LAYER_ID, onEnter);
+      map.off('mouseleave', COMMUNITY_REPORTS_LAYER_ID, onLeave);
+    };
+  }, [prefs.overlays.communityReports]);
 
   return (
     <div className='relative h-full w-full'>
@@ -391,6 +497,14 @@ export default function MapView({ prefs }: Props) {
           />
         </div>
       )}
+      {selectedCommunityReport && prefs.overlays.communityReports && (
+        <div className='animate-in slide-in-from-left-4 fade-in absolute top-5 left-4 z-50 duration-300'>
+          <CommunityReportCard
+            report={selectedCommunityReport}
+            onClose={() => setSelectedCommunityReport(null)}
+          />
+        </div>
+      )}
 
       {canFetchAdminAreas && isLoadingAdminAreas && (
         <div className='bg-background/90 text-muted-foreground absolute bottom-14 left-3 z-50 rounded-lg border px-3 py-1.5 text-xs shadow-md backdrop-blur'>
@@ -406,16 +520,6 @@ export default function MapView({ prefs }: Props) {
             : 'Lỗi API'}
         </div>
       )}
-
-      {canFetchAdminAreas &&
-        !isLoadingAdminAreas &&
-        !isAdminAreasError &&
-        administrativeFc.features.length === 0 && (
-          <div className='absolute bottom-14 left-3 z-50 max-w-sm rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-900 shadow-md backdrop-blur dark:text-amber-100'>
-            API trả về 0 polygon — kiểm tra field geometry trong JSON hoặc quyền
-            admin.
-          </div>
-        )}
     </div>
   );
 }

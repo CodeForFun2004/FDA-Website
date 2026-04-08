@@ -9,7 +9,7 @@ import { administrativeAreasToFeatureCollection } from '../lib/ewkb-hex-to-geojs
 
 const EMPTY_FC: FeatureCollection = { type: 'FeatureCollection', features: [] };
 
-export function useAdministrativeAreasMapData() {
+export function useAdministrativeAreasMapData(layerEnabled: boolean) {
   const accessToken = useAuthStore((s) => s.accessToken);
 
   /** Có Bearer thì mới gọi `/admin/administrative-areas` (tránh 401 + redirect vô ích). */
@@ -21,7 +21,7 @@ export function useAdministrativeAreasMapData() {
       fetchAllAdministrativeAreas({ level: 'ward', pageSize: 100 }),
     staleTime: 10 * 60 * 1000,
     retry: 1,
-    enabled: canFetch
+    enabled: canFetch && layerEnabled
   });
 
   const featureCollection = React.useMemo((): FeatureCollection => {

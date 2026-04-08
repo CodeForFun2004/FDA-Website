@@ -2,6 +2,13 @@
 
 import { cn } from '@/libs/utils';
 import { normalizeAreaId } from '@/features/zones/api/area-ai.api';
+import {
+  FLOOD_TIER_UI,
+  probabilityBandLabelVi,
+  resolveModelUiTier,
+  resolveTierFromEnsembleProbability,
+  tierFromSeverityString
+} from '@/features/zones/lib/flood-severity-ui';
 
 /** Payload `data` từ POST …/predict-flood-assemble */
 export type PredictFloodData = {
@@ -149,7 +156,20 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
       : null;
   const risk = pred?.riskLevel ?? '';
   const impact = pred?.impact;
-  const isLowRisk = risk.toUpperCase() === 'LOW';
+
+  const ensembleP =
+    typeof pred?.ensembleProbability === 'number' &&
+    Number.isFinite(pred.ensembleProbability)
+      ? pred.ensembleProbability
+      : null;
+
+  const modelTier = resolveModelUiTier({
+    ensembleProbability: ensembleP,
+    riskLevel: risk,
+    severityLevel:
+      typeof data.severityLevel === 'number' ? data.severityLevel : undefined
+  });
+  const tierUi = FLOOD_TIER_UI[modelTier];
 
   return (
     <div className='space-y-5 text-sm'>
@@ -158,16 +178,14 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
         <div
           className={cn(
             'overflow-hidden rounded-2xl border text-white shadow-lg',
-            isLowRisk
-              ? 'border-emerald-300/70 bg-gradient-to-br from-emerald-600 via-green-600 to-teal-800'
-              : 'border-violet-200/80 bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-800'
+            tierUi.hero
           )}
         >
           <div className='px-4 pt-4 pb-2'>
             <p
               className={cn(
                 'text-[11px] font-medium tracking-wide',
-                isLowRisk ? 'text-emerald-100' : 'text-violet-200'
+                tierUi.heroSub
               )}
             >
               Kết quả mô hình dự báo
@@ -181,7 +199,7 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
                   <div
                     className={cn(
                       'mt-1.5 text-[10px] leading-tight',
-                      isLowRisk ? 'text-emerald-200' : 'text-violet-200'
+                      tierUi.heroMuted
                     )}
                   >
                     Xác suất lũ
@@ -191,19 +209,21 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
               <div className='rounded-xl bg-white/10 px-2 py-3 backdrop-blur-sm'>
                 <div
                   className={cn(
-                    'text-lg leading-none font-bold uppercase',
-                    isLowRisk && 'text-emerald-50 drop-shadow-sm'
+                    'text-lg leading-none font-bold uppercase drop-shadow-sm',
+                    tierUi.heroSub
                   )}
                 >
-                  {risk || '—'}
+                  {ensembleP != null
+                    ? probabilityBandLabelVi(ensembleP)
+                    : risk || '—'}
                 </div>
                 <div
                   className={cn(
                     'mt-1.5 text-[10px] leading-tight',
-                    isLowRisk ? 'text-emerald-200' : 'text-violet-200'
+                    tierUi.heroMuted
                   )}
                 >
-                  Mức rủi ro
+                  {ensembleP != null ? 'Theo xác suất' : 'Mức rủi ro'}
                 </div>
               </div>
               {confPct != null && (
@@ -214,7 +234,7 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
                   <div
                     className={cn(
                       'mt-1.5 text-[10px] leading-tight',
-                      isLowRisk ? 'text-emerald-200' : 'text-violet-200'
+                      tierUi.heroMuted
                     )}
                   >
                     Độ tin cậy
@@ -230,7 +250,7 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
                 <p
                   className={cn(
                     'mb-2 text-[11px] font-semibold',
-                    isLowRisk ? 'text-emerald-50' : 'text-violet-100'
+                    tierUi.heroSub
                   )}
                 >
                   Độ chính xác ước tính (theo giai đoạn mô hình)
@@ -244,7 +264,7 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
                       <span
                         className={cn(
                           'min-w-0 flex-1 text-left text-[10px] leading-snug',
-                          isLowRisk ? 'text-emerald-200' : 'text-violet-200'
+                          tierUi.heroMuted
                         )}
                       >
                         {accuracyMetricLabelWithNote(k)}
@@ -281,7 +301,12 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
                 </div>
               )}
               {impact.recommendation && (
-                <div className='mt-3 rounded-xl border border-emerald-200/80 bg-emerald-50/90 px-3 py-3 text-sm leading-relaxed font-medium text-emerald-950'>
+                <div
+                  className={cn(
+                    'mt-3 rounded-xl border px-3 py-3 text-sm leading-relaxed font-medium',
+                    tierUi.recBox
+                  )}
+                >
                   {impact.recommendation}
                 </div>
               )}
@@ -299,7 +324,12 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
               Trạng thái khu vực: {data.status ?? '—'}
             </span>
             {typeof data.severityLevel === 'number' && (
-              <span className='rounded-full bg-white px-2 py-0.5 text-[10px] text-slate-600'>
+              <span
+                className={cn(
+                  'rounded-full border px-2 py-0.5 text-[10px] font-medium',
+                  FLOOD_TIER_UI[modelTier].badge
+                )}
+              >
                 mức {data.severityLevel}
               </span>
             )}
@@ -331,24 +361,44 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
       {data.forecast?.windows && data.forecast.windows.length > 0 && (
         <Section title='Xu hướng theo khung giờ'>
           <div className='flex flex-wrap gap-2'>
-            {data.forecast.windows.map((w) => (
-              <div
-                key={w.horizon ?? ''}
-                className='rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-2 text-xs text-emerald-900'
-              >
-                <span className='font-semibold'>{w.horizon}</span>
-                {typeof w.probability === 'number' && (
-                  <span className='ml-1.5 tabular-nums'>
-                    {w.probability <= 1 && w.probability >= 0
-                      ? `${Math.round(w.probability * 100)}%`
-                      : `${Math.round(w.probability)}%`}
-                  </span>
-                )}
-                {w.status && (
-                  <span className='ml-1 opacity-90'>· {w.status}</span>
-                )}
-              </div>
-            ))}
+            {data.forecast.windows.map((w) => {
+              let wt = modelTier;
+              if (
+                typeof w.probability === 'number' &&
+                Number.isFinite(w.probability)
+              ) {
+                const raw = w.probability;
+                const p = raw > 1 ? raw / 100 : raw;
+                wt = resolveTierFromEnsembleProbability(p);
+              } else if (typeof w.severityLevel === 'number') {
+                wt = resolveModelUiTier({
+                  ensembleProbability: null,
+                  riskLevel: '',
+                  severityLevel: w.severityLevel
+                });
+              }
+              return (
+                <div
+                  key={w.horizon ?? ''}
+                  className={cn(
+                    'rounded-lg border px-2.5 py-2 text-xs',
+                    FLOOD_TIER_UI[wt].windowChip
+                  )}
+                >
+                  <span className='font-semibold'>{w.horizon}</span>
+                  {typeof w.probability === 'number' && (
+                    <span className='ml-1.5 tabular-nums'>
+                      {w.probability <= 1 && w.probability >= 0
+                        ? `${Math.round(w.probability * 100)}%`
+                        : `${Math.round(w.probability)}%`}
+                    </span>
+                  )}
+                  {w.status && (
+                    <span className='ml-1 opacity-90'>· {w.status}</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </Section>
       )}
@@ -371,72 +421,109 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
 
       {data.contributingStations && data.contributingStations.length > 0 && (
         <Section title='Trạm đo gần khu vực'>
-          <ul className='space-y-2'>
-            {data.contributingStations.map((s, i) => (
-              <li
-                key={s.stationCode ?? i}
-                className='rounded-xl border border-slate-100 bg-white px-3 py-2.5'
-              >
-                <div className='font-semibold text-slate-900'>
-                  Trạm {s.stationCode}
-                </div>
-                {s.waterLevel != null && (
-                  <p className='mt-0.5 text-xs text-slate-600'>
-                    Mức nước:{' '}
-                    <span className='font-medium tabular-nums'>
-                      {s.waterLevel} m
-                    </span>
-                    {s.severity && (
-                      <span className='text-muted-foreground ml-2'>
-                        ({severityLabelVi(s.severity)})
+          <details className='rounded-xl border border-slate-200 bg-slate-50/60'>
+            <summary className='cursor-pointer list-none px-3 py-2.5 text-xs font-semibold text-slate-800 [&::-webkit-details-marker]:hidden'>
+              Tổng số trạm đo: {data.contributingStations.length} (bấm để xem
+              chi tiết)
+            </summary>
+            <ul className='space-y-2 border-t border-slate-200 p-2.5'>
+              {data.contributingStations.map((s, i) => (
+                <li
+                  key={s.stationCode ?? i}
+                  className='rounded-xl border border-slate-100 bg-white px-3 py-2.5'
+                >
+                  <div className='font-semibold text-slate-900'>
+                    Trạm {s.stationCode}
+                  </div>
+                  {s.waterLevel != null && (
+                    <p className='mt-0.5 text-xs text-slate-600'>
+                      Mức nước:{' '}
+                      <span className='font-medium tabular-nums'>
+                        {s.waterLevel} m
                       </span>
-                    )}
-                  </p>
-                )}
-                {s.street?.name && (
-                  <p className='text-muted-foreground mt-1 text-xs'>
-                    {s.street.name}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
+                      {s.severity && (
+                        <span
+                          className={cn(
+                            'ml-2 inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium',
+                            FLOOD_TIER_UI[
+                              tierFromSeverityString(s.severity) ?? modelTier
+                            ].pill
+                          )}
+                        >
+                          {severityLabelVi(s.severity)}
+                        </span>
+                      )}
+                    </p>
+                  )}
+                  {s.street?.name && (
+                    <p className='text-muted-foreground mt-1 text-xs'>
+                      {s.street.name}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </details>
         </Section>
       )}
 
       {data.communityReports && data.communityReports.length > 0 && (
         <Section title='Phản ánh từ người dân'>
-          <ul className='space-y-2'>
-            {data.communityReports.map((r, i) => (
-              <li
-                key={r.createdAt ?? i}
-                className='rounded-xl border border-slate-100 bg-white px-3 py-2.5 text-xs'
-              >
-                <p className='text-slate-800'>{r.description}</p>
-                <p className='text-muted-foreground mt-1 text-[11px]'>
-                  Mức độ: {severityLabelVi(r.severity) || r.severity}
-                  {r.createdAt && (
-                    <span className='ml-2'>
-                      ·{' '}
-                      {new Date(r.createdAt).toLocaleString('vi-VN', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  )}
-                </p>
-              </li>
-            ))}
-          </ul>
+          <details className='rounded-xl border border-slate-200 bg-slate-50/60'>
+            <summary className='cursor-pointer list-none px-3 py-2.5 text-xs font-semibold text-slate-800 [&::-webkit-details-marker]:hidden'>
+              Tổng số phản ánh: {data.communityReports.length} (bấm để xem chi
+              tiết)
+            </summary>
+            <ul className='space-y-2 border-t border-slate-200 p-2.5'>
+              {data.communityReports.map((r, i) => (
+                <li
+                  key={r.createdAt ?? i}
+                  className='rounded-xl border border-slate-100 bg-white px-3 py-2.5 text-xs'
+                >
+                  <p className='text-slate-800'>{r.description}</p>
+                  <p className='text-muted-foreground mt-1 flex flex-wrap items-center gap-1.5 text-[11px]'>
+                    <span>Mức độ:</span>
+                    {r.severity && (
+                      <span
+                        className={cn(
+                          'inline-flex rounded-full border px-2 py-0.5 font-medium text-slate-800',
+                          FLOOD_TIER_UI[
+                            tierFromSeverityString(r.severity) ?? modelTier
+                          ].pill
+                        )}
+                      >
+                        {severityLabelVi(r.severity) || r.severity}
+                      </span>
+                    )}
+                    {!r.severity && <span>—</span>}
+                    {r.createdAt && (
+                      <span className='ml-2'>
+                        ·{' '}
+                        {new Date(r.createdAt).toLocaleString('vi-VN', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </details>
         </Section>
       )}
 
       {data.aiConsultant?.finalSummary && (
         <Section title='Phân tích & khuyến nghị (AI)'>
-          <div className='rounded-xl border border-violet-100 bg-violet-50/80 px-3 py-3 text-xs leading-relaxed whitespace-pre-wrap text-slate-800'>
+          <div
+            className={cn(
+              'rounded-xl border px-3 py-3 text-xs leading-relaxed whitespace-pre-wrap text-slate-800',
+              tierUi.recBox
+            )}
+          >
             {data.aiConsultant.finalSummary}
           </div>
         </Section>

@@ -3,14 +3,41 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 import { stationsApi } from '@/features/stations/api/station.api';
+import type {
+  GetStationsResponse,
+  StationExtended
+} from '@/features/stations/types/station.type';
 import { normalizeStationsPayload } from '@/features/zones/lib/normalize-station-row';
 
-async function fetchStationsForMap(accessToken: string | undefined) {
-  const res = await stationsApi.getStations(
-    { page: 1, perPage: 500 },
-    accessToken
-  );
-  return normalizeStationsPayload(res as unknown);
+/** Backend thường giới hạn pageSize (vd. max 100) — gọi 500 → 400. */
+const MAP_STATIONS_PAGE_SIZE = 100;
+
+async function fetchStationsForMap(
+  accessToken: string | undefined
+): Promise<StationExtended[]> {
+  const all: StationExtended[] = [];
+  let page = 1;
+
+  for (;;) {
+    const res = (await stationsApi.getStations(
+      { page, perPage: MAP_STATIONS_PAGE_SIZE },
+      accessToken
+    )) as GetStationsResponse;
+    const batch = normalizeStationsPayload(res as unknown);
+    all.push(...batch);
+    const total = res.totalCount ?? 0;
+    if (
+      batch.length < MAP_STATIONS_PAGE_SIZE ||
+      all.length >= total ||
+      batch.length === 0
+    ) {
+      break;
+    }
+    page += 1;
+    if (page > 100) break;
+  }
+
+  return all;
 }
 
 export function useMapStationsList(enabled: boolean) {

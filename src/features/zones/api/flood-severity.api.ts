@@ -1,5 +1,5 @@
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL_TVT ?? 'https://fda.id.vn/api/v1';
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://fda.id.vn/api/v1';
 
 export type FloodStationProperties = {
   id?: string | null;

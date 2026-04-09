@@ -1,7 +1,16 @@
-// src/features/dashboard/types.ts
 export type DashboardStats = {
-  activeAlerts: number;
-  monitoredZones: number;
+  onlineStations: number;
+  totalStations: number;
+  offlineStations: number;
+  administrativeAreas: number;
+  onlineStationIds: string[];
+  isLoading: boolean;
+  errors: {
+    onlineStations: boolean;
+    totalStations: boolean;
+    offlineStations: boolean;
+    administrativeAreas: boolean;
+  };
 };
 
 export type GeoLocation = {

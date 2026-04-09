@@ -18,7 +18,7 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
   return (
     <div className='flex flex-col py-4'>
       {/* Desktop Email Client Mockup */}
-      <div className='flex h-[520px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800'>
+      <div className='flex max-h-[380px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800'>
         {/* Toolbar — traffic light dots + action icons */}
         <div className='flex items-center gap-4 border-b border-slate-200 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800/80'>
           <div className='flex gap-1.5'>
@@ -60,7 +60,7 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
                     </span>
                   </div>
                   <div className='text-[10px] text-slate-500'>
-                    tới recipient@mail.com
+                    to recipient@mail.com
                   </div>
                 </div>
               </div>
@@ -78,7 +78,7 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
 
                 {/* Email Main Title */}
                 <h2 className='mb-4 text-center text-base font-bold text-slate-900 dark:text-white'>
-                  THÔNG BÁO CẢNH BÁO LŨ
+                  FLOOD ALERT NOTIFICATION
                 </h2>
 
                 {/* Email Content */}
@@ -89,22 +89,22 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
                   <div className='my-3 rounded border-l-4 border-amber-500 bg-amber-50 p-3 dark:bg-amber-900/20'>
                     <ul className='space-y-1 text-[11px]'>
                       <li>
-                        • Mức độ: <span className='font-bold'>Cảnh báo</span>
+                        • Severity: <span className='font-bold'>Warning</span>
                       </li>
                     </ul>
                   </div>
 
                   <p className='text-center'>
                     <span className='inline-block rounded-lg bg-blue-500 px-5 py-1.5 text-[11px] font-bold text-white'>
-                      Xem chi tiết dự báo
+                      View Forecast Details
                     </span>
                   </p>
                 </div>
 
                 {/* Footer */}
                 <div className='mt-6 border-t border-slate-100 pt-4 text-center text-[9px] text-slate-400 dark:border-slate-700'>
-                  Đây là thông báo tự động từ Hệ thống FDA. Vui lòng không trả
-                  lời email này.
+                  This is an automated message from the FDA System. Please do
+                  not reply to this email.
                 </div>
               </div>
             </div>

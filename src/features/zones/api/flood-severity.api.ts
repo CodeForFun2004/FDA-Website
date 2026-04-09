@@ -52,6 +52,8 @@ export async function getFloodSeverityGeoJSON(args: {
 }) {
   const { bounds, zoom, signal } = args;
   const url = new URL(`${API_BASE}/map/current-status`);
+  // Check api
+  console.log('API URL:', url.toString());
   url.searchParams.set('bounds', bounds);
   url.searchParams.set('zoom', String(zoom));
 

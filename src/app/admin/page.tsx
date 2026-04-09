@@ -3,14 +3,9 @@
 import { DashboardView } from '@/features/dashboard';
 
 export default function DashboardPage() {
-  const handleCreateAlert = () => {
-    // TODO: Implement create alert modal
-    console.log('Create alert clicked');
-  };
-
   return (
     <div className='space-y-6'>
-      <DashboardView onCreateAlert={handleCreateAlert} />
+      <DashboardView />
     </div>
   );
 }

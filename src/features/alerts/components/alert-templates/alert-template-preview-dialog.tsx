@@ -36,11 +36,11 @@ interface AlertTemplatePreviewDialogProps {
 }
 
 const DEFAULT_TEST_DATA = {
-  stationName: 'Trạm Thủy văn Cần Thơ',
+  stationName: 'Can Tho Hydrology Station',
   waterLevel: '4.12',
   threshold: '3.50',
   severity: 'warning',
-  address: 'Quận Ninh Kiều, TP. Cần Thơ'
+  address: 'Ninh Kieu District, Can Tho City'
 };
 
 const CHANNELS = ['Push', 'Email', 'SMS', 'InApp'] as const;
@@ -108,11 +108,11 @@ export function AlertTemplatePreviewDialog({
         }
       }}
     >
-      <DialogContent className='gap-0 overflow-hidden p-0 sm:max-w-5xl'>
+      <DialogContent className='flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl'>
         {/* Header */}
-        <DialogHeader className='bg-muted/30 border-b px-8 py-5'>
-          <DialogTitle className='text-xl'>
-            Preview Template: {template?.name}
+        <DialogHeader className='bg-muted/30 flex-shrink-0 border-b px-5 py-4 sm:px-6'>
+          <DialogTitle className='text-lg'>
+            Preview: {template?.name}
           </DialogTitle>
           <DialogDescription>
             Test the template rendering with sample data before publishing
@@ -120,9 +120,9 @@ export function AlertTemplatePreviewDialog({
         </DialogHeader>
 
         {/* Two-Column Body */}
-        <div className='flex min-h-[550px] flex-col lg:flex-row'>
+        <div className='flex flex-1 flex-col overflow-y-auto lg:flex-row'>
           {/* ─── Left Column: Input Data ─── */}
-          <div className='flex-1 border-r p-8'>
+          <div className='flex-1 border-b p-5 sm:p-6 lg:border-r lg:border-b-0'>
             <div className='mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400'>
               <IconEditCircle className='size-5' />
               <h2 className='text-base font-bold'>Sample Data</h2>
@@ -166,7 +166,7 @@ export function AlertTemplatePreviewDialog({
           </div>
 
           {/* ─── Right Column: Render Result ─── */}
-          <div className='bg-muted/20 flex-[1.2] p-8'>
+          <div className='bg-muted/20 flex-1 p-5 sm:p-6'>
             <div className='mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400'>
               <IconEye className='size-5' />
               <h2 className='text-base font-bold'>Render Result</h2>
@@ -252,7 +252,7 @@ export function AlertTemplatePreviewDialog({
         </div>
 
         {/* Footer */}
-        <DialogFooter className='border-t px-8 py-4'>
+        <DialogFooter className='flex-shrink-0 border-t px-5 py-3 sm:px-6'>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
             Close
           </Button>

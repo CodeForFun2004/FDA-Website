@@ -9,7 +9,8 @@ import type {
   UpdateUserResponse,
   DeleteUserResponse,
   GetAdminStatsResponse,
-  GetAdministrativeAreasResponse
+  GetAdministrativeAreasResponse,
+  GetFloodEventsResponse
 } from '../types/admin.type';
 
 // ===== API Functions =====
@@ -126,13 +127,15 @@ export function getAdminStatsApi() {
  * Get list of administrative areas (requires auth)
  */
 export function getAdministrativeAreasApi(params?: {
+  pageNumber?: number;
+  pageSize?: number;
   searchTerm?: string;
   level?: string;
   parentId?: string;
 }) {
   const searchParams = new URLSearchParams();
-  searchParams.set('pageNumber', '1');
-  searchParams.set('pageSize', '100');
+  searchParams.set('pageNumber', String(params?.pageNumber ?? 1));
+  searchParams.set('pageSize', String(params?.pageSize ?? 10));
   if (params?.searchTerm) searchParams.set('searchTerm', params.searchTerm);
   if (params?.level) searchParams.set('level', params.level);
   if (params?.parentId) searchParams.set('parentId', params.parentId);
@@ -141,4 +144,86 @@ export function getAdministrativeAreasApi(params?: {
     `/admin/administrative-areas?${searchParams.toString()}`,
     { method: 'GET' }
   );
+}
+
+/**
+ * GET /admin/flood-events
+ * List flood events (requires auth)
+ *
+ * FE-17: support data for Frequency aggregation.
+ */
+export function getFloodEventsApi(params?: {
+  pageNumber?: number;
+  pageSize?: number;
+  searchTerm?: string;
+  administrativeAreaId?: string;
+  startTimeFrom?: string;
+  startTimeTo?: string;
+}) {
+  const searchParams = new URLSearchParams();
+  searchParams.set('pageNumber', String(params?.pageNumber ?? 1));
+  searchParams.set('pageSize', String(params?.pageSize ?? 10));
+  if (params?.searchTerm) searchParams.set('searchTerm', params.searchTerm);
+  if (params?.administrativeAreaId)
+    searchParams.set('administrativeAreaId', params.administrativeAreaId);
+  if (params?.startTimeFrom)
+    searchParams.set('startTimeFrom', params.startTimeFrom);
+  if (params?.startTimeTo) searchParams.set('startTimeTo', params.startTimeTo);
+
+  return apiFetch<GetFloodEventsResponse>(
+    `/admin/flood-events?${searchParams.toString()}`,
+    {
+      method: 'GET'
+    }
+  );
+}
+
+/**
+ * FE-17 (FeatG57-61): Administrative Area CRUD
+ */
+export function getAdministrativeAreaByIdApi(id: string) {
+  return apiFetch(`/admin/administrative-areas/${id}`, { method: 'GET' });
+}
+
+export function createAdministrativeAreaApi(payload: unknown) {
+  return apiFetch('/admin/administrative-areas', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export function updateAdministrativeAreaApi(id: string, payload: unknown) {
+  return apiFetch(`/admin/administrative-areas/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export function deleteAdministrativeAreaApi(id: string) {
+  return apiFetch(`/admin/administrative-areas/${id}`, { method: 'DELETE' });
+}
+
+/**
+ * FE-17 (FeatG62-66): Flood Event CRUD
+ */
+export function getFloodEventByIdApi(id: string) {
+  return apiFetch(`/admin/flood-events/${id}`, { method: 'GET' });
+}
+
+export function createFloodEventApi(payload: unknown) {
+  return apiFetch('/admin/flood-events', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export function updateFloodEventApi(id: string, payload: unknown) {
+  return apiFetch(`/admin/flood-events/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export function deleteFloodEventApi(id: string) {
+  return apiFetch(`/admin/flood-events/${id}`, { method: 'DELETE' });
 }

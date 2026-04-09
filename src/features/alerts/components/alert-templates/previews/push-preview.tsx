@@ -9,11 +9,11 @@ interface PushPreviewProps {
 
 export function PushPreview({ title, body }: PushPreviewProps) {
   return (
-    <div className='flex flex-col items-center py-4'>
+    <div className='flex flex-col items-center py-2'>
       {/* Phone Frame */}
-      <div className='relative h-[480px] w-72 overflow-hidden rounded-[3rem] border-[8px] border-slate-800 bg-slate-200 shadow-2xl dark:border-slate-700 dark:bg-slate-800'>
+      <div className='relative h-[380px] w-60 overflow-hidden rounded-[2.5rem] border-[6px] border-slate-800 bg-slate-200 shadow-2xl dark:border-slate-700 dark:bg-slate-800'>
         {/* Notch */}
-        <div className='absolute top-0 left-1/2 z-10 h-6 w-24 -translate-x-1/2 rounded-b-2xl bg-slate-800' />
+        <div className='absolute top-0 left-1/2 z-10 h-5 w-20 -translate-x-1/2 rounded-b-xl bg-slate-800' />
 
         {/* Background Gradient */}
         <div className='absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-600/20 opacity-30' />
@@ -33,7 +33,7 @@ export function PushPreview({ title, body }: PushPreviewProps) {
                     FDA Warning
                   </span>
                   <span className='ml-auto text-[10px] text-slate-400'>
-                    Vừa xong
+                    Just now
                   </span>
                 </div>
 
@@ -58,7 +58,7 @@ export function PushPreview({ title, body }: PushPreviewProps) {
             </>
           ) : (
             /* Empty State */
-            <div className='flex h-[300px] flex-col items-center justify-center text-center'>
+            <div className='flex h-[220px] flex-col items-center justify-center text-center'>
               <div className='mb-3 flex size-12 items-center justify-center rounded-full bg-slate-300/50 dark:bg-slate-700/50'>
                 <IconAlertTriangle className='size-6 text-slate-400' />
               </div>

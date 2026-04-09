@@ -129,16 +129,16 @@ export function mockSeveritySeries(
 export function mockHotspots(now = new Date()): HotspotItem[] {
   const calcAt = iso(subMinutes(now, 22));
   const names = [
-    'Phường Bến Nghé',
-    'Phường Thảo Điền',
-    'Phường Hòa Cường Bắc',
-    'Phường Cát Linh',
-    'Phường Minh Khai',
-    'Phường Hồng Hà',
-    'Phường Tam Thuận',
-    'Phường Tân An',
-    'Phường Mỹ Đình 2',
-    'Phường Dịch Vọng'
+    'Ben Nghe Ward',
+    'Thao Dien Ward',
+    'Hoa Cuong Bac Ward',
+    'Cat Linh Ward',
+    'Minh Khai Ward',
+    'Hong Ha Ward',
+    'Tam Thuan Ward',
+    'Tan An Ward',
+    'My Dinh 2 Ward',
+    'Dich Vong Ward'
   ];
   return names.map((name, idx) => {
     const rank = idx + 1;

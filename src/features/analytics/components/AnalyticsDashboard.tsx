@@ -45,9 +45,6 @@ import { FrequencyChartCard } from '@/features/analytics/components/dashboard/Fr
 import { SeverityChartCard } from '@/features/analytics/components/dashboard/SeverityChartCard';
 import { HotspotRankingCard } from '@/features/analytics/components/dashboard/HotspotRankingCard';
 import { AggregatedDataTable } from '@/features/analytics/components/dashboard/AggregatedDataTable';
-import { SystemNotesCard } from '@/features/analytics/components/dashboard/SystemNotesCard';
-import { AdminAreasPanel } from '@/features/analytics/components/dashboard/AdminAreasPanel';
-import { FloodEventsPanel } from '@/features/analytics/components/dashboard/FloodEventsPanel';
 import { addDays, format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -103,13 +100,7 @@ export function AnalyticsDashboard() {
   const [quickActionType, setQuickActionType] =
     React.useState<TriggerType | null>(null);
   const [activeTab, setActiveTab] = React.useState<
-    | 'overview'
-    | 'jobs'
-    | 'results'
-    | 'operations'
-    | 'admin-areas'
-    | 'flood-events'
-    | 'notes'
+    'overview' | 'jobs' | 'results' | 'operations'
   >('overview');
   const [opsActiveType, setOpsActiveType] =
     React.useState<TriggerType>('frequency');
@@ -516,29 +507,25 @@ export function AnalyticsDashboard() {
         isRefreshing={isRefreshing}
       />
 
-      {activeTab !== 'admin-areas' &&
-      activeTab !== 'flood-events' &&
-      activeTab !== 'notes' ? (
-        <AnalyticsFilters
-          areas={areas}
-          value={filters}
-          onChange={setFilters}
-          onApply={() => applyFilters(filters)}
-          onReset={() => {
-            const next: AnalyticsFiltersState = {
-              metric: 'all',
-              bucketType: 'day',
-              startDate: today(),
-              endDate: format(addDays(new Date(), 6), 'yyyy-MM-dd'),
-              areaId: 'all',
-              areaLevel: 'all',
-              topN: 10
-            };
-            setFilters(next);
-            applyFilters(next);
-          }}
-        />
-      ) : null}
+      <AnalyticsFilters
+        areas={areas}
+        value={filters}
+        onChange={setFilters}
+        onApply={() => applyFilters(filters)}
+        onReset={() => {
+          const next: AnalyticsFiltersState = {
+            metric: 'all',
+            bucketType: 'day',
+            startDate: today(),
+            endDate: format(addDays(new Date(), 6), 'yyyy-MM-dd'),
+            areaId: 'all',
+            areaLevel: 'all',
+            topN: 10
+          };
+          setFilters(next);
+          applyFilters(next);
+        }}
+      />
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
@@ -567,28 +554,10 @@ export function AnalyticsDashboard() {
             >
               Operations
             </TabsTrigger>
-            <TabsTrigger
-              value='admin-areas'
-              className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
-            >
-              Admin areas
-            </TabsTrigger>
-            <TabsTrigger
-              value='flood-events'
-              className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
-            >
-              Flood events
-            </TabsTrigger>
-            <TabsTrigger
-              value='notes'
-              className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
-            >
-              Notes
-            </TabsTrigger>
           </TabsList>
 
           <div className='text-muted-foreground text-xs'>
-            Tip: dùng tab để tập trung theo tác vụ (monitor → results → rerun).
+            Tip: use tabs to focus by task (monitor → results → rerun).
           </div>
         </div>
 
@@ -674,18 +643,6 @@ export function AnalyticsDashboard() {
               <HotspotRankingCard items={hotspotItems} topN={applied.topN} />
             </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value='admin-areas' className='mt-4 space-y-4'>
-          <AdminAreasPanel />
-        </TabsContent>
-
-        <TabsContent value='flood-events' className='mt-4 space-y-4'>
-          <FloodEventsPanel areas={areas} />
-        </TabsContent>
-
-        <TabsContent value='notes' className='mt-4 space-y-4'>
-          <SystemNotesCard />
         </TabsContent>
       </Tabs>
 

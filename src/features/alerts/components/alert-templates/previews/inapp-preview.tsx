@@ -67,10 +67,9 @@ const SEVERITY_CONFIG: Record<
 
 function parseSeverityFromTitle(title: string): Severity {
   const upper = title.toUpperCase();
-  if (upper.includes('CRITICAL') || upper.includes('NGUY HIỂM'))
-    return 'critical';
-  if (upper.includes('WARNING') || upper.includes('CẢNH BÁO')) return 'warning';
-  if (upper.includes('CAUTION') || upper.includes('CHÚ Ý')) return 'caution';
+  if (upper.includes('CRITICAL')) return 'critical';
+  if (upper.includes('WARNING')) return 'warning';
+  if (upper.includes('CAUTION')) return 'caution';
   return 'info';
 }
 
@@ -80,11 +79,11 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
   const SeverityIcon = config.icon;
 
   return (
-    <div className='flex flex-col items-center py-4'>
+    <div className='flex flex-col items-center py-2'>
       {/* Phone Frame */}
-      <div className='relative h-[480px] w-72 overflow-hidden rounded-[3rem] border-[8px] border-slate-800 bg-slate-100 shadow-2xl dark:border-slate-700 dark:bg-slate-900'>
+      <div className='relative h-[380px] w-60 overflow-hidden rounded-[2.5rem] border-[6px] border-slate-800 bg-slate-100 shadow-2xl dark:border-slate-700 dark:bg-slate-900'>
         {/* Notch */}
-        <div className='absolute top-0 left-1/2 z-20 h-6 w-24 -translate-x-1/2 rounded-b-2xl bg-slate-800' />
+        <div className='absolute top-0 left-1/2 z-20 h-5 w-20 -translate-x-1/2 rounded-b-xl bg-slate-800' />
 
         {/* Simulated App Screen Background */}
         <div className='absolute inset-0 bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-900'>
@@ -109,7 +108,7 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
             <div className='flex items-center gap-1.5 rounded-lg bg-white/60 p-2 dark:bg-slate-800/60'>
               <IconDroplet className='size-3 text-blue-400' />
               <div>
-                <div className='text-[7px] text-slate-400'>Mực nước</div>
+                <div className='text-[7px] text-slate-400'>Water Level</div>
                 <div className='text-[9px] font-bold text-slate-700 dark:text-slate-200'>
                   4.12m
                 </div>
@@ -118,7 +117,7 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
             <div className='flex items-center gap-1.5 rounded-lg bg-white/60 p-2 dark:bg-slate-800/60'>
               <IconClock className='size-3 text-slate-400' />
               <div>
-                <div className='text-[7px] text-slate-400'>Cập nhật</div>
+                <div className='text-[7px] text-slate-400'>Updated</div>
                 <div className='text-[9px] font-bold text-slate-700 dark:text-slate-200'>
                   08:30
                 </div>
@@ -146,7 +145,7 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
                   FDA {config.label}
                 </span>
                 <span className='ml-auto text-[9px] text-slate-400'>
-                  Vừa xong
+                  Just now
                 </span>
                 <IconX className='size-3 text-slate-400' />
               </div>
@@ -188,7 +187,7 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
       {/* Info below phone */}
       {(title || body) && (
         <div className='mt-4 text-center font-mono text-[10px] text-slate-400'>
-          Tự động ẩn sau 15 giây • Vuốt lên để tắt
+          Auto-dismiss after 15s &middot; Swipe up to close
         </div>
       )}
     </div>

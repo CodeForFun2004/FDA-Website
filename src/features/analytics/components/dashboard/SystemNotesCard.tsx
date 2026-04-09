@@ -14,8 +14,8 @@ export function SystemNotesCard() {
         <div className='space-y-1'>
           <div className='font-medium'>Idempotent aggregation</div>
           <div className='text-muted-foreground'>
-            Re-run sẽ <span className='font-medium'>upsert/overwrite</span> theo
-            bucket/area. Không cộng dồn trùng (no double count).
+            Re-run will <span className='font-medium'>upsert/overwrite</span> by
+            bucket/area. No double counting.
           </div>
         </div>
 
@@ -47,8 +47,8 @@ export function SystemNotesCard() {
         <div className='space-y-1'>
           <div className='font-medium'>Hotspot (FE-18 ready)</div>
           <div className='text-muted-foreground'>
-            Hiện dùng cho reporting & phân tích. FE-18 sẽ tận dụng để vẽ map
-            hotspots.
+            Currently used for reporting & analysis. FE-18 will leverage this
+            data to render hotspot maps.
           </div>
         </div>
       </CardContent>

@@ -24,8 +24,8 @@ export function HotspotRankingCard(props: {
       </CardHeader>
       <CardContent className='space-y-3'>
         <div className='text-muted-foreground text-xs leading-relaxed'>
-          Ranking phục vụ reporting. Bản đồ hotspot (FE-18) chưa triển khai,
-          nhưng bảng xếp hạng đã usable.
+          Ranking for reporting purposes. Hotspot map (FE-18) is not yet
+          implemented, but the leaderboard is already usable.
         </div>
 
         <div className='space-y-2'>

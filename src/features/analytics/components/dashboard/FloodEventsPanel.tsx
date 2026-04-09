@@ -106,10 +106,10 @@ export function FloodEventsPanel(props: { areas: AdministrativeArea[] }) {
           )}
 
           <div className='text-muted-foreground text-xs leading-relaxed'>
-            Flood events được dùng để tính{' '}
-            <span className='font-medium'>eventCount</span> trong Frequency
-            aggregation. Nếu thêm/sửa/xóa flood events, nên re-run Frequency
-            aggregation để analytics phản ánh đúng.
+            Flood events are used to calculate{' '}
+            <span className='font-medium'>eventCount</span> in Frequency
+            aggregation. If you add, edit, or delete flood events, consider
+            re-running Frequency aggregation to keep analytics accurate.
           </div>
         </CardContent>
       </Card>

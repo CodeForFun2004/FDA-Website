@@ -95,9 +95,9 @@ export function AdminAreasPanel() {
           )}
 
           <div className='text-muted-foreground text-xs leading-relaxed'>
-            Areas là dimension chính cho aggregation (group theo
-            AdministrativeAreaId). Khi chỉnh sửa areas, thường cần re-run
-            aggregation để đồng bộ analytics tables/cache.
+            Areas are the primary dimension for aggregation (grouped by
+            AdministrativeAreaId). When editing areas, you typically need to
+            re-run aggregation to sync analytics tables/cache.
           </div>
         </CardContent>
       </Card>

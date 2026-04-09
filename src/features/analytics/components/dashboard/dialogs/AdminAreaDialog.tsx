@@ -206,7 +206,7 @@ export function AdminAreaDialog({
             control={form.control as any}
             name='name'
             label='Name'
-            placeholder='Hải Châu District'
+            placeholder='Hai Chau District'
             required
             disabled={loading}
           />
@@ -252,11 +252,11 @@ export function AdminAreaDialog({
           <FormTextarea
             control={form.control as any}
             name='geometry'
-            label='Geometry (GeoJSON chuỗi, optional)'
+            label='Geometry (GeoJSON string, optional)'
             placeholder='{"type":"Polygon","coordinates":[[[108.165,16.020],[108.190,16.020],[108.190,16.055],[108.165,16.020]]]}'
             disabled={loading}
             config={{ rows: 3, maxLength: 5000, showCharCount: false }}
-            description='Chuỗi JSON của GeoJSON Polygon. Để trống nếu không có.'
+            description='JSON string of a GeoJSON Polygon. Leave empty if not available.'
           />
 
           <DialogFooter className='pt-2'>

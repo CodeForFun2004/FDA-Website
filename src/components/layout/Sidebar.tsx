@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
-  Radio,
-  Activity,
   CreditCard,
   Receipt,
   MessageSquareWarning,
@@ -17,77 +15,148 @@ import {
   Bell,
   ShieldCheck,
   Map as MapIcon,
-  MapPinCheck,
   Settings,
-  Waypoints,
   Droplets,
   SmartphoneNfc,
-  Newspaper
+  Newspaper,
+  ChevronDown,
+  Wallet
 } from 'lucide-react';
 
 import { useAppStore } from '@/libs/store';
 import { cn } from '@/libs/utils';
 
-const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, exact: true },
+type NavLink = {
+  type: 'link';
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  exact?: boolean;
+};
+
+type NavGroup = {
+  type: 'group';
+  label: string;
+  icon: React.ElementType;
+  children: Omit<NavLink, 'type'>[];
+};
+
+type NavItem = NavLink | NavGroup;
+
+const navItems: NavItem[] = [
   {
+    type: 'link',
+    label: 'Dashboard',
+    href: '/admin',
+    icon: LayoutDashboard,
+    exact: true
+  },
+  {
+    type: 'link',
     label: 'Flood History',
     href: '/admin/flood-history',
     icon: History
   },
   {
+    type: 'link',
     label: 'Analytics',
     href: '/admin/analytics',
     icon: BarChart3
   },
-  { label: 'Users & Roles', href: '/admin/users', icon: Users },
+  { type: 'link', label: 'Users & Roles', href: '/admin/users', icon: Users },
   {
-    label: 'Plan Subscriptions',
-    href: '/admin/plan-subscriptions',
-    icon: CreditCard
+    type: 'group',
+    label: 'Billing & Plans',
+    icon: Wallet,
+    children: [
+      {
+        label: 'Plan Subscriptions',
+        href: '/admin/plan-subscriptions',
+        icon: CreditCard
+      },
+      {
+        label: 'Subscription Disputes',
+        href: '/admin/subscription-disputes',
+        icon: MessageSquareWarning
+      },
+      {
+        label: 'Billing Payment',
+        href: '/admin/billing-payment',
+        icon: Receipt
+      }
+    ]
   },
   {
-    label: 'Subscription Disputes',
-    href: '/admin/subscription-disputes',
-    icon: MessageSquareWarning
+    type: 'link',
+    label: 'Stations',
+    href: '/admin/stations',
+    icon: SmartphoneNfc
   },
   {
-    label: 'Billing Payment',
-    href: '/admin/billing-payment',
-    icon: Receipt
+    type: 'group',
+    label: 'Alerts & News',
+    icon: BellRing,
+    children: [
+      {
+        label: 'Alerts Template',
+        href: '/admin/alerts',
+        icon: BellRing
+      },
+      {
+        label: 'News & Updates',
+        href: '/admin/news',
+        icon: Newspaper
+      }
+    ]
   },
-  { label: 'Stations', href: '/admin/stations', icon: SmartphoneNfc },
-  { label: 'IoT Devices', href: '/admin/devices', icon: Radio },
-  { label: 'Sensors Data', href: '/admin/sensors', icon: Activity },
-  { label: 'Areas', href: '/admin/areas', icon: MapPinCheck },
-  { label: 'Alerts Template', href: '/admin/alerts', icon: BellRing },
-  { label: 'News & Updates', href: '/admin/news', icon: Newspaper },
   {
+    type: 'link',
     label: 'Alert Subscriptions',
     href: '/admin/user-alert-subscription',
     icon: Bell
   },
-  { label: 'Safe Routes', href: '/admin/routes', icon: Waypoints },
-  { label: 'Map & Zones', href: '/admin/zones', icon: MapIcon },
-  { label: 'Settings', href: '/admin/settings', icon: Settings },
-  { label: 'Logs & Audit', href: '/admin/logs', icon: ShieldCheck }
+  { type: 'link', label: 'Map & Zones', href: '/admin/zones', icon: MapIcon },
+  { type: 'link', label: 'Settings', href: '/admin/settings', icon: Settings },
+  {
+    type: 'link',
+    label: 'Logs & Audit',
+    href: '/admin/logs',
+    icon: ShieldCheck
+  }
 ];
+
+function isGroupActive(group: NavGroup, pathname: string) {
+  return group.children.some((c) => pathname.startsWith(c.href));
+}
 
 export const Sidebar = () => {
   const { isSidebarOpen, toggleSidebar } = useAppStore();
   const pathname = usePathname();
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    for (const item of navItems) {
+      if (item.type === 'group' && isGroupActive(item, pathname)) {
+        initial.add(item.label);
+      }
+    }
+    return initial;
+  });
 
-  // Auto-close sidebar on mobile when navigating to a new page
+  const toggleGroup = (label: string) => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  };
+
   useEffect(() => {
-    const handleResize = () => {
-      // If viewport >= lg (1024px) and sidebar is closed, that's icon mode — no action needed
-      // If viewport < lg (mobile/tablet) and sidebar is open, close it on route change
-    };
+    const handleResize = () => {};
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Close sidebar on mobile when route changes
   useEffect(() => {
     const isDesktop = window.innerWidth >= 1024;
     if (!isDesktop && isSidebarOpen) {
@@ -96,9 +165,108 @@ export const Sidebar = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  // Auto-open groups when navigating into them
+  useEffect(() => {
+    for (const item of navItems) {
+      if (item.type === 'group' && isGroupActive(item, pathname)) {
+        setOpenGroups((prev) => {
+          if (prev.has(item.label)) return prev;
+          return new Set(prev).add(item.label);
+        });
+      }
+    }
+  }, [pathname]);
+
+  const renderLink = (item: Omit<NavLink, 'type'>, indent = false) => {
+    const isActive = item.exact
+      ? pathname === item.href
+      : pathname.startsWith(item.href);
+
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        title={!isSidebarOpen ? item.label : undefined}
+        className={cn(
+          'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+          isActive
+            ? 'bg-primary text-primary-foreground shadow-primary/20 shadow-md'
+            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+          !isSidebarOpen && 'lg:justify-center lg:px-0',
+          indent && isSidebarOpen && 'pl-10'
+        )}
+      >
+        <item.icon
+          className={cn(
+            'flex-shrink-0 transition-all duration-200',
+            !isSidebarOpen ? 'h-5 w-5 lg:h-5 lg:w-5' : 'h-5 w-5'
+          )}
+        />
+        <span
+          className={cn(
+            'truncate transition-all duration-300',
+            !isSidebarOpen && 'lg:hidden'
+          )}
+        >
+          {item.label}
+        </span>
+      </Link>
+    );
+  };
+
+  const renderGroup = (group: NavGroup) => {
+    const isOpen = openGroups.has(group.label);
+    const groupActive = isGroupActive(group, pathname);
+
+    return (
+      <div key={group.label}>
+        <button
+          type='button'
+          onClick={() => toggleGroup(group.label)}
+          title={!isSidebarOpen ? group.label : undefined}
+          className={cn(
+            'group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+            groupActive
+              ? 'text-foreground'
+              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+            !isSidebarOpen && 'lg:justify-center lg:px-0'
+          )}
+        >
+          <group.icon
+            className={cn(
+              'flex-shrink-0 transition-all duration-200',
+              !isSidebarOpen ? 'h-5 w-5 lg:h-5 lg:w-5' : 'h-5 w-5'
+            )}
+          />
+          <span
+            className={cn(
+              'flex-1 truncate text-left transition-all duration-300',
+              !isSidebarOpen && 'lg:hidden'
+            )}
+          >
+            {group.label}
+          </span>
+          <ChevronDown
+            className={cn(
+              'h-4 w-4 flex-shrink-0 transition-transform duration-200',
+              isOpen && 'rotate-180',
+              !isSidebarOpen && 'lg:hidden'
+            )}
+          />
+        </button>
+
+        {/* Children — only visible when expanded and sidebar open */}
+        {isOpen && isSidebarOpen && (
+          <div className='mt-1 space-y-0.5'>
+            {group.children.map((child) => renderLink(child, true))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-      {/* Backdrop overlay — only visible on mobile/tablet when sidebar is open */}
       {isSidebarOpen && (
         <div
           className='fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px] lg:hidden'
@@ -109,10 +277,7 @@ export const Sidebar = () => {
 
       <aside
         className={cn(
-          // Base: fixed, full height, transition
           'bg-card fixed top-0 left-0 z-40 flex h-screen flex-col border-r transition-all duration-300 ease-in-out',
-          // Mobile/tablet: slide in/out as overlay (always w-64)
-          // Desktop (lg+): always visible, collapsed = w-16, expanded = w-64
           isSidebarOpen
             ? 'w-64 translate-x-0'
             : 'w-64 -translate-x-full lg:w-16 lg:translate-x-0'
@@ -135,52 +300,19 @@ export const Sidebar = () => {
           </div>
         </div>
 
-        {/* Navigation - Scrollable with hidden scrollbar */}
+        {/* Navigation */}
         <nav
           className={cn(
             'scrollbar-hide flex-1 overflow-y-auto',
             isSidebarOpen ? 'space-y-1 p-3' : 'space-y-1 p-2 lg:p-2'
           )}
         >
-          {navItems.map((item) => {
-            const isActive = item.exact
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                title={!isSidebarOpen ? item.label : undefined}
-                className={cn(
-                  'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-primary text-primary-foreground shadow-primary/20 shadow-md'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-                  // Desktop collapsed: center icons
-                  !isSidebarOpen && 'lg:justify-center lg:px-0'
-                )}
-              >
-                <item.icon
-                  className={cn(
-                    'flex-shrink-0 transition-all duration-200',
-                    !isSidebarOpen ? 'h-5 w-5 lg:h-5 lg:w-5' : 'h-5 w-5'
-                  )}
-                />
-                <span
-                  className={cn(
-                    'truncate transition-all duration-300',
-                    !isSidebarOpen && 'lg:hidden'
-                  )}
-                >
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
+          {navItems.map((item) =>
+            item.type === 'group' ? renderGroup(item) : renderLink(item)
+          )}
         </nav>
 
-        {/* Status box - Fixed at bottom */}
+        {/* Status box */}
         <div
           className={cn(
             'flex-shrink-0 transition-all',

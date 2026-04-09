@@ -131,7 +131,10 @@ function buildFullUpdatePayload(
 
 export const stationsApi = {
   // LIST (hiện tại bạn đang tạm không query)
-  async getStations(filters: StationListFilters): Promise<GetStationsResponse> {
+  async getStations(
+    filters: StationListFilters,
+    accessToken?: string
+  ): Promise<GetStationsResponse> {
     // Build query string with filters
     const queryParams: Record<string, any> = {};
     if (filters.searchTerm) queryParams.searchTerm = filters.searchTerm;
@@ -141,7 +144,14 @@ export const stationsApi = {
     if (filters.perPage) queryParams.pageSize = filters.perPage;
 
     const qs = buildQuery(queryParams);
-    return fetchJson<GetStationsResponse>(`${ENDPOINTS.list}${qs}`, 'GET');
+    return fetchJson<GetStationsResponse>(
+      `${ENDPOINTS.list}${qs}`,
+      'GET',
+      undefined,
+      {
+        accessToken
+      }
+    );
   },
 
   // GET BY ID

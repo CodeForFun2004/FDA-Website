@@ -1,6 +1,6 @@
 # FDA Web Admin
 
-Frontend web app for Flood Detection & Alert (FDA) administration. This app provides an internal dashboard for monitoring flood stations, zones, alerts, routes, and system operations.
+Frontend web app for Flood Detection & Alert (FDA) administration. This app provides an internal dashboard for monitoring flood stations, zones, alerts, and system operations.
 
 ## Overview
 
@@ -8,7 +8,7 @@ FDA Web is a Next.js App Router project with a feature-based architecture. It in
 
 - Admin dashboard and operational views
 - Flood zones map (MapLibre) with severity markers and overlays
-- Station, device, sensor, and route management
+- Station and area management
 - Flood history and analytics
 - Alerts, logs, and user management
 - Role-based access control (RBAC) via middleware
@@ -28,7 +28,7 @@ FDA Web is a Next.js App Router project with a feature-based architecture. It in
 Routes live in `src/app`:
 
 - `/admin` dashboard
-  - zones map, stations, sensors, devices, routes, areas
+  - zones map, stations, areas
   - alerts, logs, flood history, user alert subscriptions
   - users and settings
 - `/auth` login/register/google callback

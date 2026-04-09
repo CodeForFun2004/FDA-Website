@@ -26,6 +26,16 @@ export interface Station {
   updatedAt: string;
 }
 
+/** Các cột bổ sung từ DB (API có thể trả camelCase hoặc PascalCase — normalize ở map layer). */
+export interface StationExtended extends Station {
+  administrativeAreaId?: string | null;
+  type?: string | null;
+  isIncidentActive?: boolean | null;
+  sensorHeight?: number | null;
+  createdBy?: string | null;
+  updatedBy?: string | null;
+}
+
 /** Base envelope backend tra ve */
 export interface ApiEnvelope {
   success: boolean;
@@ -35,7 +45,7 @@ export interface ApiEnvelope {
 
 /** GET all stations */
 export interface GetStationsResponse extends ApiEnvelope {
-  stations: Station[];
+  stations: Station[] | StationExtended[];
   totalCount: number;
 }
 

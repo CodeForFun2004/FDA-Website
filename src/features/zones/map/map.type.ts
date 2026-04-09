@@ -3,7 +3,10 @@ export type BaseMap = 'standard' | 'satellite';
 export type MapLayerPrefs = {
   baseMap: BaseMap;
   overlays: {
-    flood: boolean;
+    adminAreas: boolean;
+    stations: boolean;
+    /** Phản ánh cộng đồng (GET flood-reports/community) — z-order: trên stations, dưới admin. */
+    communityReports: boolean;
     traffic: boolean;
     weather: boolean;
   };

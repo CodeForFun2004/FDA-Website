@@ -17,6 +17,8 @@ const EMPTY_GEOJSON: FeatureCollection = {
 };
 
 export function useFloodSeverity({ mapRef, enabled, opacity, data }: Args) {
+  const fillOpacity = Math.max(opacity, 0.95);
+
   const ensureLayer = React.useCallback(
     (map: maplibregl.Map) => {
       const sourceId = 'flood-severity';
@@ -43,11 +45,11 @@ export function useFloodSeverity({ mapRef, enabled, opacity, data }: Args) {
               ['linear'],
               ['zoom'],
               8,
-              5,
+              15,
               12,
-              8,
+              24,
               16,
-              12
+              36
             ],
             'circle-color': [
               'coalesce',
@@ -56,23 +58,23 @@ export function useFloodSeverity({ mapRef, enabled, opacity, data }: Args) {
                 'match',
                 ['get', 'severity'],
                 'safe',
-                '#10B981',
+                '#16A34A',
                 'caution',
-                '#FBBF24',
+                '#CA8A04',
                 'warning',
-                '#F97316',
+                '#EA580C',
                 'critical',
-                '#EF4444',
+                '#DC2626',
                 '#64748B'
               ]
             ],
-            'circle-stroke-color': '#ffffff',
-            'circle-stroke-width': 2,
-            'circle-opacity': opacity
+            // Full-fill marker: bỏ viền trắng để không bị "chấm màu + vòng trắng"
+            'circle-stroke-width': 0,
+            'circle-opacity': fillOpacity
           }
         });
       } else {
-        map.setPaintProperty(markerLayerId, 'circle-opacity', opacity);
+        map.setPaintProperty(markerLayerId, 'circle-opacity', fillOpacity);
       }
 
       if (!map.getLayer(criticalLayerId)) {
@@ -93,16 +95,16 @@ export function useFloodSeverity({ mapRef, enabled, opacity, data }: Args) {
               16,
               ['coalesce', ['get', 'radiusPx'], 140]
             ],
-            'circle-color': '#EF4444',
+            'circle-color': '#DC2626',
             'circle-opacity': 0.18,
-            'circle-stroke-color': '#EF4444',
+            'circle-stroke-color': '#DC2626',
             'circle-stroke-opacity': 0.6,
             'circle-stroke-width': 2
           }
         });
       }
     },
-    [opacity]
+    [fillOpacity]
   );
 
   const removeLayer = React.useCallback((map: maplibregl.Map) => {
@@ -160,7 +162,7 @@ export function useFloodSeverity({ mapRef, enabled, opacity, data }: Args) {
     if (!map || !enabled) return;
     const layerId = 'flood-severity-circle';
     if (map.getLayer(layerId)) {
-      map.setPaintProperty(layerId, 'circle-opacity', opacity);
+      map.setPaintProperty(layerId, 'circle-opacity', fillOpacity);
     }
-  }, [enabled, mapRef, opacity]);
+  }, [enabled, fillOpacity, mapRef]);
 }

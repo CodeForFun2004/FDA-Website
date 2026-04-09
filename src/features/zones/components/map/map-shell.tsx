@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
 import MapView from './map-view';
 import LayerPanel from './layer-panel';
-import LegendFlood from './legend-flood';
 import { useMapPreferences } from '../../hooks/useMapPreferences';
 
 const queryClient = new QueryClient();
@@ -18,13 +17,32 @@ export default function MapShell() {
 }
 
 function Inner() {
-  const { prefs, setPrefsPartial, syncState, isAuthenticated, saveManual } =
-    useMapPreferences();
+  const {
+    prefs,
+    appliedPrefs,
+    setPrefsPartial,
+    syncState,
+    isAuthenticated,
+    saveManual
+  } = useMapPreferences();
   const [isLayerPanelOpen, setIsLayerPanelOpen] = React.useState(false);
+
+  const mapPrefs = React.useMemo(
+    () => ({
+      ...prefs,
+      overlays: {
+        ...prefs.overlays,
+        adminAreas: appliedPrefs.overlays.adminAreas,
+        stations: appliedPrefs.overlays.stations,
+        communityReports: appliedPrefs.overlays.communityReports
+      }
+    }),
+    [prefs, appliedPrefs]
+  );
 
   return (
     <div className='relative h-[calc(100vh-64px)] w-full'>
-      <MapView prefs={prefs} />
+      <MapView prefs={mapPrefs} />
 
       {/* Panel bên phải */}
       {/* Panel bên phải (Collapsible) */}
@@ -56,6 +74,7 @@ function Inner() {
           <div className='animate-in fade-in slide-in-from-top-2 w-[320px] max-w-[calc(100vw-24px)]'>
             <LayerPanel
               prefs={prefs}
+              appliedPrefs={appliedPrefs}
               setPrefsPartial={setPrefsPartial}
               syncState={syncState}
               isAuthenticated={isAuthenticated}
@@ -63,11 +82,6 @@ function Inner() {
             />
           </div>
         )}
-      </div>
-
-      {/* Legend góc trái dưới */}
-      <div className='absolute bottom-3 left-3 z-50'>
-        <LegendFlood visible={prefs.overlays.flood} />
       </div>
     </div>
   );

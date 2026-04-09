@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Activity, Droplets, ShieldCheck } from 'lucide-react';
+import { Activity, Droplets, MapPin } from 'lucide-react';
 
 export default function AuthLayout({
   children
@@ -37,7 +37,7 @@ export default function AuthLayout({
           </h2>
 
           <p className='text-lg text-blue-100'>
-            Real-time data updates and safe route suggestions for the community.
+            Real-time flood alerts and area monitoring for the community.
           </p>
 
           <div className='flex justify-center gap-4 pt-8'>
@@ -46,8 +46,8 @@ export default function AuthLayout({
               <span className='text-sm font-medium'>Real-time</span>
             </div>
             <div className='flex w-32 flex-col items-center gap-2 rounded-xl bg-white/10 p-4 backdrop-blur-sm'>
-              <ShieldCheck className='h-6 w-6 text-white' />
-              <span className='text-sm font-medium'>Safe Route</span>
+              <MapPin className='h-6 w-6 text-white' />
+              <span className='text-sm font-medium'>Area coverage</span>
             </div>
           </div>
         </div>

@@ -10,6 +10,8 @@ import type { MapLayerPrefs } from '../../map/map.type';
 
 type Props = {
   prefs: MapLayerPrefs;
+  /** Đã áp dụng lên map (sau Save); layer nặng chỉ dùng từ đây. */
+  appliedPrefs: MapLayerPrefs;
   setPrefsPartial: (patch: Partial<MapLayerPrefs>) => void;
   syncState: 'idle' | 'saving' | 'unsynced' | 'offline' | 'error';
   isAuthenticated: boolean;
@@ -18,6 +20,7 @@ type Props = {
 
 export default function LayerPanel({
   prefs,
+  appliedPrefs,
   setPrefsPartial,
   syncState,
   isAuthenticated,
@@ -74,126 +77,79 @@ export default function LayerPanel({
 
       {/* Overlays */}
       <div className='space-y-3'>
-        <div className='text-sm font-medium'>Overlays</div>
+        <div className='text-sm font-medium'>Data layer</div>
 
-        <ToggleRow
-          label='Flood severity'
-          value={prefs.overlays.flood}
-          onChange={(v) =>
-            setPrefsPartial({ overlays: { ...prefs.overlays, flood: v } })
-          }
-        />
+        <div className='grid grid-cols-2 gap-2'>
+          <button
+            className={`rounded-xl border px-3 py-2 text-sm ${
+              prefs.overlays.adminAreas
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-background'
+            }`}
+            onClick={() =>
+              setPrefsPartial({
+                overlays: {
+                  ...prefs.overlays,
+                  adminAreas: !prefs.overlays.adminAreas
+                }
+              })
+            }
+          >
+            Admin Areas
+          </button>
+          <button
+            className={`rounded-xl border px-3 py-2 text-sm ${
+              prefs.overlays.stations
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-background'
+            }`}
+            onClick={() =>
+              setPrefsPartial({
+                overlays: {
+                  ...prefs.overlays,
+                  stations: !prefs.overlays.stations
+                }
+              })
+            }
+          >
+            Stations
+          </button>
+          <button
+            className={`col-span-2 rounded-xl border px-3 py-2 text-sm ${
+              prefs.overlays.communityReports
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-background'
+            }`}
+            onClick={() =>
+              setPrefsPartial({
+                overlays: {
+                  ...prefs.overlays,
+                  communityReports: !prefs.overlays.communityReports
+                }
+              })
+            }
+          >
+            Community reports
+          </button>
+        </div>
 
-        <ToggleRow
-          label='Traffic'
-          value={prefs.overlays.traffic}
-          onChange={(v) =>
-            setPrefsPartial({ overlays: { ...prefs.overlays, traffic: v } })
-          }
-        />
-
-        <ToggleRow
-          label='Weather'
-          value={prefs.overlays.weather}
-          onChange={(v) =>
-            setPrefsPartial({ overlays: { ...prefs.overlays, weather: v } })
-          }
-        />
+        {(prefs.overlays.stations && !appliedPrefs.overlays.stations) ||
+        (prefs.overlays.communityReports &&
+          !appliedPrefs.overlays.communityReports) ? (
+          <p className='text-muted-foreground text-[11px] leading-snug'>
+            Lưu cài đặt để hiển thị stations / phản ánh cộng đồng trên bản đồ.
+          </p>
+        ) : null}
       </div>
 
-      {/* Opacity */}
-      <div className='space-y-3'>
-        <div className='text-sm font-medium'>Opacity</div>
-
-        <OpacityRow
-          label='Flood'
-          value={prefs.opacity?.flood ?? 80}
-          onChange={(val) =>
-            setPrefsPartial({ opacity: { ...prefs.opacity, flood: val } })
-          }
-        />
-
-        <OpacityRow
-          label='Weather'
-          value={prefs.opacity?.weather ?? 70}
-          onChange={(val) =>
-            setPrefsPartial({ opacity: { ...prefs.opacity, weather: val } })
-          }
-        />
-      </div>
-
-      <div className='text-muted-foreground text-xs'>
-        Tip: Click save to apply these settings next time.
-      </div>
-
-      {isAuthenticated && (
-        <button
-          onClick={() => saveManual()}
-          disabled={syncState === 'saving'}
-          className='bg-primary text-primary-foreground w-full rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50'
-        >
-          {syncState === 'saving' ? 'Saving...' : 'Save settings'}
-        </button>
-      )}
-    </div>
-  );
-}
-
-function ToggleRow({
-  label,
-  value,
-  onChange
-}: {
-  label: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div className='flex items-center justify-between gap-3'>
-      <div className='text-sm'>{label}</div>
       <button
         type='button'
-        className={`focus-visible:ring-ring focus-visible:ring-offset-background relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none ${
-          value ? 'bg-primary' : 'bg-input'
-        }`}
-        onClick={() => onChange(!value)}
-        aria-pressed={value}
+        onClick={() => void saveManual()}
+        disabled={syncState === 'saving'}
+        className='bg-primary text-primary-foreground w-full rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50'
       >
-        <span
-          className={`bg-background pointer-events-none block h-5 w-5 rounded-full shadow-lg ring-0 transition-transform ${
-            value ? 'translate-x-[22px]' : 'translate-x-0.5'
-          }`}
-        />
+        {syncState === 'saving' ? 'Saving...' : 'Save settings'}
       </button>
-    </div>
-  );
-}
-
-function OpacityRow({
-  label,
-  value,
-  onChange
-}: {
-  label: string;
-  value: number; // 0-100
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div className='space-y-1'>
-      <div className='flex items-center justify-between'>
-        <div className='text-sm'>{label}</div>
-        <div className='text-muted-foreground text-xs tabular-nums'>
-          {value}%
-        </div>
-      </div>
-      <input
-        type='range'
-        min={0}
-        max={100}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className='accent-primary h-2 w-full cursor-pointer'
-      />
     </div>
   );
 }

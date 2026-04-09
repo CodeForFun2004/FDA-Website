@@ -9,32 +9,32 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
     {
       label: 'Safe (< 10 cm)',
       key: 'safe',
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-500',
+      color: 'text-[#16A34A]',
+      bg: 'bg-[#16A34A]',
       icon: <Droplets className='h-3.5 w-3.5' />,
       ping: false
     },
     {
       label: 'Caution (10–20 cm)',
       key: 'caution',
-      color: 'text-yellow-600',
-      bg: 'bg-yellow-500',
+      color: 'text-[#CA8A04]',
+      bg: 'bg-[#CA8A04]',
       icon: <Activity className='h-3.5 w-3.5' />,
       ping: false
     },
     {
       label: 'Warning (20–40 cm)',
       key: 'warning',
-      color: 'text-orange-600',
-      bg: 'bg-orange-500',
+      color: 'text-[#EA580C]',
+      bg: 'bg-[#EA580C]',
       icon: <AlertTriangle className='h-3.5 w-3.5' />,
       ping: false
     },
     {
       label: 'Critical (≥ 40 cm)',
       key: 'critical',
-      color: 'text-red-600',
-      bg: 'bg-red-500',
+      color: 'text-[#DC2626]',
+      bg: 'bg-[#DC2626]',
       icon: null,
       ping: true
     }

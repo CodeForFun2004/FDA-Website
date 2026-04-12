@@ -1,6 +1,9 @@
 import { useQueries } from '@tanstack/react-query';
 import { stationsApi } from '@/features/stations/api/station.api';
-import { getAdministrativeAreasApi } from '@/features/admin/api/admin.api';
+import {
+  ADMINISTRATIVE_AREA_MAP_LEVEL,
+  getAdministrativeAreasTotalCount
+} from '@/features/admin/api/admin.api';
 import { getAccessToken } from '@/libs/auth-utils';
 import type { DashboardStats } from '../types';
 
@@ -32,9 +35,14 @@ export const useDashboardStats = (): DashboardStats => {
         retry: 2
       },
       {
-        queryKey: ['dashboard-admin-areas'],
+        queryKey: [
+          'dashboard-admin-areas-total',
+          ADMINISTRATIVE_AREA_MAP_LEVEL
+        ],
         queryFn: () =>
-          getAdministrativeAreasApi({ pageNumber: 1, pageSize: 1 }),
+          getAdministrativeAreasTotalCount({
+            level: ADMINISTRATIVE_AREA_MAP_LEVEL
+          }),
         staleTime: 60_000,
         retry: 2
       }
@@ -50,7 +58,7 @@ export const useDashboardStats = (): DashboardStats => {
     onlineStations: onlineQ.data?.total ?? 0,
     totalStations: totalQ.data?.totalCount ?? 0,
     offlineStations: offlineQ.data?.total ?? 0,
-    administrativeAreas: areasQ.data?.totalCount ?? 0,
+    administrativeAreas: typeof areasQ.data === 'number' ? areasQ.data : 0,
     onlineStationIds,
     isLoading,
     errors: {

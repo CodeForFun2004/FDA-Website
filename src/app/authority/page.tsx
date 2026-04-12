@@ -1,6 +1,7 @@
 // src/app/authority/page.tsx
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import {
   Card,
   CardContent,
@@ -8,6 +9,7 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/common';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   IconMapPin,
   IconAlertTriangle,
@@ -17,9 +19,28 @@ import {
   IconShieldCheck
 } from '@tabler/icons-react';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import {
+  ADMINISTRATIVE_AREA_MAP_LEVEL,
+  getAdministrativeAreasApi
+} from '@/features/admin/api/admin.api';
 
 export default function AuthorityDashboard() {
   const user = useAuthStore((state) => state.user);
+
+  const areasQuery = useQuery({
+    queryKey: ['authority-administrative-areas', ADMINISTRATIVE_AREA_MAP_LEVEL],
+    queryFn: () =>
+      getAdministrativeAreasApi({
+        pageNumber: 1,
+        pageSize: 500,
+        level: ADMINISTRATIVE_AREA_MAP_LEVEL
+      }),
+    staleTime: 60_000,
+    retry: 1
+  });
+
+  const areaRows = areasQuery.data?.administrativeAreas ?? [];
+  const areaTotal = areasQuery.data?.totalCount ?? areaRows.length;
 
   return (
     <div className='space-y-6'>
@@ -67,7 +88,13 @@ export default function AuthorityDashboard() {
             <IconBuildingCommunity className='text-muted-foreground h-4 w-4' />
           </CardHeader>
           <CardContent>
-            <div className='text-2xl font-bold'>12</div>
+            {areasQuery.isLoading ? (
+              <Skeleton className='h-8 w-14' />
+            ) : areasQuery.isError ? (
+              <div className='text-muted-foreground text-2xl font-bold'>—</div>
+            ) : (
+              <div className='text-2xl font-bold'>{areaTotal}</div>
+            )}
             <p className='text-muted-foreground text-xs'>
               Wards/communes monitored
             </p>
@@ -113,6 +140,51 @@ export default function AuthorityDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className='text-base'>Khu hành chính</CardTitle>
+          <CardDescription>
+            Đồng bộ từ hệ thống (administrative areas).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {areasQuery.isLoading ? (
+            <div className='space-y-2'>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className='h-4 w-full' />
+              ))}
+            </div>
+          ) : areasQuery.isError ? (
+            <p className='text-muted-foreground text-sm'>
+              Không tải được danh sách khu hành chính.
+            </p>
+          ) : areaRows.length === 0 ? (
+            <p className='text-muted-foreground text-sm'>Chưa có dữ liệu.</p>
+          ) : (
+            <ul className='max-h-56 space-y-1.5 overflow-y-auto text-sm'>
+              {areaRows.map((a) => (
+                <li
+                  key={a.id}
+                  className='text-foreground border-border/60 flex justify-between gap-2 border-b py-1.5 last:border-0'
+                >
+                  <span className='min-w-0 truncate font-medium'>{a.name}</span>
+                  <span className='text-muted-foreground shrink-0 text-xs uppercase'>
+                    {a.level}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {!areasQuery.isLoading &&
+            !areasQuery.isError &&
+            areaTotal > areaRows.length && (
+              <p className='text-muted-foreground mt-2 text-xs'>
+                Đang hiển thị {areaRows.length} / {areaTotal} bản ghi.
+              </p>
+            )}
+        </CardContent>
+      </Card>
 
       {/* Info Cards */}
       <div className='grid gap-4 md:grid-cols-2'>

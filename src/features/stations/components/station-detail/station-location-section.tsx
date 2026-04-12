@@ -24,7 +24,7 @@ export function StationLocationSection({
         </span>
       </CardHeader>
       <CardContent className='p-0'>
-        <div className='bg-muted relative h-64 w-full'>
+        <div className='bg-muted relative h-[min(28rem,55vh)] min-h-[22rem] w-full'>
           <iframe
             title='Station map'
             src={mapSrc}

@@ -12,8 +12,6 @@ import {
   BarChart3,
   History,
   BellRing,
-  Bell,
-  ShieldCheck,
   Map as MapIcon,
   Settings,
   Droplets,
@@ -109,20 +107,8 @@ const navItems: NavItem[] = [
       }
     ]
   },
-  {
-    type: 'link',
-    label: 'Alert Subscriptions',
-    href: '/admin/user-alert-subscription',
-    icon: Bell
-  },
   { type: 'link', label: 'Map & Zones', href: '/admin/zones', icon: MapIcon },
-  { type: 'link', label: 'Settings', href: '/admin/settings', icon: Settings },
-  {
-    type: 'link',
-    label: 'Logs & Audit',
-    href: '/admin/logs',
-    icon: ShieldCheck
-  }
+  { type: 'link', label: 'Settings', href: '/admin/settings', icon: Settings }
 ];
 
 function isGroupActive(group: NavGroup, pathname: string) {

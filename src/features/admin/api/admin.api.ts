@@ -10,8 +10,65 @@ import type {
   DeleteUserResponse,
   GetAdminStatsResponse,
   GetAdministrativeAreasResponse,
-  GetFloodEventsResponse
+  GetFloodEventsResponse,
+  AdministrativeArea
 } from '../types/admin.type';
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null;
+}
+
+function readNum(v: unknown): number | undefined {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  if (typeof v === 'string' && v.trim() !== '') {
+    const n = Number(v);
+    if (Number.isFinite(n)) return n;
+  }
+  return undefined;
+}
+
+function tryAreaArray(v: unknown): unknown[] | null {
+  if (!Array.isArray(v)) return null;
+  return v;
+}
+
+/**
+ * Chuẩn hóa JSON từ GET /admin/administrative-areas (root hoặc bọc data/Data).
+ */
+export function normalizeAdministrativeAreasResponse(
+  raw: unknown
+): GetAdministrativeAreasResponse {
+  const root = isRecord(raw) ? raw : {};
+  const inner = isRecord(root.data)
+    ? root.data
+    : isRecord(root.Data)
+      ? root.Data
+      : root;
+
+  const areas =
+    tryAreaArray(inner.administrativeAreas) ??
+    tryAreaArray(inner.AdministrativeAreas) ??
+    tryAreaArray(inner.items) ??
+    tryAreaArray(inner.Items) ??
+    tryAreaArray(inner.results) ??
+    tryAreaArray(inner.Results) ??
+    [];
+
+  const totalCount =
+    readNum(inner.totalCount) ??
+    readNum(inner.TotalCount) ??
+    readNum(root.totalCount) ??
+    readNum(root.TotalCount) ??
+    areas.length;
+
+  return {
+    success: Boolean(root.success ?? inner.success ?? true),
+    message: String(root.message ?? inner.message ?? ''),
+    statusCode: readNum(root.statusCode ?? inner.statusCode) ?? 200,
+    administrativeAreas: areas as AdministrativeArea[],
+    totalCount
+  };
+}
 
 // ===== API Functions =====
 
@@ -126,13 +183,13 @@ export function getAdminStatsApi() {
  * GET /admin/administrative-areas
  * Get list of administrative areas (requires auth)
  */
-export function getAdministrativeAreasApi(params?: {
+export async function getAdministrativeAreasApi(params?: {
   pageNumber?: number;
   pageSize?: number;
   searchTerm?: string;
   level?: string;
   parentId?: string;
-}) {
+}): Promise<GetAdministrativeAreasResponse> {
   const searchParams = new URLSearchParams();
   searchParams.set('pageNumber', String(params?.pageNumber ?? 1));
   searchParams.set('pageSize', String(params?.pageSize ?? 10));
@@ -140,10 +197,58 @@ export function getAdministrativeAreasApi(params?: {
   if (params?.level) searchParams.set('level', params.level);
   if (params?.parentId) searchParams.set('parentId', params.parentId);
 
-  return apiFetch<GetAdministrativeAreasResponse>(
+  const raw = await apiFetch<unknown>(
     `/admin/administrative-areas?${searchParams.toString()}`,
     { method: 'GET' }
   );
+  return normalizeAdministrativeAreasResponse(raw);
+}
+
+const ADMIN_AREAS_COUNT_PAGE_SIZE = 500;
+
+/** Trùng với `fetchAllAdministrativeAreas({ level: 'ward' })` trên Map & Zones. */
+export const ADMINISTRATIVE_AREA_MAP_LEVEL = 'ward';
+
+/**
+ * Tổng số bản ghi administrative areas — gom pagination để khớp list thực tế
+ * (tránh totalCount meta sai hoặc shape JSON lệch).
+ * @param options.level — ví dụ `'ward'` để khớp số trên bản đồ (mặc định map chỉ load ward).
+ */
+export async function getAdministrativeAreasTotalCount(options?: {
+  level?: string;
+}): Promise<number> {
+  const level = options?.level;
+  let pageNumber = 1;
+  let sum = 0;
+  const maxPages = 50;
+
+  while (pageNumber <= maxPages) {
+    const res = await getAdministrativeAreasApi({
+      pageNumber,
+      pageSize: ADMIN_AREAS_COUNT_PAGE_SIZE,
+      ...(level ? { level } : {})
+    });
+    const batch = res.administrativeAreas ?? [];
+    sum += batch.length;
+
+    if (batch.length === 0) break;
+    if (batch.length < ADMIN_AREAS_COUNT_PAGE_SIZE) break;
+
+    // Khi filter level, totalCount từ BE đôi khi là tổng mọi level → không dùng để dừng sớm.
+    const reported = res.totalCount;
+    if (
+      !level &&
+      typeof reported === 'number' &&
+      reported > 0 &&
+      sum >= reported
+    ) {
+      break;
+    }
+
+    pageNumber += 1;
+  }
+
+  return sum;
 }
 
 /**

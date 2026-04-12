@@ -13,16 +13,22 @@ import type { FrequencyAnalyticsPoint } from '@/features/analytics/types/analyti
 export function FrequencyChartCard(props: {
   data: FrequencyAnalyticsPoint[];
   isEmpty?: boolean;
+  /** Gộp trong card cha (bỏ viền Card lồng) */
+  noOuterCard?: boolean;
 }) {
   const totalEvents = props.data.reduce((s, p) => s + p.eventCount, 0);
   const totalExceed = props.data.reduce((s, p) => s + p.exceedCount, 0);
+  const empty = props.data.length === 0;
 
-  return (
-    <Card className='border-border shadow-none'>
-      <CardHeader className='pb-3'>
-        <CardTitle className='text-sm'>Frequency trend</CardTitle>
-      </CardHeader>
-      <CardContent className='space-y-4'>
+  const body = (
+    <div className='space-y-4'>
+      {empty ? (
+        <div className='text-muted-foreground flex h-[280px] items-center justify-center rounded-md border border-dashed text-sm'>
+          Chưa có dữ liệu frequency — chọn Area cụ thể và Apply (hoặc chờ job
+          aggregation).
+        </div>
+      ) : null}
+      {!empty ? (
         <div className='grid grid-cols-3 gap-3 text-xs'>
           <div className='rounded-md border p-3'>
             <div className='text-muted-foreground'>Total events</div>
@@ -47,7 +53,9 @@ export function FrequencyChartCard(props: {
             </div>
           </div>
         </div>
+      ) : null}
 
+      {!empty ? (
         <div className='h-[280px]'>
           <ChartContainer
             config={{
@@ -83,7 +91,27 @@ export function FrequencyChartCard(props: {
             </Recharts.ComposedChart>
           </ChartContainer>
         </div>
-      </CardContent>
+      ) : null}
+    </div>
+  );
+
+  if (props.noOuterCard) {
+    return (
+      <div className='space-y-3'>
+        <h3 className='text-foreground text-sm font-semibold'>
+          Frequency trend
+        </h3>
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <Card className='border-border shadow-none'>
+      <CardHeader className='pb-3'>
+        <CardTitle className='text-sm'>Frequency trend</CardTitle>
+      </CardHeader>
+      <CardContent className='space-y-4'>{body}</CardContent>
     </Card>
   );
 }

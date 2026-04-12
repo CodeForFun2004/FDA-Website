@@ -251,6 +251,48 @@ export async function getAdministrativeAreasTotalCount(options?: {
   return sum;
 }
 
+const ADMIN_AREAS_FETCH_MAX_PAGES = 50;
+
+/**
+ * Gom toàn bộ administrative areas (phân trang phía server) cho dropdown/filter.
+ * Không filter level — đồng bộ với job aggregation dùng danh sách đầy đủ.
+ */
+export async function fetchAllAdministrativeAreasForSelect(options?: {
+  level?: string;
+}): Promise<AdministrativeArea[]> {
+  const level = options?.level;
+  const pageSize = ADMIN_AREAS_COUNT_PAGE_SIZE;
+  const all: AdministrativeArea[] = [];
+  let pageNumber = 1;
+
+  while (pageNumber <= ADMIN_AREAS_FETCH_MAX_PAGES) {
+    const res = await getAdministrativeAreasApi({
+      pageNumber,
+      pageSize,
+      ...(level ? { level } : {})
+    });
+    const batch = res.administrativeAreas ?? [];
+    all.push(...batch);
+
+    if (batch.length === 0) break;
+    if (batch.length < pageSize) break;
+
+    const reported = res.totalCount;
+    if (
+      !level &&
+      typeof reported === 'number' &&
+      reported > 0 &&
+      all.length >= reported
+    ) {
+      break;
+    }
+
+    pageNumber += 1;
+  }
+
+  return all;
+}
+
 /**
  * GET /admin/flood-events
  * List flood events (requires auth)

@@ -13,7 +13,6 @@ import {
   History,
   BellRing,
   Map as MapIcon,
-  Settings,
   Droplets,
   SmartphoneNfc,
   Newspaper,
@@ -107,8 +106,7 @@ const navItems: NavItem[] = [
       }
     ]
   },
-  { type: 'link', label: 'Map & Zones', href: '/admin/zones', icon: MapIcon },
-  { type: 'link', label: 'Settings', href: '/admin/settings', icon: Settings }
+  { type: 'link', label: 'Map & Zones', href: '/admin/zones', icon: MapIcon }
 ];
 
 function isGroupActive(group: NavGroup, pathname: string) {

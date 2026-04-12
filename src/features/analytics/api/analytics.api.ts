@@ -38,6 +38,43 @@ export class AnalyticsApiError extends Error {
   }
 }
 
+function extractErrorMessage(data: unknown, status: number): string {
+  if (data == null) return `Request failed (${status})`;
+  if (typeof data === 'string') {
+    const t = data.trim();
+    return t || `Request failed (${status})`;
+  }
+  if (typeof data !== 'object') return `Request failed (${status})`;
+
+  const o = data as Record<string, unknown>;
+  if (typeof o.message === 'string' && o.message.trim()) return o.message;
+
+  const title = typeof o.title === 'string' ? o.title.trim() : '';
+  const detail = typeof o.detail === 'string' ? o.detail.trim() : '';
+  if (title && detail) return `${title}: ${detail}`;
+  if (detail) return detail;
+  if (title) return title;
+
+  const errors = o.errors;
+  if (errors && typeof errors === 'object' && !Array.isArray(errors)) {
+    const parts: string[] = [];
+    for (const [k, v] of Object.entries(errors as Record<string, unknown>)) {
+      if (Array.isArray(v))
+        parts.push(
+          `${k}: ${v.filter((x) => typeof x === 'string').join(', ')}`
+        );
+      else if (typeof v === 'string') parts.push(`${k}: ${v}`);
+    }
+    if (parts.length) return parts.join(' | ');
+  }
+
+  try {
+    return JSON.stringify(data);
+  } catch {
+    return `Request failed (${status})`;
+  }
+}
+
 async function postJson<T>(
   url: string,
   body: unknown,
@@ -67,9 +104,7 @@ async function postJson<T>(
     : await res.text().catch(() => null);
 
   if (!res.ok) {
-    const msg =
-      (data && typeof data === 'object' && (data as any).message) ||
-      `Request failed (${res.status})`;
+    const msg = extractErrorMessage(data, res.status);
     throw new AnalyticsApiError(msg, res.status, data);
   }
 
@@ -98,13 +133,19 @@ async function getJson<T>(url: string, accessToken?: string): Promise<T> {
     : await res.text().catch(() => null);
 
   if (!res.ok) {
-    const msg =
-      (data && typeof data === 'object' && (data as any).message) ||
-      `Request failed (${res.status})`;
+    const msg = extractErrorMessage(data, res.status);
     throw new AnalyticsApiError(msg, res.status, data);
   }
 
   return data as T;
+}
+
+/** GET /analytics/frequency|severity — BE UAT dùng dd-MM-yyyy trong query. */
+function toQueryDateDdMmYyyy(yyyyMmDd: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(yyyyMmDd.trim());
+  if (!m) return yyyyMmDd;
+  const [, y, mo, d] = m;
+  return `${d}-${mo}-${y}`;
 }
 
 function toAreaIds(
@@ -158,7 +199,8 @@ export const analyticsApi = {
       periodStart?: string;
       periodEnd?: string;
       topN?: number;
-      areaLevel?: string;
+      /** BE bắt buộc ward | street */
+      areaLevel: string;
     },
     accessToken?: string
   ): Promise<HotspotRankingsResponse> {
@@ -167,7 +209,7 @@ export const analyticsApi = {
     if (params.periodEnd) searchParams.set('periodEnd', params.periodEnd);
     if (typeof params.topN === 'number')
       searchParams.set('topN', String(params.topN));
-    if (params.areaLevel) searchParams.set('areaLevel', params.areaLevel);
+    searchParams.set('areaLevel', params.areaLevel);
 
     const url =
       searchParams.size > 0
@@ -189,8 +231,10 @@ export const analyticsApi = {
     const searchParams = new URLSearchParams();
     searchParams.set('administrativeAreaId', params.administrativeAreaId);
     searchParams.set('bucketType', params.bucketType);
-    if (params.startDate) searchParams.set('startDate', params.startDate);
-    if (params.endDate) searchParams.set('endDate', params.endDate);
+    if (params.startDate)
+      searchParams.set('startDate', toQueryDateDdMmYyyy(params.startDate));
+    if (params.endDate)
+      searchParams.set('endDate', toQueryDateDdMmYyyy(params.endDate));
 
     const url = `${ENDPOINTS.frequencyAnalytics}?${searchParams.toString()}`;
     return getJson<FrequencyAnalyticsResponse>(url, accessToken);
@@ -208,8 +252,10 @@ export const analyticsApi = {
     const searchParams = new URLSearchParams();
     searchParams.set('administrativeAreaId', params.administrativeAreaId);
     searchParams.set('bucketType', params.bucketType);
-    if (params.startDate) searchParams.set('startDate', params.startDate);
-    if (params.endDate) searchParams.set('endDate', params.endDate);
+    if (params.startDate)
+      searchParams.set('startDate', toQueryDateDdMmYyyy(params.startDate));
+    if (params.endDate)
+      searchParams.set('endDate', toQueryDateDdMmYyyy(params.endDate));
 
     const url = `${ENDPOINTS.severityAnalytics}?${searchParams.toString()}`;
     return getJson<SeverityAnalyticsResponse>(url, accessToken);

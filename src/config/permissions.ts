@@ -26,7 +26,7 @@ export const ROUTE_PERMISSIONS: RoutePermissions[] = [
   // Authority routes
   {
     path: '/authority',
-    allowedRoles: ['SUPER_ADMIN', 'AUTHORITY'], // SUPER_ADMIN can access everything
+    allowedRoles: ['AUTHORITY'],
     requireAuth: true
   },
 

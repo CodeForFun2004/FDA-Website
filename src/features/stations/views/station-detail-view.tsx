@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, AlertTriangle } from 'lucide-react';
@@ -27,6 +27,10 @@ export default function StationDetailView({
   stationId
 }: StationDetailViewProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const stationsIndexPath = pathname.startsWith('/authority')
+    ? '/authority/stations'
+    : '/admin/stations';
   const [station, setStation] = useState<Station | null>(null);
   const [stationStatus, setStationStatus] =
     useState<GetStationStatusResponse | null>(null);
@@ -92,7 +96,7 @@ export default function StationDetailView({
         <p className='text-muted-foreground text-lg'>Station not found</p>
         <Button
           variant='outline'
-          onClick={() => router.push('/admin/stations')}
+          onClick={() => router.push(stationsIndexPath)}
         >
           <ArrowLeft className='mr-2 h-4 w-4' />
           Back to Stations
@@ -124,7 +128,7 @@ export default function StationDetailView({
               variant='ghost'
               size='icon'
               className='h-8 w-8'
-              onClick={() => router.push('/admin/stations')}
+              onClick={() => router.push(stationsIndexPath)}
             >
               <ArrowLeft className='h-4 w-4' />
             </Button>

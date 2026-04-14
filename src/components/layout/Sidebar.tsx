@@ -40,7 +40,7 @@ type NavGroup = {
 
 type NavItem = NavLink | NavGroup;
 
-const navItems: NavItem[] = [
+const navItemsAdmin: NavItem[] = [
   {
     type: 'link',
     label: 'Bảng điều khiển',
@@ -114,6 +114,57 @@ const navItems: NavItem[] = [
   }
 ];
 
+const navItemsAuthority: NavItem[] = [
+  {
+    type: 'link',
+    label: 'Bảng điều khiển',
+    href: '/authority',
+    icon: LayoutDashboard,
+    exact: true
+  },
+  {
+    type: 'link',
+    label: 'Lịch sử ngập',
+    href: '/authority/flood-history',
+    icon: History
+  },
+  {
+    type: 'link',
+    label: 'Trạm quan trắc',
+    href: '/authority/stations',
+    icon: SmartphoneNfc
+  },
+  {
+    type: 'group',
+    label: 'Cảnh báo & tin',
+    icon: BellRing,
+    children: [
+      {
+        label: 'Mẫu cảnh báo',
+        href: '/authority/alerts',
+        icon: BellRing
+      },
+      {
+        label: 'Tin tức',
+        href: '/authority/news',
+        icon: Newspaper
+      }
+    ]
+  },
+  {
+    type: 'link',
+    label: 'Bản đồ & vùng',
+    href: '/authority/zones',
+    icon: MapIcon
+  },
+  {
+    type: 'link',
+    label: 'Tác vụ',
+    href: '/authority/tasks',
+    icon: ServerCog
+  }
+];
+
 function isGroupActive(group: NavGroup, pathname: string) {
   return group.children.some((c) => pathname.startsWith(c.href));
 }
@@ -121,6 +172,8 @@ function isGroupActive(group: NavGroup, pathname: string) {
 export const Sidebar = () => {
   const { isSidebarOpen, toggleSidebar } = useAppStore();
   const pathname = usePathname();
+  const isAuthorityPortal = pathname.startsWith('/authority');
+  const navItems = isAuthorityPortal ? navItemsAuthority : navItemsAdmin;
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     for (const item of navItems) {
@@ -284,7 +337,7 @@ export const Sidebar = () => {
                 !isSidebarOpen && 'lg:w-0 lg:overflow-hidden lg:opacity-0'
               )}
             >
-              FDA Admin
+              {isAuthorityPortal ? 'FDA Authority' : 'FDA Admin'}
             </span>
           </div>
         </div>

@@ -38,10 +38,17 @@ function fmtNum(n?: number | null) {
 async function copy(text: string) {
   try {
     await navigator.clipboard.writeText(text);
-    toast.success('Copied');
+    toast.success('Đã sao chép');
   } catch {
-    toast.error('Copy failed');
+    toast.error('Sao chép thất bại');
   }
+}
+
+function jobStatusLabel(s: JobStatus) {
+  if (s === 'SUCCESS') return 'Thành công';
+  if (s === 'FAILED') return 'Thất bại';
+  if (s === 'RUNNING') return 'Đang chạy';
+  return s;
 }
 
 function elapsedPercent(run: JobRun) {
@@ -67,16 +74,16 @@ export function JobMonitorPanel(props: {
   const Table = ({ rows }: { rows: JobRun[] }) => (
     <div className='overflow-hidden rounded-lg border'>
       <div className='bg-muted grid grid-cols-12 gap-2 px-3 py-2 text-[11px] font-medium'>
-        <div className='col-span-3'>Job</div>
-        <div className='col-span-2'>Status</div>
-        <div className='col-span-3'>Started</div>
-        <div className='col-span-2'>Exec</div>
-        <div className='col-span-2 text-right'>Actions</div>
+        <div className='col-span-3'>Tác vụ</div>
+        <div className='col-span-2'>Trạng thái</div>
+        <div className='col-span-3'>Bắt đầu</div>
+        <div className='col-span-2'>Thời gian chạy</div>
+        <div className='col-span-2 text-right'>Thao tác</div>
       </div>
       <div className='divide-border divide-y'>
         {rows.length === 0 ? (
           <div className='text-muted-foreground px-3 py-8 text-center text-sm'>
-            No runs.
+            Chưa có lần chạy.
           </div>
         ) : (
           rows.map((r) => (
@@ -87,11 +94,11 @@ export function JobMonitorPanel(props: {
               <div className='col-span-3 truncate font-mono'>{r.jobRunId}</div>
               <div className='col-span-2'>
                 <Badge variant={statusVariant(r.status) as any}>
-                  {r.status}
+                  {jobStatusLabel(r.status)}
                 </Badge>
               </div>
               <div className='text-muted-foreground col-span-3 truncate'>
-                {new Date(r.startedAt).toLocaleString()}
+                {new Date(r.startedAt).toLocaleString('vi-VN')}
               </div>
               <div className='text-muted-foreground col-span-2'>
                 {fmtMs(r.executionTimeMs)}
@@ -102,25 +109,25 @@ export function JobMonitorPanel(props: {
                   variant='ghost'
                   size='icon'
                   onClick={() => void copy(r.jobRunId)}
-                  aria-label='Copy'
+                  aria-label='Sao chép'
                 >
                   <Copy className='h-4 w-4' />
                 </Button>
                 <Button
                   type='button'
                   variant='ghost'
-                  size='icon'
+                  size='sm'
+                  className='h-8 text-[10px]'
                   onClick={() => props.onViewDetails(r.jobRunId)}
-                  aria-label='View'
                 >
-                  View
+                  Xem
                 </Button>
                 <Button
                   type='button'
                   variant='ghost'
                   size='icon'
                   onClick={() => props.onRetry(r.jobRunId)}
-                  aria-label='Retry'
+                  aria-label='Thử lại'
                 >
                   <RotateCcw className='h-4 w-4' />
                 </Button>
@@ -135,7 +142,7 @@ export function JobMonitorPanel(props: {
                 <div className='col-span-12 mt-1'>
                   <div className='text-muted-foreground flex items-center justify-between text-[11px]'>
                     <span>
-                      processing… processed {fmtNum(r.recordsProcessed)} records
+                      Đang xử lý… {fmtNum(r.recordsProcessed)} bản ghi
                     </span>
                     <span>{elapsedPercent(r)}%</span>
                   </div>
@@ -153,12 +160,12 @@ export function JobMonitorPanel(props: {
     <Card className='border-border shadow-none' id='job-monitor'>
       <CardHeader className='pb-3'>
         <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-          <CardTitle className='text-sm'>Live job monitor</CardTitle>
+          <CardTitle className='text-sm'>Giám sát tác vụ</CardTitle>
           {props.onTrackJobRunId ? (
             <div className='flex items-center gap-2'>
               <Input
                 className='h-9 w-[240px]'
-                placeholder='Paste jobRunId…'
+                placeholder='Dán mã jobRunId…'
                 value={trackValue}
                 onChange={(e) => setTrackValue(e.target.value)}
               />
@@ -172,7 +179,7 @@ export function JobMonitorPanel(props: {
                   setTrackValue('');
                 }}
               >
-                Track
+                Theo dõi
               </Button>
             </div>
           ) : null}
@@ -185,19 +192,19 @@ export function JobMonitorPanel(props: {
               value='running'
               className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
             >
-              Running ({running.length})
+              Đang chạy ({running.length})
             </TabsTrigger>
             <TabsTrigger
               value='recent'
               className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
             >
-              Recent
+              Gần đây
             </TabsTrigger>
             <TabsTrigger
               value='failed'
               className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
             >
-              Failed ({failed.length})
+              Lỗi ({failed.length})
             </TabsTrigger>
           </TabsList>
           <TabsContent value='running'>

@@ -32,7 +32,6 @@ export const adminAreasColumns: ColumnDef<AdministrativeArea>[] = [
       options: [
         { label: 'Province', value: 'province' },
         { label: 'District', value: 'district' },
-        { label: 'Ward', value: 'ward' },
         { label: 'Street', value: 'street' }
       ]
     }

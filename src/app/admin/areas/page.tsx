@@ -20,8 +20,8 @@ export default async function Page(props: PageProps) {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Areas'
-      pageDescription='Manage areas (Server side table functionalities.)'
+      pageTitle='Khu vực hành chính'
+      pageDescription='Quản lý đơn vị hành chính và ranh giới phục vụ bản đồ.'
     >
       <Suspense
         fallback={

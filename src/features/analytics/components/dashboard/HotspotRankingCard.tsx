@@ -37,8 +37,8 @@ export function HotspotRankingCard(props: {
     <div className='space-y-2'>
       {rows.length === 0 ? (
         <div className='text-muted-foreground rounded-md border border-dashed p-4 text-center text-sm'>
-          Không có dữ liệu hotspot (kiểm tra khoảng thời gian / Hangfire job
-          hoặc mở rộng Top N).
+          Chưa có dữ liệu — thử đổi khoảng thời gian hoặc tăng số bản ghi lấy
+          về.
         </div>
       ) : (
         rows.map((r) => {
@@ -64,7 +64,7 @@ export function HotspotRankingCard(props: {
                   <div className='text-foreground text-sm font-semibold'>
                     {fmt(r.score)}
                   </div>
-                  <div className='text-muted-foreground text-[11px]'>score</div>
+                  <div className='text-muted-foreground text-[11px]'>điểm</div>
                 </div>
               </div>
 
@@ -72,15 +72,15 @@ export function HotspotRankingCard(props: {
 
               <div className='mt-3 grid grid-cols-3 gap-2 text-[11px]'>
                 <div className='bg-muted/40 rounded-md p-2'>
-                  <div className='text-muted-foreground'>frequency</div>
+                  <div className='text-muted-foreground'>Tần suất</div>
                   <div className='font-medium'>{fmt(r.frequencyScore)}</div>
                 </div>
                 <div className='bg-muted/40 rounded-md p-2'>
-                  <div className='text-muted-foreground'>severity</div>
+                  <div className='text-muted-foreground'>Mức độ</div>
                   <div className='font-medium'>{fmt(r.severityScore)}</div>
                 </div>
                 <div className='bg-muted/40 rounded-md p-2'>
-                  <div className='text-muted-foreground'>duration</div>
+                  <div className='text-muted-foreground'>Thời lượng</div>
                   <div className='font-medium'>{fmt(r.durationScore)}</div>
                 </div>
               </div>
@@ -95,7 +95,7 @@ export function HotspotRankingCard(props: {
     total > 0 && totalPages > 1 ? (
       <div className='text-muted-foreground flex flex-col items-center gap-2 pt-2 sm:flex-row sm:justify-between'>
         <span className='text-[11px]'>
-          {start + 1}–{Math.min(start + pageSize, total)} / {total} (API top{' '}
+          {start + 1}–{Math.min(start + pageSize, total)} / {total} (tối đa{' '}
           {props.apiTopN})
         </span>
         <Pagination
@@ -107,7 +107,7 @@ export function HotspotRankingCard(props: {
       </div>
     ) : total > 0 ? (
       <p className='text-muted-foreground pt-1 text-[11px]'>
-        {total} bản ghi (API top {props.apiTopN})
+        {total} bản ghi (tối đa {props.apiTopN})
       </p>
     ) : null;
 
@@ -115,7 +115,7 @@ export function HotspotRankingCard(props: {
     return (
       <div className='space-y-3'>
         <h3 className='text-foreground text-sm font-semibold'>
-          Hotspot ranking
+          Xếp hạng điểm nóng
         </h3>
         {list}
         {pager}
@@ -126,12 +126,11 @@ export function HotspotRankingCard(props: {
   return (
     <Card className='border-border shadow-none'>
       <CardHeader className='pb-3'>
-        <CardTitle className='text-sm'>Hotspot ranking</CardTitle>
+        <CardTitle className='text-sm'>Xếp hạng điểm nóng</CardTitle>
       </CardHeader>
       <CardContent className='space-y-3'>
         <div className='text-muted-foreground text-xs leading-relaxed'>
-          Ranking for reporting purposes. Hotspot map (FE-18) is not yet
-          implemented, but the leaderboard is already usable.
+          Danh sách khu vực có điểm ngập cao trong kỳ đã chọn.
         </div>
         {list}
         {pager}

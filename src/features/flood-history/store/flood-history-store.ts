@@ -30,6 +30,8 @@ type FloodHistoryState = {
 
   clearError: () => void;
   reset: () => void;
+  /** Khi không gọi flood-statistics (vd. preset giờ — BE hay 400) */
+  clearStatistics: () => void;
 };
 
 const initialState = {
@@ -135,5 +137,6 @@ export const useFloodHistoryStore = create<FloodHistoryState>()((set) => ({
   },
 
   clearError: () => set({ error: null }),
-  reset: () => set(initialState)
+  reset: () => set(initialState),
+  clearStatistics: () => set({ statistics: [] })
 }));

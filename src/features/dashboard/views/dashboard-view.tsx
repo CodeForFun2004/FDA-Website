@@ -39,24 +39,24 @@ import Link from 'next/link';
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function rainfallLabel(mm: number) {
-  if (mm <= 0) return 'No Rain';
-  if (mm < 2.5) return 'Light Rain';
-  if (mm < 7.6) return 'Moderate Rain';
-  return 'Heavy Rain';
+  if (mm <= 0) return 'Không mưa';
+  if (mm < 2.5) return 'Mưa nhẹ';
+  if (mm < 7.6) return 'Mưa vừa';
+  return 'Mưa to';
 }
 
 function humidityLabel(pct: number) {
-  if (pct < 30) return 'Dry';
-  if (pct < 60) return 'Comfortable';
-  if (pct < 80) return 'Humid';
-  return 'Very Humid';
+  if (pct < 30) return 'Khô';
+  if (pct < 60) return 'Dễ chịu';
+  if (pct < 80) return 'Ẩm';
+  return 'Rất ẩm';
 }
 
 function dischargeLabel(avg: number) {
-  if (avg < 50) return 'Low Flow';
-  if (avg < 200) return 'Normal Flow';
-  if (avg < 500) return 'High Flow';
-  return 'Flood Risk';
+  if (avg < 50) return 'Lưu lượng thấp';
+  if (avg < 200) return 'Bình thường';
+  if (avg < 500) return 'Cao';
+  return 'Nguy cơ lũ';
 }
 
 const SEVERITY_STYLES: Record<
@@ -221,6 +221,14 @@ function DischargeTooltip({ active, label, payload }: any) {
   );
 }
 
+const SEVERITY_VI: Record<string, string> = {
+  critical: 'Nguy kịch',
+  alarm: 'Báo động',
+  warning: 'Cảnh báo',
+  safe: 'An toàn',
+  unknown: 'Chưa rõ'
+};
+
 function StationStatusItem({ station }: { station: FloodStationProperties }) {
   const severity = station.severity ?? 'unknown';
   const style = SEVERITY_STYLES[severity] ?? SEVERITY_STYLES.unknown;
@@ -236,8 +244,8 @@ function StationStatusItem({ station }: { station: FloodStationProperties }) {
         <p className='text-foreground line-clamp-1 text-sm leading-snug font-semibold'>
           {station.waterLevel != null
             ? `${station.waterLevel.toFixed(2)} ${station.unit}`
-            : 'No data'}{' '}
-          — {severity}
+            : 'Không có số liệu'}{' '}
+          — {SEVERITY_VI[severity] ?? severity}
         </p>
         <p className='text-muted-foreground line-clamp-1 text-xs'>
           {station.stationName} ({station.stationCode})
@@ -331,10 +339,10 @@ export function DashboardView({
       <div className='flex flex-col justify-between gap-4 md:flex-row md:items-center'>
         <div>
           <h1 className='text-foreground text-3xl font-bold tracking-tight'>
-            Overview
+            Tổng quan
           </h1>
           <p className='text-muted-foreground mt-1'>
-            Real-time flood monitoring for Da Nang region
+            Giám sát ngập và thời tiết khu vực
           </p>
         </div>
         <div className='flex gap-3'>
@@ -344,7 +352,7 @@ export function DashboardView({
               className='rounded-full'
               onClick={onViewFloodMap}
             >
-              <MapIcon className='mr-2 h-4 w-4' /> View Flood Map
+              <MapIcon className='mr-2 h-4 w-4' /> Mở bản đồ ngập
             </Button>
           </Link>
           <Link href='/admin/stations'>
@@ -352,7 +360,7 @@ export function DashboardView({
               className='rounded-full shadow-lg shadow-blue-500/20'
               onClick={onViewStations}
             >
-              <Activity className='mr-2 h-4 w-4' /> View Stations
+              <Activity className='mr-2 h-4 w-4' /> Danh sách trạm
             </Button>
           </Link>
         </div>
@@ -361,7 +369,7 @@ export function DashboardView({
       {/* Stats Grid */}
       <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-4'>
         <StatCard
-          title='Total Stations'
+          title='Tổng trạm'
           value={stats.totalStations}
           icon={Radio}
           colorClass='text-indigo-600'
@@ -369,7 +377,7 @@ export function DashboardView({
           isError={stats.errors.totalStations}
         />
         <StatCard
-          title='Online Stations'
+          title='Trạm hoạt động'
           value={stats.onlineStations}
           icon={Activity}
           colorClass='text-blue-600'
@@ -377,7 +385,7 @@ export function DashboardView({
           isError={stats.errors.onlineStations}
         />
         <StatCard
-          title='Offline Stations'
+          title='Trạm mất kết nối'
           value={stats.offlineStations}
           icon={WifiOff}
           colorClass='text-red-600'
@@ -385,7 +393,7 @@ export function DashboardView({
           isError={stats.errors.offlineStations}
         />
         <StatCard
-          title='Administrative Areas'
+          title='Khu vực hành chính'
           value={stats.administrativeAreas}
           icon={MapPin}
           colorClass='text-emerald-600'
@@ -398,16 +406,16 @@ export function DashboardView({
       <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-7'>
         <Card className='col-span-4 border-none bg-gradient-to-br from-white to-slate-50 shadow-sm dark:from-slate-900 dark:to-slate-950'>
           <CardHeader>
-            <CardTitle>River Discharge Forecast</CardTitle>
+            <CardTitle>Dự báo lưu lượng sông</CardTitle>
             <p className='text-muted-foreground text-sm'>
-              Vu Gia — Thu Bon Basin, 14 Day Outlook (m&#179;/s)
+              Lưu vực Vu Gia — Thu Bồn, 14 ngày (m&#179;/s)
             </p>
           </CardHeader>
           <CardContent className='pl-0'>
             {floodForecastQ.isError ? (
               <div className='flex h-[350px] items-center justify-center'>
                 <p className='text-muted-foreground text-sm'>
-                  Failed to load forecast data.
+                  Không tải được dự báo.
                 </p>
               </div>
             ) : (
@@ -474,7 +482,7 @@ export function DashboardView({
 
         <Card className='col-span-3'>
           <CardHeader>
-            <CardTitle>Station Flood Status</CardTitle>
+            <CardTitle>Trạng thái ngập tại trạm</CardTitle>
           </CardHeader>
           <CardContent>
             <div className='space-y-3'>
@@ -492,7 +500,7 @@ export function DashboardView({
                 </div>
               ) : floodStatusQ.isError ? (
                 <p className='text-muted-foreground text-sm'>
-                  Failed to load station status.
+                  Không tải được trạng thái trạm.
                 </p>
               ) : stationStatusItems.length > 0 ? (
                 stationStatusItems.map((s) => (
@@ -503,7 +511,7 @@ export function DashboardView({
                 ))
               ) : (
                 <p className='text-muted-foreground text-sm'>
-                  No station data available.
+                  Chưa có dữ liệu trạm.
                 </p>
               )}
             </div>
@@ -520,16 +528,16 @@ export function DashboardView({
               <div className='rounded-lg bg-white/20 p-2'>
                 <Droplets className='h-5 w-5' />
               </div>
-              <h4 className='font-semibold'>Rainfall Intensity</h4>
+              <h4 className='font-semibold'>Cường độ mưa</h4>
             </div>
             <div className='flex items-end gap-2'>
               <p className='text-4xl font-bold'>
                 {weatherQ.isError ? '--' : precipitation.toFixed(1)}
               </p>
-              <p className='mb-1 text-lg opacity-80'>mm/hr</p>
+              <p className='mb-1 text-lg opacity-80'>mm/giờ</p>
             </div>
             <p className='mt-2 inline-block rounded-md bg-white/20 px-2 py-1 text-sm opacity-90'>
-              {weatherQ.isError ? 'Unavailable' : rainfallLabel(precipitation)}
+              {weatherQ.isError ? 'Không có' : rainfallLabel(precipitation)}
             </p>
           </CardContent>
         </Card>
@@ -542,7 +550,7 @@ export function DashboardView({
                 <Waves className='h-5 w-5 text-emerald-600' />
               </div>
               <h4 className='text-foreground font-semibold'>
-                Avg River Discharge
+                Lưu lượng sông TB
               </h4>
             </div>
             <div className='flex items-end gap-2'>
@@ -553,7 +561,7 @@ export function DashboardView({
             </div>
             <p className='mt-2 text-sm font-medium text-emerald-600'>
               {floodForecastQ.isError
-                ? 'Unavailable'
+                ? 'Không có'
                 : dischargeLabel(avgDischarge)}
             </p>
           </CardContent>
@@ -566,7 +574,7 @@ export function DashboardView({
               <div className='rounded-lg bg-purple-100 p-2'>
                 <Droplets className='h-5 w-5 text-purple-600' />
               </div>
-              <h4 className='text-foreground font-semibold'>Humidity</h4>
+              <h4 className='text-foreground font-semibold'>Độ ẩm</h4>
             </div>
             <div className='flex items-end gap-2'>
               <p className='text-foreground text-4xl font-bold'>
@@ -575,7 +583,7 @@ export function DashboardView({
               <p className='text-muted-foreground mb-1 text-lg'>%</p>
             </div>
             <p className='text-muted-foreground mt-2 text-sm'>
-              {weatherQ.isError ? 'Unavailable' : humidityLabel(humidity)}
+              {weatherQ.isError ? 'Không có' : humidityLabel(humidity)}
             </p>
           </CardContent>
         </Card>

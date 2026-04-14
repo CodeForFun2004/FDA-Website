@@ -9,7 +9,6 @@ import {
   CreditCard,
   Receipt,
   MessageSquareWarning,
-  BarChart3,
   History,
   BellRing,
   Map as MapIcon,
@@ -17,7 +16,8 @@ import {
   SmartphoneNfc,
   Newspaper,
   ChevronDown,
-  Wallet
+  Wallet,
+  ServerCog
 } from 'lucide-react';
 
 import { useAppStore } from '@/libs/store';
@@ -43,41 +43,40 @@ type NavItem = NavLink | NavGroup;
 const navItems: NavItem[] = [
   {
     type: 'link',
-    label: 'Dashboard',
+    label: 'Bảng điều khiển',
     href: '/admin',
     icon: LayoutDashboard,
     exact: true
   },
   {
     type: 'link',
-    label: 'Flood History',
+    label: 'Lịch sử ngập',
     href: '/admin/flood-history',
     icon: History
   },
   {
     type: 'link',
-    label: 'Analytics',
-    href: '/admin/analytics',
-    icon: BarChart3
+    label: 'Người dùng & vai trò',
+    href: '/admin/users',
+    icon: Users
   },
-  { type: 'link', label: 'Users & Roles', href: '/admin/users', icon: Users },
   {
     type: 'group',
-    label: 'Billing & Plans',
+    label: 'Thanh toán & gói',
     icon: Wallet,
     children: [
       {
-        label: 'Plan Subscriptions',
+        label: 'Gói đăng ký',
         href: '/admin/plan-subscriptions',
         icon: CreditCard
       },
       {
-        label: 'Subscription Disputes',
+        label: 'Khiếu nại gói',
         href: '/admin/subscription-disputes',
         icon: MessageSquareWarning
       },
       {
-        label: 'Billing Payment',
+        label: 'Giao dịch thanh toán',
         href: '/admin/billing-payment',
         icon: Receipt
       }
@@ -85,28 +84,34 @@ const navItems: NavItem[] = [
   },
   {
     type: 'link',
-    label: 'Stations',
+    label: 'Trạm quan trắc',
     href: '/admin/stations',
     icon: SmartphoneNfc
   },
   {
     type: 'group',
-    label: 'Alerts & News',
+    label: 'Cảnh báo & tin',
     icon: BellRing,
     children: [
       {
-        label: 'Alerts Template',
+        label: 'Mẫu cảnh báo',
         href: '/admin/alerts',
         icon: BellRing
       },
       {
-        label: 'News & Updates',
+        label: 'Tin tức',
         href: '/admin/news',
         icon: Newspaper
       }
     ]
   },
-  { type: 'link', label: 'Map & Zones', href: '/admin/zones', icon: MapIcon }
+  { type: 'link', label: 'Bản đồ & vùng', href: '/admin/zones', icon: MapIcon },
+  {
+    type: 'link',
+    label: 'Tác vụ',
+    href: '/admin/tasks',
+    icon: ServerCog
+  }
 ];
 
 function isGroupActive(group: NavGroup, pathname: string) {

@@ -10,8 +10,8 @@ export default function UserAlertSubscriptionPage() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='User Alert Subscriptions'
-      pageDescription='View user alert subscriptions with detailed information (Client side table functionalities.)'
+      pageTitle='Đăng ký nhận cảnh báo'
+      pageDescription='Xem và quản lý đăng ký nhận cảnh báo của người dùng.'
     >
       <AlertSubscriptionListingPage />
     </PageContainer>

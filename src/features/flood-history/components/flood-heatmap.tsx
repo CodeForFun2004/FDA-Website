@@ -119,18 +119,18 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
     }
 
     const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
+      'T1',
+      'T2',
+      'T3',
+      'T4',
+      'T5',
+      'T6',
+      'T7',
+      'T8',
+      'T9',
+      'T10',
+      'T11',
+      'T12'
     ];
     const labels: { month: string; weekIndex: number }[] = [];
     let lastMonth = -1;
@@ -166,17 +166,17 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
   const getIntensityLabel = (intensity: number) => {
     switch (intensity) {
       case 0:
-        return 'No Recorded Flooding';
+        return 'Không ghi nhận ngập';
       case 1:
-        return 'Light Hydrological Activity';
+        return 'Hoạt động nhẹ';
       case 2:
-        return 'Moderate Inundation';
+        return 'Ngập vừa';
       case 3:
-        return 'High Risk Flooding';
+        return 'Nguy cơ cao';
       case 4:
-        return 'Severe Emergency Levels';
+        return 'Mức khẩn cấp';
       default:
-        return 'Data Pending';
+        return 'Chưa có dữ liệu';
     }
   };
 
@@ -185,9 +185,7 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
       <div className='flex h-[400px] animate-pulse items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 shadow-sm'>
         <div className='flex flex-col items-center gap-3 text-slate-400'>
           <Droplets className='h-8 w-8 animate-bounce' />
-          <span className='font-medium'>
-            Synthesizing hydrological model...
-          </span>
+          <span className='font-medium'>Đang tải bản đồ nhiệt…</span>
         </div>
       </div>
     );
@@ -196,7 +194,7 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
   if (!trendData || !heatmapData.length) {
     return (
       <div className='flex h-[400px] items-center justify-center rounded-3xl border border-slate-200 bg-white p-8 text-slate-400 shadow-sm'>
-        No heatmap data available
+        Chưa có dữ liệu bản đồ nhiệt
       </div>
     );
   }
@@ -207,10 +205,10 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
         <div>
           <h2 className='flex items-center gap-2 text-xl font-bold text-slate-900'>
             <Calendar className='h-5 w-5 text-blue-600' />
-            Annual Flood Pattern
+            Mẫu ngập theo năm
           </h2>
           <p className='mt-0.5 text-sm text-slate-500'>
-            High-resolution daily tracking for {year}
+            Theo dõi theo ngày — năm {year}
           </p>
         </div>
         <div className='flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-1.5'>
@@ -236,7 +234,7 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
           <div className='flex items-center gap-4'>
             <div className='flex items-center gap-1.5'>
               <span className='text-xs font-semibold text-slate-500'>
-                Intensity:
+                Mức độ:
               </span>
               <div className='flex gap-1'>
                 {[0, 1, 2, 3, 4].map((i) => (
@@ -251,7 +249,7 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
           </div>
           <div className='flex items-center gap-2 text-xs font-medium text-slate-400'>
             <Info className='h-3.5 w-3.5' />
-            Hover cells for detailed day analysis
+            Di chuột ô để xem chi tiết từng ngày
           </div>
         </div>
 
@@ -260,7 +258,7 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
           <div className='inline-flex gap-3'>
             {/* Days of week labels */}
             <div className='flex flex-col justify-start gap-[3px] pt-7'>
-              {['Mon', '', 'Wed', '', 'Fri', '', 'Sun'].map((day, idx) => (
+              {['T2', '', 'T4', '', 'T6', '', 'CN'].map((day, idx) => (
                 <div
                   key={idx}
                   className='flex h-3 items-center text-[10px] leading-none font-bold text-slate-300 uppercase'
@@ -317,7 +315,7 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
               </div>
               <div>
                 <p className='text-xs font-bold tracking-widest text-blue-600 uppercase'>
-                  {new Date(hoveredCell.date).toLocaleDateString('en-US', {
+                  {new Date(hoveredCell.date).toLocaleDateString('vi-VN', {
                     weekday: 'long',
                     month: 'long',
                     day: 'numeric',
@@ -332,16 +330,16 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
             <div className='flex gap-8'>
               <div className='text-center'>
                 <p className='text-[10px] font-bold text-slate-400 uppercase'>
-                  Duration
+                  Thời lượng
                 </p>
                 <p className='text-xl font-black text-slate-800'>
                   {hoveredCell.floodHours}
-                  <span className='ml-0.5 text-sm font-medium'>hrs</span>
+                  <span className='ml-0.5 text-sm font-medium'>giờ</span>
                 </p>
               </div>
               <div className='text-center'>
                 <p className='text-[10px] font-bold text-slate-400 uppercase'>
-                  Max Level
+                  Mực max
                 </p>
                 <p className='text-xl font-black text-slate-800'>
                   {hoveredCell.level}
@@ -352,8 +350,7 @@ export function FloodHeatmap({ trendData, isLoading }: FloodHeatmapProps) {
           </div>
         ) : (
           <div className='flex items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-400 italic'>
-            Select a specific date on the heatmap to view detailed hydrological
-            metrics
+            Di chuột lên ô trong lưới để xem chi tiết ngày đó
           </div>
         )}
       </div>

@@ -20,8 +20,8 @@ export default async function Page(props: PageProps) {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Monitoring Stations'
-      pageDescription='Track operational status, device components, and incidents for each monitoring station.'
+      pageTitle='Trạm quan trắc'
+      pageDescription='Theo dõi trạng thái vận hành và thông tin từng trạm.'
     >
       <Suspense
         fallback={

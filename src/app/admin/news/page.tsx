@@ -9,8 +9,8 @@ export default function NewsPage() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='News & Updates'
-      pageDescription='Manage news articles and updates related to flood events, safety tips, and community announcements.'
+      pageTitle='Tin tức'
+      pageDescription='Đăng và chỉnh sửa tin tức, thông báo liên quan đến ngập lụt.'
     >
       <NewsPageClient />
     </PageContainer>

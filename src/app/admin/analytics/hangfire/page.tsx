@@ -1,14 +1,5 @@
-import PageContainer from '@/components/layout/page-container';
-import { HangfireDashboardEmbed } from '@/features/analytics/components/hangfire-dashboard-embed';
-
-export const metadata = {
-  title: 'Admin: Background jobs (Hangfire)'
-};
+import { redirect } from 'next/navigation';
 
 export default function HangfireAnalyticsPage() {
-  return (
-    <PageContainer scrollable={false} pageTitle='Background jobs'>
-      <HangfireDashboardEmbed />
-    </PageContainer>
-  );
+  redirect('/admin/tasks');
 }

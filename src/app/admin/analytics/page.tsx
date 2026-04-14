@@ -1,14 +1,5 @@
-import PageContainer from '@/components/layout/page-container';
-import AnalyticsView from '@/features/analytics/views/AnalyticsView';
-
-export const metadata = {
-  title: 'Admin: Analytics'
-};
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return (
-    <PageContainer scrollable={false}>
-      <AnalyticsView />
-    </PageContainer>
-  );
+  redirect('/admin/tasks');
 }

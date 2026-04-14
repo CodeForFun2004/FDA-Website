@@ -9,39 +9,39 @@ import {
 
 const salesData = [
   {
-    name: 'Olivia Martin',
-    email: 'olivia.martin@email.com',
+    name: 'Nguyễn Thị Mai',
+    email: 'mai.nguyen@email.com',
     avatar: 'https://api.slingacademy.com/public/sample-users/1.png',
-    fallback: 'OM',
-    amount: '+$1,999.00'
+    fallback: 'NM',
+    amount: '+1.999 USD'
   },
   {
-    name: 'Jackson Lee',
-    email: 'jackson.lee@email.com',
+    name: 'Trần Văn Hùng',
+    email: 'hung.tran@email.com',
     avatar: 'https://api.slingacademy.com/public/sample-users/2.png',
-    fallback: 'JL',
-    amount: '+$39.00'
+    fallback: 'TH',
+    amount: '+39 USD'
   },
   {
-    name: 'Isabella Nguyen',
-    email: 'isabella.nguyen@email.com',
+    name: 'Lê Thu Hà',
+    email: 'ha.le@email.com',
     avatar: 'https://api.slingacademy.com/public/sample-users/3.png',
-    fallback: 'IN',
-    amount: '+$299.00'
+    fallback: 'LH',
+    amount: '+299 USD'
   },
   {
-    name: 'William Kim',
-    email: 'will@email.com',
+    name: 'Phạm Minh Khoa',
+    email: 'khoa.pham@email.com',
     avatar: 'https://api.slingacademy.com/public/sample-users/4.png',
-    fallback: 'WK',
-    amount: '+$99.00'
+    fallback: 'PK',
+    amount: '+99 USD'
   },
   {
-    name: 'Sofia Davis',
-    email: 'sofia.davis@email.com',
+    name: 'Đỗ Lan Anh',
+    email: 'anh.do@email.com',
     avatar: 'https://api.slingacademy.com/public/sample-users/5.png',
-    fallback: 'SD',
-    amount: '+$39.00'
+    fallback: 'ĐA',
+    amount: '+39 USD'
   }
 ];
 
@@ -49,15 +49,15 @@ export function RecentSales() {
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>Recent Sales</CardTitle>
-        <CardDescription>You made 265 sales this month.</CardDescription>
+        <CardTitle>Giao dịch gần đây</CardTitle>
+        <CardDescription>265 đơn trong tháng này.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className='space-y-8'>
           {salesData.map((sale, index) => (
             <div key={index} className='flex items-center'>
               <Avatar className='h-9 w-9'>
-                <AvatarImage src={sale.avatar} alt='Avatar' />
+                <AvatarImage src={sale.avatar} alt='' />
                 <AvatarFallback>{sale.fallback}</AvatarFallback>
               </Avatar>
               <div className='ml-4 space-y-1'>

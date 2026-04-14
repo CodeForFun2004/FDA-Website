@@ -19,6 +19,7 @@ import {
   ChartLegend,
   ChartLegendContent
 } from '@/components/ui/chart';
+import { FLOOD_CHART_PLOT_CLASS } from '../constants/flood-chart-layout';
 import type { FloodHistoryDto } from '../types/flood-history.type';
 
 interface FloodHistoryGraphProps {
@@ -140,7 +141,7 @@ export function FloodHistoryGraph({
 
       const config: ChartConfig = {
         value: {
-          label: 'Water Level (cm)',
+          label: 'Mực nước (cm)',
           color: 'var(--primary)'
         }
       };
@@ -161,7 +162,9 @@ export function FloodHistoryGraph({
           <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
         </CardHeader>
         <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-          <div className='bg-muted aspect-auto h-[300px] w-full animate-pulse rounded'></div>
+          <div
+            className={`bg-muted w-full animate-pulse rounded ${FLOOD_CHART_PLOT_CLASS}`}
+          />
         </CardContent>
       </Card>
     );
@@ -171,20 +174,22 @@ export function FloodHistoryGraph({
     return (
       <Card className='@container/card'>
         <CardHeader>
-          <CardTitle>Flood History</CardTitle>
-          <CardDescription>No history data available</CardDescription>
+          <CardTitle>Phân tích ngập</CardTitle>
+          <CardDescription>Chưa có dữ liệu lịch sử</CardDescription>
         </CardHeader>
-        <CardContent className='text-muted-foreground flex h-[300px] items-center justify-center'>
-          No data to display
+        <CardContent
+          className={`text-muted-foreground flex items-center justify-center ${FLOOD_CHART_PLOT_CLASS}`}
+        >
+          Không có dữ liệu
         </CardContent>
       </Card>
     );
   }
 
-  const title = isCompareMode ? 'Station Comparison' : 'Detailed Flood History';
+  const title = isCompareMode ? 'So sánh trạm' : 'Phân tích ngập';
   const description = isCompareMode
     ? `${historyData.length} stations compared`
-    : `${historyData[0]?.stationName} - ${historyData[0]?.metadata.granularity} data`;
+    : `${historyData[0]?.stationName} — ${historyData[0]?.metadata.granularity} series`;
 
   return (
     <Card className='@container/card'>
@@ -193,10 +198,7 @@ export function FloodHistoryGraph({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-        <ChartContainer
-          config={chartConfig}
-          className='aspect-auto h-[300px] w-full'
-        >
+        <ChartContainer config={chartConfig} className={FLOOD_CHART_PLOT_CLASS}>
           <LineChart
             data={chartData}
             margin={{
@@ -227,10 +229,10 @@ export function FloodHistoryGraph({
               }}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => `Time: ${value}`}
+                  labelFormatter={(value) => `Thời điểm: ${value}`}
                   formatter={(value, name, props) => {
                     if (value === null || value === undefined)
-                      return ['No data', name];
+                      return ['Không có dữ liệu', name];
 
                     const severity = props?.payload?.severity;
                     const qualityFlag = props?.payload?.qualityFlag;
@@ -245,7 +247,7 @@ export function FloodHistoryGraph({
                         )}
                         {qualityFlag && qualityFlag !== 'ok' && (
                           <div className='text-xs text-yellow-600'>
-                            Quality: {qualityFlag}
+                            Chất lượng: {qualityFlag}
                           </div>
                         )}
                       </div>,
@@ -289,31 +291,29 @@ export function FloodHistoryGraph({
           </LineChart>
         </ChartContainer>
 
-        {/* Missing Intervals Indicator */}
+        {/* Cố định chiều cao — không làm phình card / nhảy layout */}
         {missingIntervals.length > 0 && (
-          <div className='mt-4 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-950/20'>
-            <div className='flex items-center gap-2 text-sm font-medium text-orange-800 dark:text-orange-200'>
-              <IconAlertTriangle className='h-4 w-4' />
-              Data Gaps Detected ({missingIntervals.length})
+          <div className='mt-3 max-h-[88px] shrink-0 overflow-y-auto rounded-lg border border-orange-200 bg-orange-50 p-2 dark:border-orange-800 dark:bg-orange-950/20'>
+            <div className='flex items-center gap-2 text-xs font-medium text-orange-800 dark:text-orange-200'>
+              <IconAlertTriangle className='h-3.5 w-3.5 shrink-0' />
+              Thiếu dữ liệu ({missingIntervals.length})
             </div>
-            <div className='mt-2 text-xs text-orange-700 dark:text-orange-300'>
-              Missing data intervals may affect trend analysis. Consider shorter
-              time ranges for more complete data.
+            <div className='mt-1 text-[10px] text-orange-700 dark:text-orange-300'>
+              Khoảng ngắn hơn thường đủ điểm đo hơn.
             </div>
-            <div className='mt-2 max-h-20 overflow-y-auto'>
+            <div className='mt-1 space-y-0.5'>
               {missingIntervals.slice(0, 3).map((interval, index) => (
                 <div
                   key={index}
-                  className='text-xs text-orange-600 dark:text-orange-400'
+                  className='text-[10px] text-orange-600 dark:text-orange-400'
                 >
-                  {interval.start.toLocaleString()} -{' '}
-                  {interval.end.toLocaleString()} ({interval.durationMinutes}min
-                  gap)
+                  {interval.start.toLocaleString()} →{' '}
+                  {interval.end.toLocaleString()} ({interval.durationMinutes}m)
                 </div>
               ))}
               {missingIntervals.length > 3 && (
-                <div className='text-xs text-orange-500'>
-                  ... and {missingIntervals.length - 3} more gaps
+                <div className='text-[10px] text-orange-500'>
+                  +{missingIntervals.length - 3} more
                 </div>
               )}
             </div>

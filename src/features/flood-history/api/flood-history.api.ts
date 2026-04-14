@@ -67,11 +67,9 @@ export function getFloodTrendsApi(params: GetFloodTrendsParams) {
   appendQueryParam(query, 'startDate', toIsoString(params.startDate));
   appendQueryParam(query, 'endDate', toIsoString(params.endDate));
   appendQueryParam(query, 'granularity', params.granularity ?? undefined);
-  appendQueryParam(
-    query,
-    'compareWithPrevious',
-    params.compareWithPrevious ?? undefined
-  );
+  if (params.compareWithPrevious === true) {
+    appendQueryParam(query, 'compareWithPrevious', true);
+  }
 
   const url = `${ENDPOINTS.trends}${buildQueryString(query)}`;
   return apiFetch<GetFloodTrendsResponse>(toApiPath(url), { method: 'GET' });
@@ -85,11 +83,16 @@ export function getFloodStatisticsApi(params: GetFloodStatisticsParams) {
   }
   appendQueryParam(query, 'areaId', params.areaId ?? undefined);
   appendQueryParam(query, 'period', params.period ?? undefined);
+  appendQueryParam(query, 'startDate', toIsoString(params.startDate));
+  appendQueryParam(query, 'endDate', toIsoString(params.endDate));
   appendQueryParam(
     query,
     'includeBreakdown',
     params.includeBreakdown ?? undefined
   );
+  if (params.includeComparison === true) {
+    appendQueryParam(query, 'includeComparison', true);
+  }
 
   const url = `${ENDPOINTS.statistics}${buildQueryString(query)}`;
   return apiFetch<GetFloodStatisticsResponse>(toApiPath(url), {

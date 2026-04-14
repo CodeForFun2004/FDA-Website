@@ -32,8 +32,8 @@ export default async function UsersView(props: PageProps) {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='User Management'
-      pageDescription='Manage users (Server side table functionalities.)'
+      pageTitle='Quản lý người dùng'
+      pageDescription='Thêm, sửa và phân quyền tài khoản trong hệ thống.'
       // infoContent={stationInfoContent}
     >
       <Suspense

@@ -17,6 +17,9 @@ import type {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
 
+/** GET /analytics/hotspots — BE (FE17): `areaLevel` hợp lệ ward | district. Gửi `street` thường bị 400. */
+export const HOTSPOT_RANKINGS_AREA_LEVEL = 'district' as const;
+
 const ENDPOINTS = {
   frequency: `${API_BASE_URL}/analytics/frequency/aggregate`,
   severity: `${API_BASE_URL}/analytics/severity/aggregate`,
@@ -140,12 +143,11 @@ async function getJson<T>(url: string, accessToken?: string): Promise<T> {
   return data as T;
 }
 
-/** GET /analytics/frequency|severity — BE UAT dùng dd-MM-yyyy trong query. */
-function toQueryDateDdMmYyyy(yyyyMmDd: string): string {
+/** GET /analytics/frequency|severity — query string bind DateTime; dùng yyyy-MM-dd (ISO date). */
+function toQueryDateIso(yyyyMmDd: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(yyyyMmDd.trim());
-  if (!m) return yyyyMmDd;
-  const [, y, mo, d] = m;
-  return `${d}-${mo}-${y}`;
+  if (!m) return yyyyMmDd.trim();
+  return `${m[1]}-${m[2]}-${m[3]}`;
 }
 
 function toAreaIds(
@@ -199,7 +201,7 @@ export const analyticsApi = {
       periodStart?: string;
       periodEnd?: string;
       topN?: number;
-      /** BE bắt buộc ward | street */
+      /** BE: ward | district (xem HOTSPOT_RANKINGS_AREA_LEVEL) */
       areaLevel: string;
     },
     accessToken?: string
@@ -232,9 +234,9 @@ export const analyticsApi = {
     searchParams.set('administrativeAreaId', params.administrativeAreaId);
     searchParams.set('bucketType', params.bucketType);
     if (params.startDate)
-      searchParams.set('startDate', toQueryDateDdMmYyyy(params.startDate));
+      searchParams.set('startDate', toQueryDateIso(params.startDate));
     if (params.endDate)
-      searchParams.set('endDate', toQueryDateDdMmYyyy(params.endDate));
+      searchParams.set('endDate', toQueryDateIso(params.endDate));
 
     const url = `${ENDPOINTS.frequencyAnalytics}?${searchParams.toString()}`;
     return getJson<FrequencyAnalyticsResponse>(url, accessToken);
@@ -253,9 +255,9 @@ export const analyticsApi = {
     searchParams.set('administrativeAreaId', params.administrativeAreaId);
     searchParams.set('bucketType', params.bucketType);
     if (params.startDate)
-      searchParams.set('startDate', toQueryDateDdMmYyyy(params.startDate));
+      searchParams.set('startDate', toQueryDateIso(params.startDate));
     if (params.endDate)
-      searchParams.set('endDate', toQueryDateDdMmYyyy(params.endDate));
+      searchParams.set('endDate', toQueryDateIso(params.endDate));
 
     const url = `${ENDPOINTS.severityAnalytics}?${searchParams.toString()}`;
     return getJson<SeverityAnalyticsResponse>(url, accessToken);

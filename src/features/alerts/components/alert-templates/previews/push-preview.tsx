@@ -30,10 +30,10 @@ export function PushPreview({ title, body }: PushPreviewProps) {
                     <IconAlertTriangle className='size-3 text-white' />
                   </div>
                   <span className='text-[10px] font-bold tracking-wider text-slate-500 uppercase'>
-                    FDA Warning
+                    Cảnh báo FDA
                   </span>
                   <span className='ml-auto text-[10px] text-slate-400'>
-                    Just now
+                    Vừa xong
                   </span>
                 </div>
 
@@ -63,7 +63,7 @@ export function PushPreview({ title, body }: PushPreviewProps) {
                 <IconAlertTriangle className='size-6 text-slate-400' />
               </div>
               <p className='text-xs text-slate-400'>
-                Click &quot;Generate Preview&quot; to see the push notification
+                Nhấn &quot;Tạo xem trước&quot; để xem thông báo đẩy
               </p>
             </div>
           )}

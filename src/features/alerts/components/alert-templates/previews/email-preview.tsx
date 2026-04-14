@@ -53,14 +53,14 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
                 <div className='flex flex-col'>
                   <div className='flex items-center gap-1'>
                     <span className='text-xs font-semibold text-slate-800 dark:text-slate-200'>
-                      FDA System
+                      Hệ thống FDA
                     </span>
                     <span className='text-[10px] text-slate-400'>
                       &lt;noreply@fda.gov.vn&gt;
                     </span>
                   </div>
                   <div className='text-[10px] text-slate-500'>
-                    to recipient@mail.com
+                    tới recipient@mail.com
                   </div>
                 </div>
               </div>
@@ -78,7 +78,7 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
 
                 {/* Email Main Title */}
                 <h2 className='mb-4 text-center text-base font-bold text-slate-900 dark:text-white'>
-                  FLOOD ALERT NOTIFICATION
+                  THÔNG BÁO CẢNH BÁO NGẬP
                 </h2>
 
                 {/* Email Content */}
@@ -89,22 +89,21 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
                   <div className='my-3 rounded border-l-4 border-amber-500 bg-amber-50 p-3 dark:bg-amber-900/20'>
                     <ul className='space-y-1 text-[11px]'>
                       <li>
-                        • Severity: <span className='font-bold'>Warning</span>
+                        • Mức độ: <span className='font-bold'>Cảnh báo</span>
                       </li>
                     </ul>
                   </div>
 
                   <p className='text-center'>
                     <span className='inline-block rounded-lg bg-blue-500 px-5 py-1.5 text-[11px] font-bold text-white'>
-                      View Forecast Details
+                      Xem chi tiết dự báo
                     </span>
                   </p>
                 </div>
 
                 {/* Footer */}
                 <div className='mt-6 border-t border-slate-100 pt-4 text-center text-[9px] text-slate-400 dark:border-slate-700'>
-                  This is an automated message from the FDA System. Please do
-                  not reply to this email.
+                  Đây là email tự động từ hệ thống FDA. Vui lòng không trả lời.
                 </div>
               </div>
             </div>
@@ -116,7 +115,7 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
               <IconMail className='size-6 text-slate-400' />
             </div>
             <p className='text-xs text-slate-400'>
-              Click &quot;Generate Preview&quot; to see the email preview
+              Nhấn &quot;Tạo xem trước&quot; để xem email
             </p>
           </div>
         )}

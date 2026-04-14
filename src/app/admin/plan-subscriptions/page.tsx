@@ -11,8 +11,8 @@ export default function Page() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Plan Subscriptions'
-      pageDescription='Manage pricing plans, subscription tiers, and features assigned to each plan.'
+      pageTitle='Gói đăng ký'
+      pageDescription='Cấu hình gói, mức giá và tính năng đi kèm.'
     >
       <Suspense
         fallback={

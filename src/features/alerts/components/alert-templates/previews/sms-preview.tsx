@@ -42,7 +42,7 @@ export function SmsPreview({ title, body }: SmsPreviewProps) {
             <span className='text-[10px] font-bold text-slate-900 dark:text-white'>
               FDA_SYSTEM
             </span>
-            <span className='text-[8px] text-slate-400'>Emergency Alert</span>
+            <span className='text-[8px] text-slate-400'>Cảnh báo khẩn</span>
           </div>
         </div>
 
@@ -53,7 +53,7 @@ export function SmsPreview({ title, body }: SmsPreviewProps) {
               {/* Timestamp Pill */}
               <div className='mb-4 self-center rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-800'>
                 <span className='text-[8px] font-medium text-slate-500'>
-                  Today 08:31
+                  Hôm nay 08:31
                 </span>
               </div>
 
@@ -64,7 +64,7 @@ export function SmsPreview({ title, body }: SmsPreviewProps) {
 
               {/* Delivery Time */}
               <div className='mt-2 ml-1'>
-                <span className='text-[8px] text-slate-400'>8:31 AM</span>
+                <span className='text-[8px] text-slate-400'>8:31</span>
               </div>
             </>
           ) : (
@@ -74,7 +74,7 @@ export function SmsPreview({ title, body }: SmsPreviewProps) {
                 <IconMessage className='size-6 text-slate-400' />
               </div>
               <p className='text-[10px] text-slate-400'>
-                Click &quot;Generate Preview&quot; to see the SMS
+                Nhấn &quot;Tạo xem trước&quot; để xem SMS
               </p>
             </div>
           )}
@@ -83,7 +83,7 @@ export function SmsPreview({ title, body }: SmsPreviewProps) {
         {/* Input Bar */}
         <div className='absolute right-0 bottom-0 left-0 flex h-12 items-center gap-2 bg-slate-50 px-4 dark:bg-slate-800'>
           <div className='flex h-8 flex-1 items-center rounded-full border border-slate-200 bg-white px-3 dark:border-slate-700 dark:bg-slate-900'>
-            <span className='text-[10px] text-slate-400'>Text message</span>
+            <span className='text-[10px] text-slate-400'>Tin nhắn</span>
           </div>
           <IconSend className='size-5 text-blue-500' />
         </div>
@@ -95,7 +95,7 @@ export function SmsPreview({ title, body }: SmsPreviewProps) {
       {/* Character Count (below the phone) */}
       {smsText && (
         <div className='mt-4 font-mono text-[10px] text-slate-400'>
-          Length: {charCount}/160 chars
+          Độ dài: {charCount}/160 ký tự
         </div>
       )}
     </div>

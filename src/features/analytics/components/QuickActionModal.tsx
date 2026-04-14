@@ -88,6 +88,13 @@ function bucketEndDateFromStart(
 
 const BUCKETS: BucketType[] = ['day', 'week', 'month', 'year'];
 
+const BUCKET_LABEL: Record<BucketType, string> = {
+  day: 'Ngày',
+  week: 'Tuần',
+  month: 'Tháng',
+  year: 'Năm'
+};
+
 export default function QuickActionModal({
   isOpen,
   onClose,
@@ -129,10 +136,10 @@ export default function QuickActionModal({
 
   const title =
     jobType === 'frequency'
-      ? 'Configure Frequency Analysis'
+      ? 'Gom dữ liệu tần suất'
       : jobType === 'severity'
-        ? 'Configure Severity Analysis'
-        : 'Configure Hotspot Identification';
+        ? 'Gom dữ liệu mức độ'
+        : 'Xếp hạng điểm nóng';
 
   const builtPayload:
     | FrequencyAggregationRequest
@@ -222,17 +229,17 @@ export default function QuickActionModal({
 
   const primaryLabel =
     jobType === 'frequency'
-      ? 'Trigger frequency aggregation'
+      ? 'Chạy gom tần suất'
       : jobType === 'severity'
-        ? 'Trigger severity aggregation'
-        : 'Trigger hotspot aggregation';
+        ? 'Chạy gom mức độ'
+        : 'Chạy xếp hạng điểm nóng';
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      description='Set scope, period, and options. The request runs as a background job on the server.'
+      description='Chọn phạm vi và thời gian. Tác vụ chạy trên máy chủ (Hangfire).'
       footer={
         <div className='flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
           <Button
@@ -241,7 +248,7 @@ export default function QuickActionModal({
             onClick={onClose}
             disabled={isSubmitting}
           >
-            Cancel
+            Hủy
           </Button>
           <Button
             type='button'
@@ -251,7 +258,7 @@ export default function QuickActionModal({
             {isSubmitting ? (
               <>
                 <Icons.Spinner className='mr-2 h-4 w-4' />
-                Starting…
+                Đang gửi…
               </>
             ) : (
               primaryLabel
@@ -264,7 +271,7 @@ export default function QuickActionModal({
         {(jobType === 'frequency' || jobType === 'severity') && (
           <>
             <div className='space-y-2'>
-              <Label>Bucket</Label>
+              <Label>Bước thời gian</Label>
               <div className='flex flex-wrap gap-1'>
                 {BUCKETS.map((b) => (
                   <Button
@@ -278,14 +285,14 @@ export default function QuickActionModal({
                     )}
                     onClick={() => setBucketType(b)}
                   >
-                    {b}
+                    {BUCKET_LABEL[b]}
                   </Button>
                 ))}
               </div>
             </div>
 
             <div className='space-y-2'>
-              <Label>Area scope</Label>
+              <Label>Phạm vi khu vực</Label>
               <div className='flex flex-col gap-2'>
                 <label className='flex cursor-pointer items-center gap-2 text-sm'>
                   <input
@@ -294,7 +301,7 @@ export default function QuickActionModal({
                     checked={scopeAll}
                     onChange={() => setScopeAll(true)}
                   />
-                  All areas
+                  Toàn bộ khu vực
                 </label>
                 <label className='flex cursor-pointer items-center gap-2 text-sm'>
                   <input
@@ -303,13 +310,15 @@ export default function QuickActionModal({
                     checked={!scopeAll}
                     onChange={() => setScopeAll(false)}
                   />
-                  Select specific areas
+                  Chọn từng khu vực
                 </label>
               </div>
               {!scopeAll && (
                 <div className='border-border bg-muted/30 max-h-40 overflow-y-auto rounded-md border p-2 text-sm'>
                   {areas.length === 0 ? (
-                    <p className='text-muted-foreground'>No areas loaded.</p>
+                    <p className='text-muted-foreground'>
+                      Chưa có danh sách khu vực.
+                    </p>
                   ) : (
                     <ul className='space-y-1'>
                       {areas.map((a) => (
@@ -337,7 +346,7 @@ export default function QuickActionModal({
 
             <div className='grid grid-cols-2 gap-3'>
               <div className='space-y-1.5'>
-                <Label htmlFor='qa-start'>Start date</Label>
+                <Label htmlFor='qa-start'>Từ ngày</Label>
                 <Input
                   id='qa-start'
                   type='date'
@@ -346,7 +355,7 @@ export default function QuickActionModal({
                 />
               </div>
               <div className='space-y-1.5'>
-                <Label htmlFor='qa-end'>End date</Label>
+                <Label htmlFor='qa-end'>Đến ngày</Label>
                 <Input
                   id='qa-end'
                   type='date'
@@ -354,7 +363,7 @@ export default function QuickActionModal({
                   onChange={(e) => setEndDate(e.target.value)}
                 />
                 <p className='text-muted-foreground text-[11px] leading-snug'>
-                  Default follows the selected bucket; you can adjust manually.
+                  Mặc định theo bước thời gian; có thể chỉnh tay.
                 </p>
               </div>
             </div>
@@ -365,7 +374,7 @@ export default function QuickActionModal({
           <>
             <div className='grid grid-cols-2 gap-3'>
               <div className='space-y-1.5'>
-                <Label htmlFor='qa-pstart'>Period start</Label>
+                <Label htmlFor='qa-pstart'>Từ ngày</Label>
                 <Input
                   id='qa-pstart'
                   type='date'
@@ -374,7 +383,7 @@ export default function QuickActionModal({
                 />
               </div>
               <div className='space-y-1.5'>
-                <Label htmlFor='qa-pend'>Period end</Label>
+                <Label htmlFor='qa-pend'>Đến ngày</Label>
                 <Input
                   id='qa-pend'
                   type='date'
@@ -384,7 +393,7 @@ export default function QuickActionModal({
               </div>
             </div>
             <div className='space-y-1.5'>
-              <Label htmlFor='qa-topn'>Top N hotspots</Label>
+              <Label htmlFor='qa-topn'>Số điểm nóng (Top)</Label>
               <Input
                 id='qa-topn'
                 type='number'
@@ -393,15 +402,13 @@ export default function QuickActionModal({
                 value={topN}
                 onChange={(e) => setTopN(Number(e.target.value) || 1)}
               />
-              <p className='text-muted-foreground text-[11px]'>
-                Between 1 and 50.
-              </p>
+              <p className='text-muted-foreground text-[11px]'>Từ 1 đến 50.</p>
             </div>
           </>
         )}
 
         <div className='space-y-1.5'>
-          <Label>Payload preview</Label>
+          <Label>Xem trước yêu cầu</Label>
           <pre className='border-border bg-muted/40 max-h-48 overflow-auto rounded-md border p-3 font-mono text-[11px] leading-relaxed'>
             {builtPayload ? JSON.stringify(builtPayload, null, 2) : ''}
           </pre>

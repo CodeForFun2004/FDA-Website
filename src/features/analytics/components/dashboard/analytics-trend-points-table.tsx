@@ -44,8 +44,7 @@ export function AnalyticsTrendPointsTable(props: {
   if (total === 0) {
     return (
       <div className='text-muted-foreground rounded-md border border-dashed p-4 text-center text-sm'>
-        Chưa có điểm dữ liệu trend (chọn Area + Apply, hoặc chờ job
-        aggregation).
+        Chưa có dữ liệu — chọn khu vực và nhấn Áp dụng.
       </div>
     );
   }
@@ -53,7 +52,7 @@ export function AnalyticsTrendPointsTable(props: {
   return (
     <div className='space-y-3'>
       <h4 className='text-foreground text-xs font-semibold tracking-wide uppercase'>
-        Chi tiết theo bucket
+        Chi tiết theo từng bước thời gian
       </h4>
       <div className='overflow-x-auto rounded-md border'>
         <table className='w-full text-left text-xs'>
@@ -61,8 +60,8 @@ export function AnalyticsTrendPointsTable(props: {
             {props.mode === 'frequency' ? (
               <tr>
                 <th className='px-3 py-2 font-medium'>Thời điểm</th>
-                <th className='px-3 py-2 font-medium'>Events</th>
-                <th className='px-3 py-2 font-medium'>Exceed</th>
+                <th className='px-3 py-2 font-medium'>Sự kiện</th>
+                <th className='px-3 py-2 font-medium'>Vượt ngưỡng</th>
               </tr>
             ) : (
               <tr>
@@ -70,7 +69,7 @@ export function AnalyticsTrendPointsTable(props: {
                 <th className='px-3 py-2 font-medium'>Max</th>
                 <th className='px-3 py-2 font-medium'>Avg</th>
                 <th className='px-3 py-2 font-medium'>Min</th>
-                <th className='px-3 py-2 font-medium'>Readings</th>
+                <th className='px-3 py-2 font-medium'>Số lần đo</th>
               </tr>
             )}
           </thead>

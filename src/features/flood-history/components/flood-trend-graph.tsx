@@ -19,16 +19,20 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/libs/utils';
+import { FLOOD_CHART_PLOT_CLASS } from '../constants/flood-chart-layout';
 import type { FloodTrendDto } from '../types/flood-history.type';
 
 interface FloodTrendGraphProps {
   trendData: FloodTrendDto | null;
   isLoading?: boolean;
+  className?: string;
 }
 
 export function FloodTrendGraph({
   trendData,
-  isLoading
+  isLoading,
+  className
 }: FloodTrendGraphProps) {
   const chartData = useMemo(() => {
     if (!trendData?.dataPoints) return [];
@@ -48,24 +52,34 @@ export function FloodTrendGraph({
 
   const chartConfig = {
     avgLevel: {
-      label: 'Average Water Level (cm)',
+      label: 'Mực nước TB (cm)',
       color: 'var(--primary)'
     },
     maxLevel: {
-      label: 'Max Water Level (cm)',
+      label: 'Mực nước max (cm)',
       color: 'var(--primary)'
     }
   } satisfies ChartConfig;
 
   if (isLoading) {
     return (
-      <Card className='@container/card'>
-        <CardHeader>
+      <Card
+        className={cn(
+          '@container/card flex h-full min-h-0 flex-col',
+          className
+        )}
+      >
+        <CardHeader className='shrink-0'>
           <div className='bg-muted h-6 animate-pulse rounded'></div>
           <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
         </CardHeader>
-        <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-          <div className='bg-muted aspect-auto h-[250px] w-full animate-pulse rounded'></div>
+        <CardContent className='flex min-h-0 flex-1 flex-col px-2 pt-4 sm:px-6 sm:pt-6'>
+          <div
+            className={cn(
+              'bg-muted w-full animate-pulse rounded',
+              FLOOD_CHART_PLOT_CLASS
+            )}
+          />
         </CardContent>
       </Card>
     );
@@ -73,13 +87,23 @@ export function FloodTrendGraph({
 
   if (!trendData || !chartData.length) {
     return (
-      <Card className='@container/card'>
-        <CardHeader>
-          <CardTitle>Flood Trend Analysis</CardTitle>
-          <CardDescription>No trend data available</CardDescription>
+      <Card
+        className={cn(
+          '@container/card flex h-full min-h-0 flex-col',
+          className
+        )}
+      >
+        <CardHeader className='shrink-0'>
+          <CardTitle>Phân tích ngập</CardTitle>
+          <CardDescription>Chưa có dữ liệu xu hướng</CardDescription>
         </CardHeader>
-        <CardContent className='text-muted-foreground flex h-[250px] items-center justify-center'>
-          No data to display
+        <CardContent
+          className={cn(
+            'text-muted-foreground flex flex-1 items-center justify-center',
+            FLOOD_CHART_PLOT_CLASS
+          )}
+        >
+          Không có dữ liệu
         </CardContent>
       </Card>
     );
@@ -90,20 +114,19 @@ export function FloodTrendGraph({
     comparison && (comparison.avgLevelChange || comparison.floodHoursChange);
 
   return (
-    <Card className='@container/card'>
-      <CardHeader>
-        <CardTitle>Flood Trend Analysis</CardTitle>
+    <Card
+      className={cn('@container/card flex h-full min-h-0 flex-col', className)}
+    >
+      <CardHeader className='shrink-0'>
+        <CardTitle>Phân tích ngập</CardTitle>
         <CardDescription>
-          {trendData.stationName} -{' '}
+          {trendData.stationName} —{' '}
           {trendData.period.replace(/([A-Z])/g, ' $1').toLowerCase()}
           {trendData.granularity && ` (${trendData.granularity})`}
         </CardDescription>
       </CardHeader>
-      <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-        <ChartContainer
-          config={chartConfig}
-          className='aspect-auto h-[250px] w-full'
-        >
+      <CardContent className='flex min-h-0 flex-1 flex-col px-2 pt-4 sm:px-6 sm:pt-6'>
+        <ChartContainer config={chartConfig} className={FLOOD_CHART_PLOT_CLASS}>
           <AreaChart
             data={chartData}
             margin={{
@@ -145,10 +168,10 @@ export function FloodTrendGraph({
               content={
                 <ChartTooltipContent
                   indicator='dot'
-                  labelFormatter={(value) => `Period: ${value}`}
+                  labelFormatter={(value) => `Kỳ: ${value}`}
                   formatter={(value, name) => [
                     `${value} cm`,
-                    name === 'avgLevel' ? 'Average Level' : 'Max Level'
+                    name === 'avgLevel' ? 'Mực TB' : 'Mực max'
                   ]}
                 />
               }
@@ -164,11 +187,11 @@ export function FloodTrendGraph({
         </ChartContainer>
       </CardContent>
       {hasComparison && (
-        <CardFooter>
-          <div className='flex w-full items-start gap-2 text-sm'>
+        <CardFooter className='max-h-[72px] shrink-0 overflow-y-auto border-t py-3'>
+          <div className='flex w-full items-start gap-2 text-xs'>
             <div className='grid gap-2'>
               <div className='flex items-center gap-2 leading-none font-medium'>
-                Comparison with previous period
+                So với kỳ trước
               </div>
               <div className='flex items-center gap-4'>
                 {comparison.avgLevelChange !== null &&
@@ -186,7 +209,7 @@ export function FloodTrendGraph({
                       ) : (
                         <IconTrendingDown className='mr-1 h-3 w-3' />
                       )}
-                      Avg Level: {Math.abs(comparison.avgLevelChange)}%
+                      Mực TB: {Math.abs(comparison.avgLevelChange)}%
                     </Badge>
                   )}
                 {comparison.floodHoursChange !== null &&
@@ -204,7 +227,7 @@ export function FloodTrendGraph({
                       ) : (
                         <IconTrendingUp className='mr-1 h-3 w-3' />
                       )}
-                      Flood Hours: {Math.abs(comparison.floodHoursChange)}%
+                      Giờ ngập: {Math.abs(comparison.floodHoursChange)}%
                     </Badge>
                   )}
               </div>

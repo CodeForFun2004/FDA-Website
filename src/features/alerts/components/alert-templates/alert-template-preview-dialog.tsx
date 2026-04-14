@@ -36,14 +36,19 @@ interface AlertTemplatePreviewDialogProps {
 }
 
 const DEFAULT_TEST_DATA = {
-  stationName: 'Can Tho Hydrology Station',
+  stationName: 'Trạm thủy văn Cần Thơ',
   waterLevel: '4.12',
   threshold: '3.50',
   severity: 'warning',
-  address: 'Ninh Kieu District, Can Tho City'
+  address: 'Quận Ninh Kiều, TP. Cần Thơ'
 };
 
-const CHANNELS = ['Push', 'Email', 'SMS', 'InApp'] as const;
+const CHANNEL_TABS = [
+  { value: 'Push' as const, label: 'Đẩy' },
+  { value: 'Email' as const, label: 'Email' },
+  { value: 'SMS' as const, label: 'SMS' },
+  { value: 'InApp' as const, label: 'Trong ứng dụng' }
+] as const;
 
 export function AlertTemplatePreviewDialog({
   open,
@@ -83,9 +88,9 @@ export function AlertTemplatePreviewDialog({
         threshold: Number(testData.threshold) || 0
       });
       setPreviewResult(result);
-      toast.success('Preview generated');
+      toast.success('Đã tạo bản xem trước');
     } catch (error: any) {
-      toast.error('Preview failed', { description: error.message });
+      toast.error('Xem trước thất bại', { description: error.message });
     }
   };
 
@@ -112,10 +117,10 @@ export function AlertTemplatePreviewDialog({
         {/* Header */}
         <DialogHeader className='bg-muted/30 flex-shrink-0 border-b px-5 py-4 sm:px-6'>
           <DialogTitle className='text-lg'>
-            Preview: {template?.name}
+            Xem trước: {template?.name}
           </DialogTitle>
           <DialogDescription>
-            Test the template rendering with sample data before publishing
+            Thử hiển thị mẫu với dữ liệu giả trước khi áp dụng
           </DialogDescription>
         </DialogHeader>
 
@@ -125,7 +130,7 @@ export function AlertTemplatePreviewDialog({
           <div className='flex-1 border-b p-5 sm:p-6 lg:border-r lg:border-b-0'>
             <div className='mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400'>
               <IconEditCircle className='size-5' />
-              <h2 className='text-base font-bold'>Sample Data</h2>
+              <h2 className='text-base font-bold'>Dữ liệu mẫu</h2>
             </div>
 
             <div className='space-y-4'>
@@ -138,7 +143,7 @@ export function AlertTemplatePreviewDialog({
                     value={value}
                     onChange={(e) => handleTestChange(key, e.target.value)}
                     className='h-9 text-sm'
-                    placeholder={`Enter ${key}...`}
+                    placeholder={`Nhập ${key}…`}
                   />
                 </div>
               ))}
@@ -152,7 +157,7 @@ export function AlertTemplatePreviewDialog({
                 className='w-full gap-2 shadow-lg'
               >
                 <IconPlayerPlay className='size-4' />
-                Generate Preview
+                Tạo xem trước
               </Button>
               <Button
                 variant='outline'
@@ -160,7 +165,7 @@ export function AlertTemplatePreviewDialog({
                 className='w-full gap-2'
               >
                 <IconRefresh className='size-4' />
-                Reset Data
+                Đặt lại dữ liệu
               </Button>
             </div>
           </div>
@@ -169,13 +174,13 @@ export function AlertTemplatePreviewDialog({
           <div className='bg-muted/20 flex-1 p-5 sm:p-6'>
             <div className='mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400'>
               <IconEye className='size-5' />
-              <h2 className='text-base font-bold'>Render Result</h2>
+              <h2 className='text-base font-bold'>Kết quả hiển thị</h2>
             </div>
 
             {/* Channel Tabs */}
             <Tabs defaultValue={activeChannel} className='w-full'>
               <TabsList className='mb-6 grid w-full grid-cols-4'>
-                {CHANNELS.map((ch) => {
+                {CHANNEL_TABS.map(({ value: ch, label }) => {
                   const enabled = true;
                   return (
                     <TabsTrigger
@@ -186,7 +191,7 @@ export function AlertTemplatePreviewDialog({
                         !enabled ? 'cursor-not-allowed opacity-50' : ''
                       }
                     >
-                      {ch}
+                      {label}
                     </TabsTrigger>
                   );
                 })}
@@ -226,11 +231,10 @@ export function AlertTemplatePreviewDialog({
               <div className='mt-6'>
                 <div className='mb-2 flex items-center justify-between'>
                   <h3 className='text-sm font-bold text-slate-700 dark:text-slate-300'>
-                    Unreplaced Variables
+                    Biến chưa thay
                   </h3>
                   <span className='rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'>
-                    {unreplacedVars.length}{' '}
-                    {unreplacedVars.length === 1 ? 'Error' : 'Errors'}
+                    {unreplacedVars.length} lỗi
                   </span>
                 </div>
                 <div className='bg-background rounded-lg border p-4'>
@@ -254,7 +258,7 @@ export function AlertTemplatePreviewDialog({
         {/* Footer */}
         <DialogFooter className='flex-shrink-0 border-t px-5 py-3 sm:px-6'>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Close
+            Đóng
           </Button>
         </DialogFooter>
       </DialogContent>

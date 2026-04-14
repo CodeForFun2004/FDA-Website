@@ -7,7 +7,7 @@ import { RoleGuard } from '@/components/guards/RoleGuard';
 
 export const metadata: Metadata = {
   title: 'FDA Admin',
-  description: 'Admin UI'
+  description: 'Giao diện quản trị'
 };
 
 export default async function Layout({

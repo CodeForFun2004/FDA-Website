@@ -36,7 +36,7 @@ const SEVERITY_CONFIG: Record<
     border: 'border-red-200 dark:border-red-800',
     icon: IconAlertOctagon,
     iconColor: 'text-red-500',
-    label: 'CRITICAL',
+    label: 'NGUY KỊCH',
     badgeBg: 'bg-red-500'
   },
   warning: {
@@ -44,7 +44,7 @@ const SEVERITY_CONFIG: Record<
     border: 'border-amber-200 dark:border-amber-800',
     icon: IconAlertTriangle,
     iconColor: 'text-amber-500',
-    label: 'WARNING',
+    label: 'CẢNH BÁO',
     badgeBg: 'bg-amber-500'
   },
   caution: {
@@ -52,7 +52,7 @@ const SEVERITY_CONFIG: Record<
     border: 'border-yellow-200 dark:border-yellow-800',
     icon: IconAlertCircle,
     iconColor: 'text-yellow-500',
-    label: 'CAUTION',
+    label: 'THẬN TRỌNG',
     badgeBg: 'bg-yellow-500'
   },
   info: {
@@ -60,16 +60,17 @@ const SEVERITY_CONFIG: Record<
     border: 'border-blue-200 dark:border-blue-800',
     icon: IconInfoCircle,
     iconColor: 'text-blue-500',
-    label: 'INFO',
+    label: 'THÔNG TIN',
     badgeBg: 'bg-blue-500'
   }
 };
 
 function parseSeverityFromTitle(title: string): Severity {
   const upper = title.toUpperCase();
-  if (upper.includes('CRITICAL')) return 'critical';
-  if (upper.includes('WARNING')) return 'warning';
-  if (upper.includes('CAUTION')) return 'caution';
+  if (upper.includes('CRITICAL') || upper.includes('NGUY')) return 'critical';
+  if (upper.includes('WARNING') || upper.includes('CẢNH BÁO')) return 'warning';
+  if (upper.includes('CAUTION') || upper.includes('THẬN TRỌNG'))
+    return 'caution';
   return 'info';
 }
 
@@ -101,14 +102,14 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
           <div className='mx-4 mt-2 flex items-center gap-2 rounded-xl bg-white/80 px-3 py-2 shadow-sm dark:bg-slate-800/80'>
             <IconMapPin className='size-4 text-blue-500' />
             <span className='text-[9px] font-medium text-slate-600 dark:text-slate-300'>
-              FDA Monitoring Dashboard
+              Bảng giám sát FDA
             </span>
           </div>
           <div className='mx-4 mt-3 grid grid-cols-2 gap-2'>
             <div className='flex items-center gap-1.5 rounded-lg bg-white/60 p-2 dark:bg-slate-800/60'>
               <IconDroplet className='size-3 text-blue-400' />
               <div>
-                <div className='text-[7px] text-slate-400'>Water Level</div>
+                <div className='text-[7px] text-slate-400'>Mực nước</div>
                 <div className='text-[9px] font-bold text-slate-700 dark:text-slate-200'>
                   4.12m
                 </div>
@@ -117,7 +118,7 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
             <div className='flex items-center gap-1.5 rounded-lg bg-white/60 p-2 dark:bg-slate-800/60'>
               <IconClock className='size-3 text-slate-400' />
               <div>
-                <div className='text-[7px] text-slate-400'>Updated</div>
+                <div className='text-[7px] text-slate-400'>Cập nhật</div>
                 <div className='text-[9px] font-bold text-slate-700 dark:text-slate-200'>
                   08:30
                 </div>
@@ -142,10 +143,10 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
                   <SeverityIcon className='size-3 text-white' />
                 </div>
                 <span className='text-[9px] font-bold tracking-wider text-slate-500 uppercase'>
-                  FDA {config.label}
+                  FDA · {config.label}
                 </span>
                 <span className='ml-auto text-[9px] text-slate-400'>
-                  Just now
+                  Vừa xong
                 </span>
                 <IconX className='size-3 text-slate-400' />
               </div>
@@ -175,7 +176,7 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
               <IconBell className='size-6 text-slate-400' />
             </div>
             <p className='text-[10px] font-medium text-slate-500'>
-              Click &quot;Generate Preview&quot; to see the in-app banner
+              Nhấn &quot;Tạo xem trước&quot; để xem banner trong app
             </p>
           </div>
         )}
@@ -187,7 +188,7 @@ export function InAppPreview({ title, body }: InAppPreviewProps) {
       {/* Info below phone */}
       {(title || body) && (
         <div className='mt-4 text-center font-mono text-[10px] text-slate-400'>
-          Auto-dismiss after 15s &middot; Swipe up to close
+          Tự tắt sau 15 giây · Vuốt lên để đóng
         </div>
       )}
     </div>

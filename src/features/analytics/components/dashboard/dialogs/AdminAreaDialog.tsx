@@ -32,7 +32,7 @@ import { toast } from 'sonner';
 // --------------- schema ---------------
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
-  level: z.enum(['province', 'district', 'ward', 'street']),
+  level: z.enum(['province', 'district', 'street']),
   code: z.string().min(1, 'Code is required'),
   parentId: z.string().optional().nullable(),
   geometry: z.string().optional().nullable()
@@ -94,7 +94,7 @@ export function AdminAreaDialog({
     resolver: zodResolver(schema) as any,
     defaultValues: {
       name: '',
-      level: 'province' as any,
+      level: 'street' as FormValues['level'],
       code: '',
       parentId: '__none__',
       geometry: ''
@@ -108,14 +108,17 @@ export function AdminAreaDialog({
         area
           ? {
               name: area.name,
-              level: area.level as FormValues['level'],
+              level:
+                area.level === 'ward'
+                  ? 'street'
+                  : (area.level as FormValues['level']),
               code: area.code,
               parentId: area.parentId ?? '__none__',
               geometry: area.geometry ?? ''
             }
           : {
               name: '',
-              level: 'province' as any,
+              level: 'street' as FormValues['level'],
               code: '',
               parentId: '__none__',
               geometry: ''
@@ -222,7 +225,6 @@ export function AdminAreaDialog({
               options={[
                 { label: 'Province', value: 'province' },
                 { label: 'District', value: 'district' },
-                { label: 'Ward', value: 'ward' },
                 { label: 'Street', value: 'street' }
               ]}
             />

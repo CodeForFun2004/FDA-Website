@@ -255,7 +255,7 @@ const ADMIN_AREAS_FETCH_MAX_PAGES = 50;
 
 /**
  * Gom toàn bộ administrative areas (phân trang phía server) cho dropdown/filter.
- * Không filter level — đồng bộ với job aggregation dùng danh sách đầy đủ.
+ * Truyền `level` (vd. `'street'`) khi cần khớp aggregation/station (analytics frequency/severity).
  */
 export async function fetchAllAdministrativeAreasForSelect(options?: {
   level?: string;

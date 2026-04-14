@@ -5,6 +5,9 @@ export type FloodStationProperties = {
   id?: string | null;
   code?: string | null;
   stationId?: string | null;
+  /** Khớp trạm với khu admin (street) — BE có thể camelCase hoặc PascalCase */
+  administrativeAreaId?: string | null;
+  AdministrativeAreaId?: string | null;
   stationCode: string;
   stationName: string;
   locationDesc: string;
@@ -74,7 +77,11 @@ export async function getFloodSeverityGeoJSON(args: {
       properties: {
         ...properties,
         stationId: properties.stationId ?? properties.id ?? null,
-        stationCode: properties.stationCode ?? properties.code ?? null
+        stationCode: properties.stationCode ?? properties.code ?? null,
+        administrativeAreaId:
+          properties.administrativeAreaId ??
+          properties.AdministrativeAreaId ??
+          null
       }
     };
   });

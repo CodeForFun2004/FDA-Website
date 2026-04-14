@@ -1,12 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { PanelLeft, Sun, Moon, Bell, Search } from 'lucide-react';
+import { PanelLeft, Sun, Moon, Bell } from 'lucide-react';
 import { useAppStore } from '../../libs/store';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
-import { cn } from '@/libs/utils';
-
-import { Button, Input } from '../../components/ui/common';
+import { Button } from '../../components/ui/common';
 import { clearSessionCookie } from '@/helpers/auth-session';
 import { toast } from 'sonner';
 import {
@@ -16,11 +14,10 @@ import {
 import { ProfileMenu } from './ProfileMenu';
 
 export const Header = () => {
-  const { theme, setTheme, isSidebarOpen, toggleSidebar } = useAppStore();
+  const { theme, setTheme, toggleSidebar } = useAppStore();
   const router = useRouter();
 
   const authUser = useAuthStore((s) => s.user);
-  const authStatus = useAuthStore((s) => s.status);
   const authLogout = useAuthStore((s) => s.logout);
 
   const handleThemeToggle = () => {
@@ -60,28 +57,12 @@ export const Header = () => {
         size='icon'
         className='h-8 w-8 shrink-0'
         onClick={toggleSidebar}
-        aria-label='Toggle sidebar'
+        aria-label='Mở hoặc đóng menu'
       >
         <PanelLeft className='h-5 w-5' />
       </Button>
 
-      <div className='flex flex-1 items-center gap-4 md:gap-6'>
-        <form className='hidden flex-1 md:block'>
-          <div className='relative flex transition-all duration-300'>
-            <Search className='text-muted-foreground absolute top-2.5 left-3 h-4 w-4' />
-            <Input
-              type='search'
-              placeholder='Search...'
-              className={cn(
-                'bg-muted/20 hover:bg-muted/50 focus:bg-background w-full pl-9 transition-all duration-500 ease-in-out',
-                isSidebarOpen
-                  ? 'md:w-[240px] lg:w-[300px]'
-                  : 'md:w-[300px] lg:w-[400px]'
-              )}
-            />
-          </div>
-        </form>
-      </div>
+      <div className='flex flex-1' />
 
       <div className='flex items-center gap-4'>
         <Button variant='ghost' size='icon' onClick={handleThemeToggle}>
@@ -94,7 +75,7 @@ export const Header = () => {
 
         <Button variant='ghost' size='icon'>
           <Bell className='h-5 w-5' />
-          <span className='sr-only'>Notifications</span>
+          <span className='sr-only'>Thông báo</span>
         </Button>
 
         {/* Giữ đúng layout "pl-4 border-l" như code gốc */}
@@ -130,15 +111,15 @@ export const Header = () => {
                   : s.user
               }));
 
-              toast.success(res.message || 'Profile updated successfully');
+              toast.success(res.message || 'Đã cập nhật hồ sơ');
             }}
             onChangePassword={async (payload) => {
               if (payload.newPassword !== payload.confirmPassword) {
-                toast.error('New password and confirmation do not match');
+                toast.error('Mật khẩu mới và xác nhận không khớp');
                 return;
               }
               const res = await changePasswordApi(payload);
-              toast.success(res.message || 'Password changed successfully');
+              toast.success(res.message || 'Đã đổi mật khẩu');
             }}
           />
         </div>

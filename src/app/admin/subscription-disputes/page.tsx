@@ -11,8 +11,8 @@ export default function Page() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Subscription Disputes'
-      pageDescription='Review subscription complaints from users and resolve/reject each case.'
+      pageTitle='Khiếu nại gói'
+      pageDescription='Xem xét và xử lý khiếu nại liên quan đến gói đăng ký.'
     >
       <Suspense
         fallback={

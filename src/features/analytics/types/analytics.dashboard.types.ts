@@ -4,8 +4,6 @@ export type AnalyticsJobType = 'FREQUENCY' | 'SEVERITY' | 'HOTSPOTS';
 
 export type JobStatus = 'RUNNING' | 'SUCCESS' | 'FAILED' | 'CANCELLED';
 
-export type AreaLevel = 'ward' | 'street' | 'all';
-
 export interface JobRun {
   jobRunId: string;
   jobType: AnalyticsJobType;

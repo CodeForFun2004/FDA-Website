@@ -23,49 +23,58 @@ export function AnalyticsHeader(props: {
   return (
     <div className='flex flex-col gap-3 md:flex-row md:items-start md:justify-between'>
       <div className='space-y-1'>
-        <h2 className='text-3xl font-bold tracking-tight'>Analytics</h2>
+        <h2 className='text-3xl font-bold tracking-tight'>Phân tích</h2>
         <p className='text-muted-foreground max-w-xl text-sm'>
-          Ranking: Start/End + Hotspot level + Top N. Trend: Metric, Bucket,
-          Area (chọn khu vực để gọi API).
+          Xem xếp hạng khu vực ngập nổi bật và xu hướng tần suất/mức độ theo
+          thời gian và khu vực đã chọn.
         </p>
       </div>
 
-      <div className='flex flex-wrap items-center gap-2'>
+      <div className='grid w-full grid-cols-1 gap-2 sm:max-w-xl sm:grid-cols-3'>
         <Button
           type='button'
           variant='outline'
+          className='h-10 w-full justify-center gap-2'
           onClick={props.onRefresh}
           disabled={props.isRefreshing}
         >
-          <RefreshCcw className='mr-2 h-4 w-4' />
-          Refresh
+          <RefreshCcw className='h-4 w-4 shrink-0' />
+          Làm mới
         </Button>
 
-        <Button type='button' variant='outline' asChild>
-          <Link href='/admin/analytics/hangfire'>
-            <ServerCog className='mr-2 h-4 w-4' />
-            Background jobs
+        <Button
+          type='button'
+          variant='outline'
+          asChild
+          className='h-10 w-full justify-center'
+        >
+          <Link
+            href='/admin/tasks'
+            className='inline-flex items-center justify-center gap-2'
+          >
+            <ServerCog className='h-4 w-4 shrink-0' />
+            Tác vụ nền
           </Link>
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button type='button'>
-              Trigger
-              <ChevronDown className='ml-2 h-4 w-4' />
+            <Button type='button' className='h-10 w-full justify-center gap-2'>
+              Chạy gom dữ liệu
+              <ChevronDown className='h-4 w-4 shrink-0' />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end' className='w-56'>
-            <DropdownMenuLabel>Manual re-aggregation</DropdownMenuLabel>
+            <DropdownMenuLabel>Gom lại thủ công</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => props.onTrigger('frequency')}>
-              Frequency aggregation
+              Gom theo tần suất
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => props.onTrigger('severity')}>
-              Severity aggregation
+              Gom theo mức độ
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => props.onTrigger('hotspots')}>
-              Hotspot ranking
+              Xếp hạng điểm nóng
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

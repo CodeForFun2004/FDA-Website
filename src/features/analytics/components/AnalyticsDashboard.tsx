@@ -7,7 +7,8 @@ import { fetchAllAdministrativeAreasForSelect } from '@/features/admin/api/admin
 import { getAccessToken } from '@/libs/auth-utils';
 import {
   AnalyticsApiError,
-  analyticsApi
+  analyticsApi,
+  HOTSPOT_RANKINGS_AREA_LEVEL
 } from '@/features/analytics/api/analytics.api';
 import QuickActionModal from '@/features/analytics/components/QuickActionModal';
 import type {
@@ -87,18 +88,17 @@ export function AnalyticsDashboard() {
     startDate: today(),
     endDate: format(addDays(new Date(), 6), 'yyyy-MM-dd'),
     areaId: 'all',
-    areaLevel: 'all',
     topN: 50
   }));
   const [applied, setApplied] = React.useState(filters);
   const applyFilters = React.useCallback((next: AnalyticsFiltersState) => {
     setApplied(next);
-    toast.message('Filters applied');
+    toast.message('Đã áp dụng bộ lọc');
   }, []);
 
   const { data: areasRows = [], isLoading: areasLoading } = useQuery({
-    queryKey: ['administrative-areas', 'analytics', 'all-pages'],
-    queryFn: () => fetchAllAdministrativeAreasForSelect(),
+    queryKey: ['administrative-areas', 'analytics', 'street'],
+    queryFn: () => fetchAllAdministrativeAreasForSelect({ level: 'street' }),
     staleTime: 5 * 60 * 1000
   });
 
@@ -115,8 +115,7 @@ export function AnalyticsDashboard() {
       'analytics-hotspots-rankings',
       applied.startDate,
       applied.endDate,
-      hotspotRankTopN,
-      applied.areaLevel
+      hotspotRankTopN
     ],
     queryFn: async () => {
       const token = await getAccessToken();
@@ -126,16 +125,13 @@ export function AnalyticsDashboard() {
 
       const periodStart = `${applied.startDate}T00:00:00.000Z`;
       const periodEnd = `${applied.endDate}T23:59:59.999Z`;
-      const areaLevel =
-        applied.areaLevel === 'all' ? 'ward' : applied.areaLevel;
-
       try {
         return await analyticsApi.getHotspotRankings(
           {
             periodStart,
             periodEnd,
             topN: hotspotRankTopN,
-            areaLevel
+            areaLevel: HOTSPOT_RANKINGS_AREA_LEVEL
           },
           token
         );
@@ -241,7 +237,7 @@ export function AnalyticsDashboard() {
     ) => {
       const token = await getAccessToken();
       if (!token) {
-        toast.error('Authentication required.');
+        toast.error('Cần đăng nhập.');
         throw new Error('Unauthorized');
       }
       const type = quickActionType;
@@ -269,7 +265,7 @@ export function AnalyticsDashboard() {
         );
       } catch (e) {
         if (e instanceof AnalyticsApiError) toast.error(e.message);
-        else toast.error('Trigger failed.');
+        else toast.error('Kích hoạt thất bại.');
         throw e;
       }
     },
@@ -298,7 +294,7 @@ export function AnalyticsDashboard() {
         queryClient.invalidateQueries({ queryKey: ['analytics-frequency'] }),
         queryClient.invalidateQueries({ queryKey: ['analytics-severity'] }),
         queryClient.invalidateQueries({
-          queryKey: ['administrative-areas', 'analytics', 'all-pages']
+          queryKey: ['administrative-areas', 'analytics', 'street']
         })
       ]);
       toast.message('Đã làm mới dữ liệu');
@@ -328,7 +324,6 @@ export function AnalyticsDashboard() {
             startDate: today(),
             endDate: format(addDays(new Date(), 6), 'yyyy-MM-dd'),
             areaId: 'all',
-            areaLevel: 'all',
             topN: 50
           };
           setFilters(next);
@@ -340,18 +335,21 @@ export function AnalyticsDashboard() {
         <CardHeader className='pb-2'>
           <CardTitle className='text-base'>
             {showRanking && showTrend
-              ? 'Hotspot ranking & trend'
+              ? 'Xếp hạng & xu hướng'
               : showRanking
-                ? 'Hotspot ranking'
+                ? 'Xếp hạng điểm nóng'
                 : trendMode === 'severity'
-                  ? 'Severity trend'
-                  : 'Frequency trend'}
+                  ? 'Xu hướng mức độ'
+                  : 'Xu hướng tần suất'}
           </CardTitle>
           <CardDescription>
-            {showRanking
-              ? `Hotspot: top ${hotspotRankTopN}, có areaLevel. `
-              : null}
-            {showTrend ? 'Trend: chọn một Area + bucket rồi Apply.' : null}
+            {showRanking && showTrend
+              ? 'Xếp hạng khu vực ngập nổi bật và biểu đồ xu hướng theo thời gian.'
+              : showRanking
+                ? 'Danh sách khu vực có điểm ngập cao trong khoảng thời gian đã chọn.'
+                : trendMode === 'severity'
+                  ? 'Mức nước theo từng khoảng thời gian tại khu vực đã chọn.'
+                  : 'Số sự kiện và lần vượt ngưỡng theo từng khoảng thời gian.'}
           </CardDescription>
         </CardHeader>
         <CardContent className='space-y-5'>

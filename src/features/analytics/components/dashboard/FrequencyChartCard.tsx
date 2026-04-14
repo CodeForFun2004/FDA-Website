@@ -24,26 +24,25 @@ export function FrequencyChartCard(props: {
     <div className='space-y-4'>
       {empty ? (
         <div className='text-muted-foreground flex h-[280px] items-center justify-center rounded-md border border-dashed text-sm'>
-          Chưa có dữ liệu frequency — chọn Area cụ thể và Apply (hoặc chờ job
-          aggregation).
+          Chưa có dữ liệu — chọn một khu vực và nhấn Áp dụng.
         </div>
       ) : null}
       {!empty ? (
         <div className='grid grid-cols-3 gap-3 text-xs'>
           <div className='rounded-md border p-3'>
-            <div className='text-muted-foreground'>Total events</div>
+            <div className='text-muted-foreground'>Tổng sự kiện</div>
             <div className='text-foreground mt-1 text-base font-semibold'>
               {Intl.NumberFormat('en-US').format(totalEvents)}
             </div>
           </div>
           <div className='rounded-md border p-3'>
-            <div className='text-muted-foreground'>Total exceed</div>
+            <div className='text-muted-foreground'>Tổng vượt ngưỡng</div>
             <div className='text-foreground mt-1 text-base font-semibold'>
               {Intl.NumberFormat('en-US').format(totalExceed)}
             </div>
           </div>
           <div className='rounded-md border p-3'>
-            <div className='text-muted-foreground'>Avg / bucket</div>
+            <div className='text-muted-foreground'>Trung bình / bước</div>
             <div className='text-foreground mt-1 text-base font-semibold'>
               {props.data.length
                 ? Intl.NumberFormat('en-US').format(
@@ -59,8 +58,11 @@ export function FrequencyChartCard(props: {
         <div className='h-[280px]'>
           <ChartContainer
             config={{
-              eventCount: { label: 'Events', color: 'hsl(var(--primary))' },
-              exceedCount: { label: 'Exceed', color: 'hsl(var(--destructive))' }
+              eventCount: { label: 'Sự kiện', color: 'hsl(var(--primary))' },
+              exceedCount: {
+                label: 'Vượt ngưỡng',
+                color: 'hsl(var(--destructive))'
+              }
             }}
           >
             <Recharts.ComposedChart
@@ -99,7 +101,7 @@ export function FrequencyChartCard(props: {
     return (
       <div className='space-y-3'>
         <h3 className='text-foreground text-sm font-semibold'>
-          Frequency trend
+          Xu hướng tần suất
         </h3>
         {body}
       </div>
@@ -109,7 +111,7 @@ export function FrequencyChartCard(props: {
   return (
     <Card className='border-border shadow-none'>
       <CardHeader className='pb-3'>
-        <CardTitle className='text-sm'>Frequency trend</CardTitle>
+        <CardTitle className='text-sm'>Xu hướng tần suất</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>{body}</CardContent>
     </Card>

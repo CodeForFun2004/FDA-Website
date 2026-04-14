@@ -33,24 +33,32 @@ export function AggregationActionsPanel(props: {
 
   const blocks = {
     frequency: {
-      title: 'Frequency aggregation',
-      note: 'Bucketed eventCount / exceedCount by time & area.',
-      schedule: 'Daily 02:00 (Asia/Ho_Chi_Minh)',
+      title: 'Gom dữ liệu tần suất',
+      note: 'Tổng hợp số sự kiện và lần vượt ngưỡng theo từng bước thời gian và khu vực.',
+      schedule: 'Hằng ngày 02:00 (Giờ VN)',
       last: freq
     },
     severity: {
-      title: 'Severity aggregation',
-      note: 'max/avg/min level + duration + readingCount per bucket.',
-      schedule: 'Daily 02:10 (Asia/Ho_Chi_Minh)',
+      title: 'Gom dữ liệu mức độ',
+      note: 'Thống kê mực nước (max/TB/min), thời lượng và số lần đo theo từng bước.',
+      schedule: 'Hằng ngày 02:10 (Giờ VN)',
       last: sev
     },
     hotspots: {
-      title: 'Hotspot ranking',
-      note: 'Top-N ranking for reporting (FE-18 ready).',
-      schedule: 'Weekly Mon 03:00 (Asia/Ho_Chi_Minh)',
+      title: 'Xếp hạng điểm nóng',
+      note: 'Danh sách khu vực có điểm ngập cao trong kỳ để báo cáo.',
+      schedule: 'Hằng tuần, thứ Hai 03:00 (Giờ VN)',
       last: hot
     }
   } as const;
+
+  const jobStatusVi = (s?: string | null) => {
+    if (!s) return 'CHƯA RÕ';
+    if (s === 'SUCCESS') return 'Thành công';
+    if (s === 'FAILED') return 'Thất bại';
+    if (s === 'RUNNING') return 'Đang chạy';
+    return s;
+  };
 
   const renderBlock = (t: TriggerType) => {
     const b = blocks[t];
@@ -66,39 +74,41 @@ export function AggregationActionsPanel(props: {
 
         <div className='grid grid-cols-2 gap-3 text-xs'>
           <div className='space-y-1'>
-            <div className='text-muted-foreground'>Last status</div>
+            <div className='text-muted-foreground'>Lần chạy gần nhất</div>
             <div>
               <Badge variant={statusVariant(last?.status) as any}>
-                {last?.status ?? 'UNKNOWN'}
+                {jobStatusVi(last?.status)}
               </Badge>
             </div>
           </div>
           <div className='space-y-1'>
-            <div className='text-muted-foreground'>Last run</div>
+            <div className='text-muted-foreground'>Thời điểm</div>
             <div className='text-foreground'>
               {last
-                ? new Date(last.finishedAt ?? last.startedAt).toLocaleString()
+                ? new Date(last.finishedAt ?? last.startedAt).toLocaleString(
+                    'vi-VN'
+                  )
                 : '—'}
             </div>
           </div>
           <div className='space-y-1'>
-            <div className='text-muted-foreground'>Next schedule</div>
+            <div className='text-muted-foreground'>Lịch tiếp theo</div>
             <div className='text-foreground'>{b.schedule}</div>
           </div>
           <div className='space-y-1'>
-            <div className='text-muted-foreground'>Idempotent</div>
+            <div className='text-muted-foreground'>Ghi đè an toàn</div>
             <div className='text-foreground'>
-              Upsert / overwrite (no double count)
+              Cập nhật/ghi đè, không đếm trùng
             </div>
           </div>
         </div>
 
         <div className='flex flex-wrap items-center gap-2'>
           <Button type='button' onClick={() => props.onRunNow(t)}>
-            Run now
+            Chạy ngay
           </Button>
           <Button type='button' variant='outline' onClick={props.onViewHistory}>
-            View history
+            Xem lịch sử
           </Button>
         </div>
       </div>
@@ -108,7 +118,7 @@ export function AggregationActionsPanel(props: {
   return (
     <Card className='border-border shadow-none'>
       <CardHeader className='pb-3'>
-        <CardTitle className='text-sm'>Aggregation operations</CardTitle>
+        <CardTitle className='text-sm'>Thao tác gom dữ liệu</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs
@@ -120,19 +130,19 @@ export function AggregationActionsPanel(props: {
               value='frequency'
               className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
             >
-              Frequency
+              Tần suất
             </TabsTrigger>
             <TabsTrigger
               value='severity'
               className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
             >
-              Severity
+              Mức độ
             </TabsTrigger>
             <TabsTrigger
               value='hotspots'
               className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
             >
-              Hotspots
+              Điểm nóng
             </TabsTrigger>
           </TabsList>
           <TabsContent value='frequency'>

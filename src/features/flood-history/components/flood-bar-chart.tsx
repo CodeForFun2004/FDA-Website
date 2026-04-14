@@ -16,6 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
+import { FLOOD_CHART_PLOT_CLASS } from '../constants/flood-chart-layout';
 import type { FloodTrendDto } from '../types/flood-history.type';
 
 interface FloodBarChartProps {
@@ -42,15 +43,15 @@ export function FloodBarChart({ trendData, isLoading }: FloodBarChartProps) {
 
   const chartConfig = {
     maxLevel: {
-      label: 'Max Water Level (cm)',
+      label: 'Mực max (cm)',
       color: 'hsl(var(--destructive))'
     },
     avgLevel: {
-      label: 'Avg Water Level (cm)',
+      label: 'Mực TB (cm)',
       color: 'hsl(var(--primary))'
     },
     minLevel: {
-      label: 'Min Water Level (cm)',
+      label: 'Mực min (cm)',
       color: 'hsl(var(--muted))'
     }
   } satisfies ChartConfig;
@@ -63,7 +64,9 @@ export function FloodBarChart({ trendData, isLoading }: FloodBarChartProps) {
           <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
         </CardHeader>
         <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-          <div className='bg-muted aspect-auto h-[350px] w-full animate-pulse rounded'></div>
+          <div
+            className={`bg-muted w-full animate-pulse rounded ${FLOOD_CHART_PLOT_CLASS}`}
+          />
         </CardContent>
       </Card>
     );
@@ -73,11 +76,13 @@ export function FloodBarChart({ trendData, isLoading }: FloodBarChartProps) {
     return (
       <Card className='@container/card'>
         <CardHeader>
-          <CardTitle>30-Day Flood Analysis</CardTitle>
-          <CardDescription>No bar chart data available</CardDescription>
+          <CardTitle>Phân tích ngập</CardTitle>
+          <CardDescription>Chưa có dữ liệu cột</CardDescription>
         </CardHeader>
-        <CardContent className='text-muted-foreground flex h-[350px] items-center justify-center'>
-          No data to display
+        <CardContent
+          className={`text-muted-foreground flex items-center justify-center ${FLOOD_CHART_PLOT_CLASS}`}
+        >
+          Không có dữ liệu
         </CardContent>
       </Card>
     );
@@ -86,16 +91,14 @@ export function FloodBarChart({ trendData, isLoading }: FloodBarChartProps) {
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>30-Day Flood Analysis</CardTitle>
+        <CardTitle>Phân tích ngập</CardTitle>
         <CardDescription>
-          {trendData.stationName} - Daily water level ranges and flood hours
+          {trendData.stationName} — Mực max/TB theo ngày (di chuột để xem giờ
+          ngập)
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-        <ChartContainer
-          config={chartConfig}
-          className='aspect-auto h-[350px] w-full'
-        >
+        <ChartContainer config={chartConfig} className={FLOOD_CHART_PLOT_CLASS}>
           <BarChart
             data={chartData}
             margin={{
@@ -124,15 +127,27 @@ export function FloodBarChart({ trendData, isLoading }: FloodBarChartProps) {
               cursor={false}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => `Date: ${value}`}
-                  formatter={(value, name) => [
-                    `${value} cm`,
-                    name === 'maxLevel'
-                      ? 'Maximum Level'
-                      : name === 'avgLevel'
-                        ? 'Average Level'
-                        : 'Minimum Level'
-                  ]}
+                  labelFormatter={(value) => `Ngày: ${value}`}
+                  formatter={(value, name, item, _index, row) => {
+                    const fh = (row as { floodHours?: number })?.floodHours;
+                    const base = `${value} cm`;
+                    if (item.dataKey === 'maxLevel' && fh != null) {
+                      return (
+                        <div className='flex w-full flex-wrap items-center justify-between gap-2'>
+                          <span className='text-muted-foreground'>{name}</span>
+                          <span className='font-mono font-medium'>
+                            {base} · {fh}h ngập
+                          </span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className='flex w-full flex-wrap items-center justify-between gap-2'>
+                        <span className='text-muted-foreground'>{name}</span>
+                        <span className='font-mono font-medium'>{base}</span>
+                      </div>
+                    );
+                  }}
                 />
               }
             />
@@ -140,49 +155,16 @@ export function FloodBarChart({ trendData, isLoading }: FloodBarChartProps) {
               dataKey='maxLevel'
               fill='var(--color-maxLevel)'
               radius={[2, 2, 0, 0]}
-              name='Max Level'
+              name='Mực max'
             />
             <Bar
               dataKey='avgLevel'
               fill='var(--color-avgLevel)'
               radius={[2, 2, 0, 0]}
-              name='Avg Level'
+              name='Mực TB'
             />
           </BarChart>
         </ChartContainer>
-
-        {/* Flood Hours Indicator */}
-        <div className='mt-4 grid grid-cols-1 gap-2 md:grid-cols-3'>
-          {chartData.slice(-3).map((day, index) => (
-            <div
-              key={day.period}
-              className='flex items-center justify-between rounded-lg border p-3'
-            >
-              <div>
-                <div className='text-sm font-medium'>{day.date}</div>
-                <div className='text-muted-foreground text-xs'>
-                  Max: {day.maxLevel}cm
-                </div>
-              </div>
-              <div className='text-right'>
-                <div
-                  className={`text-sm font-bold ${
-                    day.floodHours > 12
-                      ? 'text-red-600'
-                      : day.floodHours > 6
-                        ? 'text-orange-600'
-                        : day.floodHours > 0
-                          ? 'text-yellow-600'
-                          : 'text-green-600'
-                  }`}
-                >
-                  {day.floodHours}h
-                </div>
-                <div className='text-muted-foreground text-xs'>flood</div>
-              </div>
-            </div>
-          ))}
-        </div>
       </CardContent>
     </Card>
   );

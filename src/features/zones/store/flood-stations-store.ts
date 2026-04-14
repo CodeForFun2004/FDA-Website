@@ -13,6 +13,8 @@ export type FloodStationSummary = {
   stationStatus: string;
   latitude: number;
   longitude: number;
+  /** Street-level administrative area (cùng id gắn trạm trên BE) */
+  administrativeAreaId?: string | null;
   severity?: string;
   severityLevel?: number;
 };
@@ -46,6 +48,8 @@ const normalizeStation = (
   stationStatus: properties.stationStatus,
   latitude: coordinates[1],
   longitude: coordinates[0],
+  administrativeAreaId:
+    properties.administrativeAreaId ?? properties.AdministrativeAreaId ?? null,
   severity: properties.severity,
   severityLevel: properties.severityLevel
 });

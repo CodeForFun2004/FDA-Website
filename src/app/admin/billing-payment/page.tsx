@@ -11,8 +11,8 @@ export default function Page() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Billing & Payments'
-      pageDescription='View all payment transactions, filter by status, and inspect details for each order.'
+      pageTitle='Giao dịch thanh toán'
+      pageDescription='Xem lịch sử thanh toán và chi tiết từng đơn hàng.'
     >
       <Suspense
         fallback={

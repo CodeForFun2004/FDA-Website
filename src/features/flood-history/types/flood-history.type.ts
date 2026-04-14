@@ -9,6 +9,8 @@ export type FloodSeverity =
 export type FloodQualityFlag = 'ok' | 'suspect' | 'bad' | string;
 
 export type PeriodPreset =
+  | 'last6hours'
+  | 'last12hours'
   | 'last24hours'
   | 'last7days'
   | 'last30days'
@@ -164,7 +166,12 @@ export type GetFloodStatisticsParams = {
   stationIds?: UUID[] | null;
   areaId?: UUID | null;
   period?: PeriodPreset | string | null;
+  /** Một số BE dùng cùng flood-trends cho khoảng custom (giờ) */
+  startDate?: string | Date | null;
+  endDate?: string | Date | null;
   includeBreakdown?: boolean | null;
+  /** BE default false — gửi true khi cần so sánh kỳ (đồng bộ vs compareWithPrevious trends) */
+  includeComparison?: boolean | null;
 };
 
 export interface GetFloodHistoryResponse extends ApiEnvelope {

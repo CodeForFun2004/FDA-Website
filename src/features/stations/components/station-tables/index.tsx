@@ -14,6 +14,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 
+const EMPTY_ROLES: string[] = [];
+
 interface StationTableParams<TData, TValue> {
   data: TData[];
   totalItems: number;
@@ -25,7 +27,7 @@ export function StationTable<TData, TValue>({
   totalItems,
   columns
 }: StationTableParams<TData, TValue>) {
-  const roles = useAuthStore((s) => s.user?.roles ?? []);
+  const roles = useAuthStore((s) => s.user?.roles ?? EMPTY_ROLES);
   const canManageStations =
     roles.includes('ADMIN') || roles.includes('SUPERADMIN');
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));

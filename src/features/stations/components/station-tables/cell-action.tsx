@@ -26,6 +26,8 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 
+const EMPTY_ROLES: string[] = [];
+
 interface CellActionProps {
   data: Station;
 }
@@ -38,7 +40,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
 
-  const roles = useAuthStore((s) => s.user?.roles ?? []);
+  const roles = useAuthStore((s) => s.user?.roles ?? EMPTY_ROLES);
   const canManageStations =
     roles.includes('ADMIN') || roles.includes('SUPERADMIN');
 

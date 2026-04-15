@@ -23,6 +23,7 @@ import {
   IconEditCircle,
   IconAlertCircle
 } from '@tabler/icons-react';
+import { cn } from '@/libs/utils';
 
 import { PushPreview } from './previews/push-preview';
 import { EmailPreview } from './previews/email-preview';
@@ -44,10 +45,10 @@ const DEFAULT_TEST_DATA = {
 };
 
 const CHANNEL_TABS = [
-  { value: 'Push' as const, label: 'Đẩy' },
+  { value: 'Push' as const, label: 'Push' },
   { value: 'Email' as const, label: 'Email' },
   { value: 'SMS' as const, label: 'SMS' },
-  { value: 'InApp' as const, label: 'Trong ứng dụng' }
+  { value: 'InApp' as const, label: 'In-App' }
 ] as const;
 
 export function AlertTemplatePreviewDialog({
@@ -113,7 +114,7 @@ export function AlertTemplatePreviewDialog({
         }
       }}
     >
-      <DialogContent className='flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl'>
+      <DialogContent className='flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-5xl'>
         {/* Header */}
         <DialogHeader className='bg-muted/30 flex-shrink-0 border-b px-5 py-4 sm:px-6'>
           <DialogTitle className='text-lg'>
@@ -179,7 +180,7 @@ export function AlertTemplatePreviewDialog({
 
             {/* Channel Tabs */}
             <Tabs defaultValue={activeChannel} className='w-full'>
-              <TabsList className='mb-6 grid w-full grid-cols-4'>
+              <TabsList className='bg-muted/50 mb-6 grid h-auto w-full grid-cols-4 gap-1 rounded-lg p-1'>
                 {CHANNEL_TABS.map(({ value: ch, label }) => {
                   const enabled = true;
                   return (
@@ -187,11 +188,18 @@ export function AlertTemplatePreviewDialog({
                       key={ch}
                       value={ch}
                       disabled={!enabled}
-                      className={
-                        !enabled ? 'cursor-not-allowed opacity-50' : ''
-                      }
+                      className={cn(
+                        'h-9 w-full rounded-md px-2 text-xs font-semibold transition-colors sm:h-10 sm:px-3 sm:text-sm',
+                        'data-[state=active]:bg-primary',
+                        'data-[state=active]:text-primary-foreground',
+                        'data-[state=active]:shadow-none',
+                        !enabled ? 'cursor-not-allowed opacity-50' : '',
+                        label.length > 8 ? 'tracking-[-0.01em]' : ''
+                      )}
                     >
-                      {label}
+                      <span className='block w-full truncate text-center'>
+                        {label}
+                      </span>
                     </TabsTrigger>
                   );
                 })}

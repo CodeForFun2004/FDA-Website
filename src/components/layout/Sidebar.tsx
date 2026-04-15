@@ -88,24 +88,31 @@ const navItemsAdmin: NavItem[] = [
     href: '/admin/stations',
     icon: SmartphoneNfc
   },
-  {
-    type: 'group',
-    label: 'Cảnh báo & tin',
-    icon: BellRing,
-    children: [
-      {
-        label: 'Mẫu cảnh báo',
-        href: '/admin/alerts',
-        icon: BellRing
-      },
-      {
-        label: 'Tin tức',
-        href: '/admin/news',
-        icon: Newspaper
-      }
-    ]
-  },
+  //              Tạm thời cmt code về role của Admin
+  // {
+  //   type: 'group',
+  //   label: 'Cảnh báo & tin',
+  //   icon: BellRing,
+  //   children: [
+  //     {
+  //       label: 'Mẫu cảnh báo',
+  //       href: '/admin/alerts',
+  //       icon: BellRing
+  //     },
+  //     {
+  //       label: 'Tin tức',
+  //       href: '/admin/news',
+  //       icon: Newspaper
+  //     }
+  //   ]
+  // },
   { type: 'link', label: 'Bản đồ & vùng', href: '/admin/zones', icon: MapIcon },
+  {
+    type: 'link',
+    label: 'Logs hệ thống',
+    href: '/admin/operational-logs',
+    icon: ServerCog
+  },
   {
     type: 'link',
     label: 'Tác vụ',
@@ -132,6 +139,12 @@ const navItemsModerator: NavItem[] = [
     type: 'link',
     label: 'Trạm quan trắc',
     href: '/moderator/stations',
+    icon: SmartphoneNfc
+  },
+  {
+    type: 'link',
+    label: 'Cộng đồng',
+    href: '/moderator/community',
     icon: SmartphoneNfc
   },
   {

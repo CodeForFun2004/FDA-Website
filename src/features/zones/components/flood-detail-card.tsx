@@ -205,7 +205,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
                     : `${stationDetailBasePath}/stations`
                 }
               >
-                Chi tiết
+                Xem trạm
               </Link>
             </Button>
           </div>

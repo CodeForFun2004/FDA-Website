@@ -28,27 +28,30 @@ function mapAdminUserToUser(adminUser: AdminUser): User {
  */
 function mapRolesFromBackend(
   roles: string[]
-): Array<'ADMIN' | 'USER' | 'SUPER_ADMIN' | 'AUTHORITY'> {
+): Array<'ADMIN' | 'USER' | 'SUPERADMIN' | 'MODERATOR'> {
   if (!roles || roles.length === 0) return ['USER'];
 
   // Map backend role names to frontend Role type
-  const roleMap: Record<
-    string,
-    'ADMIN' | 'USER' | 'SUPER_ADMIN' | 'AUTHORITY'
-  > = {
-    ADMIN: 'ADMIN',
-    Admin: 'ADMIN',
-    admin: 'ADMIN',
-    USER: 'USER',
-    User: 'USER',
-    user: 'USER',
-    SUPER_ADMIN: 'SUPER_ADMIN',
-    SuperAdmin: 'SUPER_ADMIN',
-    'Super Admin': 'SUPER_ADMIN',
-    AUTHORITY: 'AUTHORITY',
-    Authority: 'AUTHORITY',
-    authority: 'AUTHORITY'
-  };
+  const roleMap: Record<string, 'ADMIN' | 'USER' | 'SUPERADMIN' | 'MODERATOR'> =
+    {
+      ADMIN: 'ADMIN',
+      Admin: 'ADMIN',
+      admin: 'ADMIN',
+      USER: 'USER',
+      User: 'USER',
+      user: 'USER',
+      // Backward + forward compatible mapping
+      SUPERADMIN: 'SUPERADMIN',
+      SUPERADMIN: 'SUPERADMIN',
+      SuperAdmin: 'SUPERADMIN',
+      'Super Admin': 'SUPERADMIN',
+      AUTHORITY: 'MODERATOR',
+      Authority: 'MODERATOR',
+      authority: 'MODERATOR',
+      MODERATOR: 'MODERATOR',
+      Moderator: 'MODERATOR',
+      moderator: 'MODERATOR'
+    };
 
   const normalized = roles.map((role) => roleMap[role]).filter(Boolean);
 

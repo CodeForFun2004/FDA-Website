@@ -1,5 +1,5 @@
 // src/config/permissions.ts
-export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'AUTHORITY';
+export type Role = 'SUPERADMIN' | 'ADMIN' | 'MODERATOR';
 
 export type RoutePermissions = {
   path: string;
@@ -12,21 +12,21 @@ export const ROUTE_PERMISSIONS: RoutePermissions[] = [
   // Super Admin exclusive routes
   {
     path: '/superadmin',
-    allowedRoles: ['SUPER_ADMIN'],
+    allowedRoles: ['SUPERADMIN'],
     requireAuth: true
   },
 
-  // Admin routes (SUPER_ADMIN and ADMIN can access)
+  // Admin routes (SUPERADMIN and ADMIN can access)
   {
     path: '/admin',
-    allowedRoles: ['SUPER_ADMIN', 'ADMIN'],
+    allowedRoles: ['SUPERADMIN', 'ADMIN'],
     requireAuth: true
   },
 
-  // Authority routes
+  // Moderator routes
   {
-    path: '/authority',
-    allowedRoles: ['AUTHORITY'],
+    path: '/moderator',
+    allowedRoles: ['MODERATOR'],
     requireAuth: true
   },
 
@@ -40,9 +40,9 @@ export const ROUTE_PERMISSIONS: RoutePermissions[] = [
 
 // ===== Role Hierarchy (for future use) =====
 export const ROLE_HIERARCHY: Record<Role, number> = {
-  SUPER_ADMIN: 3,
+  SUPERADMIN: 3,
   ADMIN: 2,
-  AUTHORITY: 1
+  MODERATOR: 1
 };
 
 // ===== Helper Functions =====

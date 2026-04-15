@@ -3,7 +3,7 @@
 import PageContainer from '@/components/layout/page-container';
 import { AlertTemplatesView } from '@/features/alerts/views/alert-templates-view';
 
-export default function AuthorityAlertsPage() {
+export default function ModeratorAlertsPage() {
   return (
     <PageContainer
       scrollable={false}

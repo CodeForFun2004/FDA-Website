@@ -1,6 +1,7 @@
 // src/lib/api/client.ts
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 import { debugAuthState } from '@/libs/auth-utils';
+import { toast } from 'sonner';
 
 export class ApiError extends Error {
   status: number;
@@ -178,6 +179,9 @@ export async function apiFetch<T>(
         'message' in (data as any) &&
         String((data as any).message)) ||
       `Request failed (${res.status})`;
+    if (res.status === 403 && typeof window !== 'undefined') {
+      toast.error('Không đủ quyền');
+    }
     throw new ApiError(msg, res.status, data);
   }
 

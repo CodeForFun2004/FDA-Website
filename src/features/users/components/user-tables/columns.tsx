@@ -11,8 +11,8 @@ import { UserCellAction } from './cell-action';
 export const ROLE_OPTIONS = [
   { label: 'Admin', value: 'ADMIN' },
   { label: 'User', value: 'USER' },
-  { label: 'Super Admin', value: 'SUPER_ADMIN' },
-  { label: 'Authority', value: 'AUTHORITY' }
+  { label: 'Super Admin', value: 'SUPERADMIN' },
+  { label: 'Moderator', value: 'MODERATOR' }
 ];
 
 export const STATUS_OPTIONS = [
@@ -57,19 +57,21 @@ export const columns: ColumnDef<User>[] = [
       const roles = row.original.roles ?? [];
 
       const getRoleBadgeClass = (role: string) => {
-        if (role === 'SUPER_ADMIN')
+        if (role === 'SUPERADMIN')
           return 'border-red-500 bg-red-50 text-red-600';
         if (role === 'ADMIN')
           return 'border-purple-500 bg-purple-50 text-purple-600';
-        if (role === 'AUTHORITY')
+        if (role === 'MODERATOR')
           return 'border-blue-500 bg-blue-50 text-blue-600';
         return 'border-green-500 bg-green-50 text-green-600';
       };
 
       const getRoleLabel = (role: string) =>
-        role === 'SUPER_ADMIN'
+        role === 'SUPERADMIN'
           ? 'Super Admin'
-          : role.charAt(0) + role.slice(1).toLowerCase();
+          : role === 'MODERATOR'
+            ? 'Moderator'
+            : role.charAt(0) + role.slice(1).toLowerCase();
 
       return (
         <div className='flex flex-wrap gap-1'>

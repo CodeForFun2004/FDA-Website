@@ -17,11 +17,11 @@ export default function ForbiddenPage() {
 
   const handleGoHome = () => {
     const roles = user?.roles ?? [];
-    if (roles.includes('AUTHORITY')) {
-      router.push('/authority');
+    if (roles.includes('MODERATOR')) {
+      router.push('/moderator');
       return;
     }
-    if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN')) {
+    if (roles.includes('SUPERADMIN') || roles.includes('ADMIN')) {
       router.push('/admin');
       return;
     }
@@ -70,13 +70,13 @@ export default function ForbiddenPage() {
             <li className='flex items-center gap-2'>
               <span className='text-primary'>•</span>
               <span>
-                <strong>Authority</strong> - Authority Officer
+                <strong>Moderator</strong> - Moderator Officer
               </span>
             </li>
             <li className='flex items-center gap-2'>
               <span className='text-primary'>•</span>
               <span>
-                <strong>Super Admin</strong> - Senior administrator
+                <strong>Super Admin</strong> - Senior Administrator
               </span>
             </li>
           </ul>

@@ -410,8 +410,8 @@ export function useAdminPermissions() {
 
   return {
     canManageUsers: true, // Will be checked by auth middleware
-    canDeleteUsers: true, // Only SUPER_ADMIN
-    canChangeRoles: true, // Only SUPER_ADMIN
+    canDeleteUsers: true, // Only SUPERADMIN
+    canChangeRoles: true, // Only SUPERADMIN
     totalUsers: stats?.totalUsers ?? users.length
   };
 }

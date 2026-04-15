@@ -2,10 +2,10 @@ import PageContainer from '@/components/layout/page-container';
 import NewsPageClient from '@/app/admin/news/news-page-client';
 
 export const metadata = {
-  title: 'Authority: Tin tức'
+  title: 'Moderator: Tin tức'
 };
 
-export default function AuthorityNewsPage() {
+export default function ModeratorNewsPage() {
   return (
     <PageContainer
       scrollable={false}

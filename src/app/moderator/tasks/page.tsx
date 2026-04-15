@@ -2,10 +2,10 @@ import PageContainer from '@/components/layout/page-container';
 import { HangfireDashboardEmbed } from '@/features/analytics/components/hangfire-dashboard-embed';
 
 export const metadata = {
-  title: 'Authority: Tác vụ'
+  title: 'Moderator: Tác vụ'
 };
 
-export default function AuthorityTasksPage() {
+export default function ModeratorTasksPage() {
   return (
     <PageContainer
       scrollable={false}

@@ -20,5 +20,22 @@ export default async function Page() {
   const session = cookieStore.get('fda_session')?.value;
 
   if (!session) redirect('/auth/login');
+
+  // Best-effort redirect by role (if available via cookie).
+  // NOTE: App Router server components cannot read localStorage.
+  const rolesCookie = cookieStore.get('fda_user_roles')?.value;
+  if (rolesCookie) {
+    try {
+      const roles = JSON.parse(rolesCookie) as string[] | string;
+      const list = Array.isArray(roles) ? roles : [roles];
+      if (list.includes('MODERATOR')) redirect('/moderator');
+      if (list.includes('ADMIN') || list.includes('SUPERADMIN'))
+        redirect('/admin');
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
+  // Fallback to admin portal (existing behavior)
   redirect('/admin');
 }

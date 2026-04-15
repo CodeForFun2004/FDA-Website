@@ -181,10 +181,10 @@ export async function GET(request: NextRequest) {
     const roles: string[] = data?.user?.roles ?? [];
 
     // ✅ Check role-based access
-    // SUPER_ADMIN và ADMIN đều vào /admin
-    if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN')) {
+    // SUPERADMIN và ADMIN đều vào /admin
+    if (roles.includes('SUPERADMIN') || roles.includes('ADMIN')) {
       returnUrl = '/admin';
-    } else if (roles.includes('AUTHORITY')) returnUrl = '/authority';
+    } else if (roles.includes('MODERATOR')) returnUrl = '/moderator';
     else if (roles.includes('USER') || roles.length === 0) {
       // ❌ USER role không được phép truy cập hệ thống admin
       returnUrl = '/auth/forbidden';

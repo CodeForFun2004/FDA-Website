@@ -19,7 +19,7 @@ interface RoleGuardProps {
  * If user doesn't have required role, redirects to forbidden page.
  *
  * Usage:
- * <RoleGuard requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
+ * <RoleGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
  *   <AdminContent />
  * </RoleGuard>
  */
@@ -104,8 +104,8 @@ export function useHasAnyRole(roles: Role[]): boolean {
 }
 
 /**
- * Hook to check if user is admin (ADMIN or SUPER_ADMIN)
+ * Hook to check if user is admin (ADMIN or SUPERADMIN)
  */
 export function useIsAdmin(): boolean {
-  return useHasAnyRole(['ADMIN', 'SUPER_ADMIN']);
+  return useHasAnyRole(['ADMIN', 'SUPERADMIN']);
 }

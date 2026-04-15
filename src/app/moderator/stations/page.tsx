@@ -6,7 +6,7 @@ import type { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Authority: Stations'
+  title: 'Moderator: Stations'
 };
 
 type PageProps = {

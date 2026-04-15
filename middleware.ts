@@ -6,9 +6,9 @@ import type { NextRequest } from 'next/server';
  * Next.js Middleware for Role-Based Access Control
  *
  * Protects admin routes and ensures only authorized roles can access them.
- * - /admin/* → requires ADMIN, SUPER_ADMIN
- * - /authority/* → requires AUTHORITY
- * - /superadmin/* → requires SUPER_ADMIN
+ * - /admin/* → requires ADMIN, SUPERADMIN
+ * - /moderator/* → requires MODERATOR
+ * - /superadmin/* → requires SUPERADMIN
  */
 
 // Helper to decode JWT payload (simple base64 decode, no verification)
@@ -102,9 +102,9 @@ export function middleware(request: NextRequest) {
 
   // Define route protections
   const routeProtections: Record<string, string[]> = {
-    '/admin': ['ADMIN', 'SUPER_ADMIN'],
-    '/authority': ['AUTHORITY'],
-    '/superadmin': ['SUPER_ADMIN']
+    '/admin': ['ADMIN', 'SUPERADMIN'],
+    '/moderator': ['MODERATOR'],
+    '/superadmin': ['SUPERADMIN']
   };
 
   // Check if current route requires specific roles

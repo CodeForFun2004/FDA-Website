@@ -123,7 +123,7 @@ export function hasRole(role: string): boolean {
 }
 
 /**
- * Check if user is admin-like (ADMIN or SUPER_ADMIN)
+ * Check if user is admin-like (ADMIN or SUPERADMIN)
  */
 export function isAdminUser(): boolean {
   if (typeof window === 'undefined') {

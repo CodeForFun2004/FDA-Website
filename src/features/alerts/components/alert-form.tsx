@@ -59,8 +59,8 @@ export default function StationForm({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const stationsIndexPath = pathname.startsWith('/authority')
-    ? '/authority/stations'
+  const stationsIndexPath = pathname.startsWith('/moderator')
+    ? '/moderator/stations'
     : '/admin/stations';
 
   const defaultValues = useMemo<StationFormValues>(

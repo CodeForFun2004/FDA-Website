@@ -114,24 +114,24 @@ const navItemsAdmin: NavItem[] = [
   }
 ];
 
-const navItemsAuthority: NavItem[] = [
+const navItemsModerator: NavItem[] = [
   {
     type: 'link',
     label: 'Bảng điều khiển',
-    href: '/authority',
+    href: '/moderator',
     icon: LayoutDashboard,
     exact: true
   },
   {
     type: 'link',
     label: 'Lịch sử ngập',
-    href: '/authority/flood-history',
+    href: '/moderator/flood-history',
     icon: History
   },
   {
     type: 'link',
     label: 'Trạm quan trắc',
-    href: '/authority/stations',
+    href: '/moderator/stations',
     icon: SmartphoneNfc
   },
   {
@@ -141,12 +141,12 @@ const navItemsAuthority: NavItem[] = [
     children: [
       {
         label: 'Mẫu cảnh báo',
-        href: '/authority/alerts',
+        href: '/moderator/alerts',
         icon: BellRing
       },
       {
         label: 'Tin tức',
-        href: '/authority/news',
+        href: '/moderator/news',
         icon: Newspaper
       }
     ]
@@ -154,13 +154,13 @@ const navItemsAuthority: NavItem[] = [
   {
     type: 'link',
     label: 'Bản đồ & vùng',
-    href: '/authority/zones',
+    href: '/moderator/zones',
     icon: MapIcon
   },
   {
     type: 'link',
     label: 'Tác vụ',
-    href: '/authority/tasks',
+    href: '/moderator/tasks',
     icon: ServerCog
   }
 ];
@@ -172,8 +172,8 @@ function isGroupActive(group: NavGroup, pathname: string) {
 export const Sidebar = () => {
   const { isSidebarOpen, toggleSidebar } = useAppStore();
   const pathname = usePathname();
-  const isAuthorityPortal = pathname.startsWith('/authority');
-  const navItems = isAuthorityPortal ? navItemsAuthority : navItemsAdmin;
+  const isModeratorPortal = pathname.startsWith('/moderator');
+  const navItems = isModeratorPortal ? navItemsModerator : navItemsAdmin;
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     for (const item of navItems) {
@@ -337,7 +337,7 @@ export const Sidebar = () => {
                 !isSidebarOpen && 'lg:w-0 lg:overflow-hidden lg:opacity-0'
               )}
             >
-              {isAuthorityPortal ? 'FDA Authority' : 'FDA Admin'}
+              {isModeratorPortal ? 'FDA Moderator' : 'FDA Admin'}
             </span>
           </div>
         </div>

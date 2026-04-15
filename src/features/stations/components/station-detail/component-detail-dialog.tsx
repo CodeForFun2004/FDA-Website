@@ -189,29 +189,33 @@ export function ComponentDetailDialog({
         </div>
 
         <DialogFooter className='flex gap-2 pt-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            className='text-destructive hover:bg-destructive/10 gap-1.5'
-            onClick={() => {
-              onOpenChange(false);
-              onDelete?.(component);
-            }}
-          >
-            <Trash2 className='h-4 w-4' />
-            Delete
-          </Button>
-          <Button
-            size='sm'
-            className='gap-1.5'
-            onClick={() => {
-              onOpenChange(false);
-              onEdit?.(component);
-            }}
-          >
-            <Edit className='h-4 w-4' />
-            Edit
-          </Button>
+          {onDelete ? (
+            <Button
+              variant='outline'
+              size='sm'
+              className='text-destructive hover:bg-destructive/10 gap-1.5'
+              onClick={() => {
+                onOpenChange(false);
+                onDelete(component);
+              }}
+            >
+              <Trash2 className='h-4 w-4' />
+              Delete
+            </Button>
+          ) : null}
+          {onEdit ? (
+            <Button
+              size='sm'
+              className='gap-1.5'
+              onClick={() => {
+                onOpenChange(false);
+                onEdit(component);
+              }}
+            >
+              <Edit className='h-4 w-4' />
+              Edit
+            </Button>
+          ) : null}
         </DialogFooter>
       </DialogContent>
     </Dialog>

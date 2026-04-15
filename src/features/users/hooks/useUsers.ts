@@ -42,12 +42,8 @@ function mapRolesFromBackend(
       user: 'USER',
       // Backward + forward compatible mapping
       SUPERADMIN: 'SUPERADMIN',
-      SUPERADMIN: 'SUPERADMIN',
       SuperAdmin: 'SUPERADMIN',
-      'Super Admin': 'SUPERADMIN',
-      AUTHORITY: 'MODERATOR',
-      Authority: 'MODERATOR',
-      authority: 'MODERATOR',
+
       MODERATOR: 'MODERATOR',
       Moderator: 'MODERATOR',
       moderator: 'MODERATOR'

@@ -12,6 +12,9 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/features/authenticate/store/auth-store';
+
+const EMPTY_ROLES: string[] = [];
 
 interface StationTableParams<TData, TValue> {
   data: TData[];
@@ -24,6 +27,9 @@ export function StationTable<TData, TValue>({
   totalItems,
   columns
 }: StationTableParams<TData, TValue>) {
+  const roles = useAuthStore((s) => s.user?.roles ?? EMPTY_ROLES);
+  const canManageStations =
+    roles.includes('ADMIN') || roles.includes('SUPERADMIN');
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
   const [openCreate, setOpenCreate] = useState(false);
   const router = useRouter();
@@ -46,24 +52,28 @@ export function StationTable<TData, TValue>({
 
   return (
     <>
-      <CreateStationDialog
-        open={openCreate}
-        onOpenChange={setOpenCreate}
-        onSuccess={() => {
-          // No need for router.refresh() - React Query handles cache invalidation
-        }}
-      />
+      {canManageStations ? (
+        <CreateStationDialog
+          open={openCreate}
+          onOpenChange={setOpenCreate}
+          onSuccess={() => {
+            // No need for router.refresh() - React Query handles cache invalidation
+          }}
+        />
+      ) : null}
 
       <DataTable table={table}>
         <DataTableToolbar table={table}>
-          <Button
-            onClick={() => setOpenCreate(true)}
-            className='gap-2'
-            size='sm'
-          >
-            <Plus className='h-4 w-4' />
-            Add Station
-          </Button>
+          {canManageStations ? (
+            <Button
+              onClick={() => setOpenCreate(true)}
+              className='gap-2'
+              size='sm'
+            >
+              <Plus className='h-4 w-4' />
+              Add Station
+            </Button>
+          ) : null}
         </DataTableToolbar>
       </DataTable>
     </>

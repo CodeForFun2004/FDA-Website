@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import type { Station } from '@/features/stations/types/station.type';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { useForm, Control } from 'react-hook-form';
 import * as z from 'zod';
@@ -58,6 +58,10 @@ export default function StationForm({
   pageTitle: string;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const stationsIndexPath = pathname.startsWith('/moderator')
+    ? '/moderator/stations'
+    : '/admin/stations';
 
   const defaultValues = useMemo<StationFormValues>(
     () => ({
@@ -90,7 +94,7 @@ export default function StationForm({
     // else await stationsApi.createStation(values)
 
     console.log('submit station', values);
-    router.push('/admin/stations');
+    router.push(stationsIndexPath);
     router.refresh();
   }
 

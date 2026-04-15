@@ -1,4 +1,3 @@
-// src/app/authority/page.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -24,11 +23,11 @@ import {
   getAdministrativeAreasApi
 } from '@/features/admin/api/admin.api';
 
-export default function AuthorityDashboard() {
+export default function ModeratorDashboard() {
   const user = useAuthStore((state) => state.user);
 
   const areasQuery = useQuery({
-    queryKey: ['authority-administrative-areas', ADMINISTRATIVE_AREA_MAP_LEVEL],
+    queryKey: ['moderator-administrative-areas', ADMINISTRATIVE_AREA_MAP_LEVEL],
     queryFn: () =>
       getAdministrativeAreasApi({
         pageNumber: 1,
@@ -44,18 +43,16 @@ export default function AuthorityDashboard() {
 
   return (
     <div className='space-y-6'>
-      {/* Header */}
       <div>
         <h1 className='text-3xl font-bold tracking-tight'>
           Government Information Portal
         </h1>
         <p className='text-muted-foreground mt-1'>
           FDA flood monitoring and management system - Area{' '}
-          {user?.fullName || 'Authority'}
+          {user?.fullName || 'Moderator'}
         </p>
       </div>
 
-      {/* Welcome Card */}
       <Card className='border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 dark:border-blue-900/50 dark:from-blue-950/30 dark:to-indigo-950/30'>
         <CardHeader>
           <div className='flex items-center gap-3'>
@@ -67,7 +64,7 @@ export default function AuthorityDashboard() {
                 Welcome, {user?.fullName || 'Officer'}!
               </CardTitle>
               <CardDescription className='text-blue-700 dark:text-blue-300'>
-                Role: Government staff
+                Role: Moderator Officer
               </CardDescription>
             </div>
           </div>
@@ -80,7 +77,6 @@ export default function AuthorityDashboard() {
         </CardContent>
       </Card>
 
-      {/* Statistics Grid */}
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -186,7 +182,6 @@ export default function AuthorityDashboard() {
         </CardContent>
       </Card>
 
-      {/* Info Cards */}
       <div className='grid gap-4 md:grid-cols-2'>
         <Card>
           <CardHeader>
@@ -258,16 +253,6 @@ export default function AuthorityDashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Footer Note */}
-      <Card>
-        <CardContent className='pt-6'>
-          <p className='text-muted-foreground text-center text-sm'>
-            💡 <strong>Note:</strong> The system is still being finalized. If
-            you need support, please contact the technical team.
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 }

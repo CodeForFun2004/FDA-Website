@@ -26,7 +26,7 @@ export default async function Layout({
 
   return (
     <AdminProviders>
-      <RoleGuard requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
+      <RoleGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
         <AdminShell>{children}</AdminShell>
       </RoleGuard>
     </AdminProviders>

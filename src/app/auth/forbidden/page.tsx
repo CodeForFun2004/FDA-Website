@@ -16,7 +16,16 @@ export default function ForbiddenPage() {
   };
 
   const handleGoHome = () => {
-    router.push('/');
+    const roles = user?.roles ?? [];
+    if (roles.includes('MODERATOR')) {
+      router.push('/moderator');
+      return;
+    }
+    if (roles.includes('SUPERADMIN') || roles.includes('ADMIN')) {
+      router.push('/admin');
+      return;
+    }
+    router.push('/auth/login');
   };
 
   const handleLogout = () => {
@@ -55,19 +64,19 @@ export default function ForbiddenPage() {
             <li className='flex items-center gap-2'>
               <span className='text-primary'>•</span>
               <span>
-                <strong>Admin</strong> - System administrator
+                <strong>Admin</strong> - Administrator
               </span>
             </li>
             <li className='flex items-center gap-2'>
               <span className='text-primary'>•</span>
               <span>
-                <strong>Authority</strong> - Government staff
+                <strong>Moderator</strong> - Moderator Officer
               </span>
             </li>
             <li className='flex items-center gap-2'>
               <span className='text-primary'>•</span>
               <span>
-                <strong>Super Admin</strong> - Senior administrator
+                <strong>Super Admin</strong> - Senior Administrator
               </span>
             </li>
           </ul>

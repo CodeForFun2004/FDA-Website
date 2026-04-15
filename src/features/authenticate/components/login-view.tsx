@@ -24,11 +24,11 @@ export default function LoginViewPage() {
     const user = useAuthStore.getState().user;
     const roles = user?.roles ?? [];
 
-    // SUPER_ADMIN và ADMIN đều vào /admin
-    if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN')) {
+    // SUPERADMIN và ADMIN đều vào /admin
+    if (roles.includes('SUPERADMIN') || roles.includes('ADMIN')) {
       return '/admin';
     }
-    if (roles.includes('AUTHORITY')) return '/authority';
+    if (roles.includes('MODERATOR')) return '/moderator';
 
     // ❌ USER role is not allowed to access admin system
     if (roles.includes('USER') || roles.length === 0) {

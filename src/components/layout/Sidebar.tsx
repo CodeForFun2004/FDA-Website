@@ -40,7 +40,7 @@ type NavGroup = {
 
 type NavItem = NavLink | NavGroup;
 
-const navItems: NavItem[] = [
+const navItemsAdmin: NavItem[] = [
   {
     type: 'link',
     label: 'Bảng điều khiển',
@@ -88,6 +88,65 @@ const navItems: NavItem[] = [
     href: '/admin/stations',
     icon: SmartphoneNfc
   },
+  //              Tạm thời cmt code về role của Admin
+  // {
+  //   type: 'group',
+  //   label: 'Cảnh báo & tin',
+  //   icon: BellRing,
+  //   children: [
+  //     {
+  //       label: 'Mẫu cảnh báo',
+  //       href: '/admin/alerts',
+  //       icon: BellRing
+  //     },
+  //     {
+  //       label: 'Tin tức',
+  //       href: '/admin/news',
+  //       icon: Newspaper
+  //     }
+  //   ]
+  // },
+  { type: 'link', label: 'Bản đồ & vùng', href: '/admin/zones', icon: MapIcon },
+  {
+    type: 'link',
+    label: 'Logs hệ thống',
+    href: '/admin/operational-logs',
+    icon: ServerCog
+  },
+  {
+    type: 'link',
+    label: 'Tác vụ',
+    href: '/admin/tasks',
+    icon: ServerCog
+  }
+];
+
+const navItemsModerator: NavItem[] = [
+  {
+    type: 'link',
+    label: 'Bảng điều khiển',
+    href: '/moderator',
+    icon: LayoutDashboard,
+    exact: true
+  },
+  {
+    type: 'link',
+    label: 'Lịch sử ngập',
+    href: '/moderator/flood-history',
+    icon: History
+  },
+  {
+    type: 'link',
+    label: 'Trạm quan trắc',
+    href: '/moderator/stations',
+    icon: SmartphoneNfc
+  },
+  {
+    type: 'link',
+    label: 'Cộng đồng',
+    href: '/moderator/community',
+    icon: SmartphoneNfc
+  },
   {
     type: 'group',
     label: 'Cảnh báo & tin',
@@ -95,21 +154,26 @@ const navItems: NavItem[] = [
     children: [
       {
         label: 'Mẫu cảnh báo',
-        href: '/admin/alerts',
+        href: '/moderator/alerts',
         icon: BellRing
       },
       {
         label: 'Tin tức',
-        href: '/admin/news',
+        href: '/moderator/news',
         icon: Newspaper
       }
     ]
   },
-  { type: 'link', label: 'Bản đồ & vùng', href: '/admin/zones', icon: MapIcon },
+  {
+    type: 'link',
+    label: 'Bản đồ & vùng',
+    href: '/moderator/zones',
+    icon: MapIcon
+  },
   {
     type: 'link',
     label: 'Tác vụ',
-    href: '/admin/tasks',
+    href: '/moderator/tasks',
     icon: ServerCog
   }
 ];
@@ -121,6 +185,8 @@ function isGroupActive(group: NavGroup, pathname: string) {
 export const Sidebar = () => {
   const { isSidebarOpen, toggleSidebar } = useAppStore();
   const pathname = usePathname();
+  const isModeratorPortal = pathname.startsWith('/moderator');
+  const navItems = isModeratorPortal ? navItemsModerator : navItemsAdmin;
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     for (const item of navItems) {
@@ -284,7 +350,7 @@ export const Sidebar = () => {
                 !isSidebarOpen && 'lg:w-0 lg:overflow-hidden lg:opacity-0'
               )}
             >
-              FDA Admin
+              {isModeratorPortal ? 'FDA Moderator' : 'FDA Admin'}
             </span>
           </div>
         </div>

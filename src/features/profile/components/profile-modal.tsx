@@ -73,7 +73,7 @@ type ProfileModalProps = {
 };
 
 function pickPrimaryRole(roles: string[]) {
-  const priority = ['SUPER_ADMIN', 'ADMIN', 'AUTHORITY', 'USER'];
+  const priority = ['SUPERADMIN', 'ADMIN', 'MODERATOR', 'USER'];
   for (const r of priority) if (roles?.includes(r)) return r;
   return roles?.[0] || 'USER';
 }

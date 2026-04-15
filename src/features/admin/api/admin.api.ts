@@ -136,7 +136,7 @@ export function updateAdminUserApi(userId: string, payload: UpdateUserRequest) {
 
 /**
  * DELETE /admin/users/:id
- * Xóa user (chỉ SUPER_ADMIN)
+ * Xóa user (chỉ SUPERADMIN)
  */
 export function deleteAdminUserApi(userId: string) {
   return apiFetch<DeleteUserResponse>(`/admin/users/${userId}`, {

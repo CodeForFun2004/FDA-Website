@@ -1,5 +1,5 @@
 // src/features/users/types.ts
-export type Role = 'ADMIN' | 'USER' | 'SUPER_ADMIN' | 'AUTHORITY';
+export type Role = 'ADMIN' | 'USER' | 'SUPERADMIN' | 'MODERATOR';
 
 export interface User {
   id: string;

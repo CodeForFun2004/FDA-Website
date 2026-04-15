@@ -219,7 +219,7 @@ export const useAuthStore = create<AuthState>()(
       hasRole: (role) => (get().user?.roles ?? []).includes(role),
       isAdminLike: () => {
         const roles = get().user?.roles ?? [];
-        return roles.includes('ADMIN') || roles.includes('SUPER_ADMIN');
+        return roles.includes('ADMIN') || roles.includes('SUPERADMIN');
       },
 
       // ✅ NEW: Refresh session using refresh token

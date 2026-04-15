@@ -8,7 +8,7 @@ This application implements **Role-Based Access Control (RBAC)** with a centrali
 
 The system supports 3 roles with hierarchical permissions:
 
-1. **SUPER_ADMIN** (Level 3) - Full system access
+1. **SUPERADMIN** (Level 3) - Full system access
 2. **ADMIN** (Level 2) - Administrative access
 3. **AUTHORITY** (Level 1) - Authority-specific access
 
@@ -17,15 +17,16 @@ The system supports 3 roles with hierarchical permissions:
 ## Route Structure
 
 ```
-/admin/*       → SUPER_ADMIN, ADMIN
-/superadmin/*  → SUPER_ADMIN only
-/authority/*   → SUPER_ADMIN, AUTHORITY
+/admin/*       → SUPERADMIN, ADMIN
+/superadmin/*  → SUPERADMIN only
+/authority/*   → SUPERADMIN, AUTHORITY
 /auth/*        → Public (no auth required)
 ```
 
 ## Key Files
 
 ### 1. `middleware.ts` (Root Level)
+
 - **Purpose**: Centralized authentication and authorization
 - **Responsibilities**:
   - Check if user is authenticated
@@ -34,6 +35,7 @@ The system supports 3 roles with hierarchical permissions:
   - Redirect unauthorized users
 
 ### 2. `src/config/permissions.ts`
+
 - **Purpose**: Permission matrix configuration
 - **Contains**:
   - Role definitions
@@ -41,6 +43,7 @@ The system supports 3 roles with hierarchical permissions:
   - Helper functions for permission checks
 
 ### 3. `src/lib/auth-utils.ts`
+
 - **Purpose**: JWT token utilities
 - **Functions**:
   - `verifyToken()` - Verify and decode JWT
@@ -76,7 +79,7 @@ export const ROUTE_PERMISSIONS: RoutePermissions[] = [
   // ... existing routes
   {
     path: '/new-route',
-    allowedRoles: ['ADMIN', 'SUPER_ADMIN'],
+    allowedRoles: ['ADMIN', 'SUPERADMIN'],
     requireAuth: true
   }
 ];
@@ -89,7 +92,7 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/superadmin/:path*',
-    '/new-route/:path*', // Add here
+    '/new-route/:path*' // Add here
   ]
 };
 ```
@@ -103,14 +106,14 @@ That's it! The middleware will automatically protect it.
 1. **Update role type** in `src/config/permissions.ts`:
 
 ```typescript
-export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'AUTHORITY' | 'VIEWER' | 'NEW_ROLE';
+export type Role = 'SUPERADMIN' | 'ADMIN' | 'AUTHORITY' | 'VIEWER' | 'NEW_ROLE';
 ```
 
 2. **Update role hierarchy**:
 
 ```typescript
 export const ROLE_HIERARCHY: Record<Role, number> = {
-  SUPER_ADMIN: 5,
+  SUPERADMIN: 5,
   NEW_ROLE: 4,
   ADMIN: 3,
   AUTHORITY: 2,
@@ -123,7 +126,7 @@ export const ROLE_HIERARCHY: Record<Role, number> = {
 ```typescript
 {
   path: '/new-role-route',
-  allowedRoles: ['NEW_ROLE', 'SUPER_ADMIN'],
+  allowedRoles: ['NEW_ROLE', 'SUPERADMIN'],
   requireAuth: true
 }
 ```
@@ -141,10 +144,12 @@ JWT_SECRET=your-super-secret-key-change-in-production
 ### Manual Testing
 
 1. **Test unauthenticated access**:
+
    - Navigate to `/admin/dashboard` without login
    - Should redirect to `/auth/login`
 
 2. **Test role permissions**:
+
    - Login as VIEWER
    - Try to access `/admin/dashboard`
    - Should redirect to `/auth/forbidden`
@@ -185,6 +190,7 @@ describe('RBAC Middleware', () => {
 ### Issue: "Access Denied" for valid user
 
 **Solution**: Check if:
+
 1. User's role is included in `allowedRoles` for that route
 2. Token is valid and not expired
 3. Cookie name matches (`fda_session`)
@@ -192,6 +198,7 @@ describe('RBAC Middleware', () => {
 ### Issue: Middleware not running
 
 **Solution**: Verify:
+
 1. `middleware.ts` is at root level (not in `src/`)
 2. Route is included in `config.matcher`
 3. Next.js dev server was restarted
@@ -199,6 +206,7 @@ describe('RBAC Middleware', () => {
 ### Issue: Token verification fails
 
 **Solution**: Ensure:
+
 1. `JWT_SECRET` is set in environment
 2. Token format is correct (JWT)
 3. Token hasn't expired
@@ -215,5 +223,6 @@ If migrating from per-layout auth checks:
 ## Support
 
 For questions or issues, contact the development team or refer to:
+
 - [Next.js Middleware Docs](https://nextjs.org/docs/app/building-your-application/routing/middleware)
 - [JWT.io](https://jwt.io/) for token debugging

@@ -46,8 +46,8 @@ export type EditUserDialogProps = {
 const ROLE_OPTIONS = [
   { value: 'USER', label: 'User' },
   { value: 'ADMIN', label: 'Admin' },
-  { value: 'SUPER_ADMIN', label: 'Super Admin' },
-  { value: 'AUTHORITY', label: 'Authority' }
+  { value: 'SUPERADMIN', label: 'Super Admin' },
+  { value: 'MODERATOR', label: 'Moderator' }
 ];
 
 const STATUS_OPTIONS = [

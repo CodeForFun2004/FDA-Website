@@ -19,11 +19,14 @@ import {
   IconEye,
   IconTrash
 } from '@tabler/icons-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/features/authenticate/store/auth-store';
+
+const EMPTY_ROLES: string[] = [];
 
 interface CellActionProps {
   data: Station;
@@ -34,7 +37,17 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
+
+  const roles = useAuthStore((s) => s.user?.roles ?? EMPTY_ROLES);
+  const canManageStations =
+    roles.includes('ADMIN') || roles.includes('SUPERADMIN');
+
+  const isModeratorPortal = pathname.startsWith('/moderator');
+  const detailPath = isModeratorPortal
+    ? `/moderator/stations/${data.id}`
+    : `/admin/stations/${data.id}`;
 
   const onConfirm = async () => {
     try {
@@ -68,21 +81,25 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   return (
     <>
-      <AlertModal
-        isOpen={openDelete}
-        onClose={() => setOpenDelete(false)}
-        onConfirm={onConfirm}
-        loading={loading}
-      />
+      {canManageStations ? (
+        <AlertModal
+          isOpen={openDelete}
+          onClose={() => setOpenDelete(false)}
+          onConfirm={onConfirm}
+          loading={loading}
+        />
+      ) : null}
 
-      <EditStationDialog
-        open={openEdit}
-        onOpenChange={setOpenEdit}
-        station={data}
-        onSuccess={() => {
-          router.refresh();
-        }}
-      />
+      {canManageStations ? (
+        <EditStationDialog
+          open={openEdit}
+          onOpenChange={setOpenEdit}
+          station={data}
+          onSuccess={() => {
+            router.refresh();
+          }}
+        />
+      ) : null}
 
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
@@ -95,19 +112,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-          <DropdownMenuItem
-            onClick={() => router.push(`/admin/stations/${data.id}`)}
-          >
+          <DropdownMenuItem onClick={() => router.push(detailPath)}>
             <IconEye className='mr-2 h-4 w-4' /> Detail
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => setOpenEdit(true)}>
-            <IconEdit className='mr-2 h-4 w-4' /> Update
-          </DropdownMenuItem>
+          {canManageStations ? (
+            <>
+              <DropdownMenuItem onClick={() => setOpenEdit(true)}>
+                <IconEdit className='mr-2 h-4 w-4' /> Update
+              </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => setOpenDelete(true)}>
-            <IconTrash className='mr-2 h-4 w-4' /> Delete
-          </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setOpenDelete(true)}>
+                <IconTrash className='mr-2 h-4 w-4' /> Delete
+              </DropdownMenuItem>
+            </>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

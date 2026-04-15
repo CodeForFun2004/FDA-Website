@@ -197,169 +197,177 @@ export function EditStationDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-[600px]'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
-            <Edit className='text-primary h-5 w-5' />
-            Edit Station
-          </DialogTitle>
-          <DialogDescription>
-            Update the station information. Fields marked with * are required.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className='max-h-[90vh] overflow-hidden p-0 sm:max-w-[600px]'>
+        <div className='flex max-h-[90vh] flex-col'>
+          <DialogHeader className='border-b px-6 py-4'>
+            <DialogTitle className='flex items-center gap-2'>
+              <Edit className='text-primary h-5 w-5' />
+              Edit Station
+            </DialogTitle>
+            <DialogDescription>
+              Update the station information. Fields marked with * are required.
+            </DialogDescription>
+          </DialogHeader>
 
-        <Form
-          form={form as any}
-          onSubmit={form.handleSubmit(onSubmit as any)}
-          className='space-y-4'
-        >
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <FormInput
-              control={formControl}
-              name='code'
-              label='Station Code'
-              placeholder='ST_DN_DRAGON_01'
-              required
-              disabled={isLoading}
-            />
+          <Form
+            form={form as any}
+            onSubmit={form.handleSubmit(onSubmit as any)}
+            className='flex min-h-0 flex-1 flex-col'
+          >
+            <div className='min-h-0 flex-1 overflow-y-auto px-6 py-4'>
+              <div className='space-y-4'>
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                  <FormInput
+                    control={formControl}
+                    name='code'
+                    label='Station Code'
+                    placeholder='ST_DN_DRAGON_01'
+                    required
+                    disabled={isLoading}
+                  />
 
-            <FormInput
-              control={formControl}
-              name='name'
-              label='Station Name'
-              placeholder='Dragon Bridge Station'
-              required
-              disabled={isLoading}
-            />
+                  <FormInput
+                    control={formControl}
+                    name='name'
+                    label='Station Name'
+                    placeholder='Dragon Bridge Station'
+                    required
+                    disabled={isLoading}
+                  />
 
-            <FormSelect
-              control={formControl}
-              name='status'
-              label='Status'
-              placeholder='Select status'
-              required
-              disabled={isLoading}
-              options={[
-                { label: 'Online', value: 'online' },
-                { label: 'Offline', value: 'offline' },
-                { label: 'Maintenance', value: 'maintenance' }
-              ]}
-            />
+                  <FormSelect
+                    control={formControl}
+                    name='status'
+                    label='Status'
+                    placeholder='Select status'
+                    required
+                    disabled={isLoading}
+                    options={[
+                      { label: 'Online', value: 'online' },
+                      { label: 'Offline', value: 'offline' },
+                      { label: 'Maintenance', value: 'maintenance' }
+                    ]}
+                  />
 
-            <FormInput
-              control={formControl}
-              name='roadName'
-              label='Road Name'
-              placeholder='2 Thang 9 Street'
-              disabled={isLoading}
-            />
-          </div>
+                  <FormInput
+                    control={formControl}
+                    name='roadName'
+                    label='Road Name'
+                    placeholder='2 Thang 9 Street'
+                    disabled={isLoading}
+                  />
+                </div>
 
-          <FormTextarea
-            control={formControl}
-            name='locationDesc'
-            label='Location Description'
-            placeholder='Located on the west side of Dragon Bridge...'
-            disabled={isLoading}
-            config={{
-              maxLength: 500,
-              showCharCount: true,
-              rows: 3
-            }}
-          />
+                <FormTextarea
+                  control={formControl}
+                  name='locationDesc'
+                  label='Location Description'
+                  placeholder='Located on the west side of Dragon Bridge...'
+                  disabled={isLoading}
+                  config={{
+                    maxLength: 500,
+                    showCharCount: true,
+                    rows: 3
+                  }}
+                />
 
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <FormInput
-              control={formControl}
-              name='direction'
-              label='Direction'
-              placeholder='upstream / downstream'
-              disabled={isLoading}
-            />
-          </div>
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                  <FormInput
+                    control={formControl}
+                    name='direction'
+                    label='Direction'
+                    placeholder='upstream / downstream'
+                    disabled={isLoading}
+                  />
+                </div>
 
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <FormInput
-              control={formControl}
-              name='latitude'
-              label='Latitude'
-              placeholder='16.061153'
-              type='number'
-              step='0.000001'
-              disabled={isLoading}
-            />
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                  <FormInput
+                    control={formControl}
+                    name='latitude'
+                    label='Latitude'
+                    placeholder='16.061153'
+                    type='number'
+                    step='0.000001'
+                    disabled={isLoading}
+                  />
 
-            <FormInput
-              control={formControl}
-              name='longitude'
-              label='Longitude'
-              placeholder='108.221589'
-              type='number'
-              step='0.000001'
-              disabled={isLoading}
-            />
-          </div>
+                  <FormInput
+                    control={formControl}
+                    name='longitude'
+                    label='Longitude'
+                    placeholder='108.221589'
+                    type='number'
+                    step='0.000001'
+                    disabled={isLoading}
+                  />
+                </div>
 
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <FormInput
-              control={formControl}
-              name='thresholdWarning'
-              label='Threshold Warning'
-              placeholder='0.5'
-              type='number'
-              step='0.0001'
-              min={0}
-              disabled={isLoading}
-            />
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                  <FormInput
+                    control={formControl}
+                    name='thresholdWarning'
+                    label='Threshold Warning'
+                    placeholder='0.5'
+                    type='number'
+                    step='0.0001'
+                    min={0}
+                    disabled={isLoading}
+                  />
 
-            <FormInput
-              control={formControl}
-              name='thresholdCritical'
-              label='Threshold Critical'
-              placeholder='1.2'
-              type='number'
-              step='0.0001'
-              min={0}
-              disabled={isLoading}
-            />
+                  <FormInput
+                    control={formControl}
+                    name='thresholdCritical'
+                    label='Threshold Critical'
+                    placeholder='1.2'
+                    type='number'
+                    step='0.0001'
+                    min={0}
+                    disabled={isLoading}
+                  />
 
-            <FormInput
-              control={formControl}
-              name='calibrationOffset'
-              label='Calibration Offset (±cm)'
-              placeholder='5'
-              type='number'
-              step='0.1'
-              min={0}
-              max={50}
-              disabled={isLoading}
-            />
-          </div>
+                  <FormInput
+                    control={formControl}
+                    name='calibrationOffset'
+                    label='Calibration Offset (±cm)'
+                    placeholder='5'
+                    type='number'
+                    step='0.1'
+                    min={0}
+                    max={50}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </div>
 
-          <DialogFooter className='pt-4'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => handleOpenChange(false)}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button type='submit' disabled={isLoading} className='gap-2'>
-              {isLoading ? (
-                <>
-                  <Loader2 className='h-4 w-4 animate-spin' />
-                  Updating...
-                </>
-              ) : (
-                <>
-                  <Edit className='h-4 w-4' />
-                  Update Station
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </Form>
+            <div className='border-t px-6 py-4'>
+              <DialogFooter>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => handleOpenChange(false)}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button type='submit' disabled={isLoading} className='gap-2'>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className='h-4 w-4 animate-spin' />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Edit className='h-4 w-4' />
+                      Update Station
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

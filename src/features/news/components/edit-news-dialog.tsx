@@ -148,221 +148,252 @@ export function EditNewsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='max-h-[85vh] max-w-2xl overflow-y-auto'>
-        <DialogHeader>
-          <DialogTitle>Chỉnh sửa thông báo</DialogTitle>
-          <DialogDescription>
-            Cập nhật nội dung thông báo. Chỉ có thể sửa khi trạng thái là Bản
-            nháp hoặc Chờ đăng.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className='max-h-[85vh] max-w-2xl overflow-hidden p-0 sm:max-w-2xl'>
+        <div className='flex max-h-[85vh] flex-col'>
+          <DialogHeader className='border-b px-6 py-4'>
+            <DialogTitle>Chỉnh sửa thông báo</DialogTitle>
+            <DialogDescription>
+              Cập nhật nội dung thông báo. Chỉ có thể sửa khi trạng thái là Bản
+              nháp hoặc Chờ đăng.
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className='space-y-4'>
-          {/* Title */}
-          <div className='space-y-1.5'>
-            <Label htmlFor='edit-title'>
-              Tiêu đề <span className='text-destructive'>*</span>
-            </Label>
-            <Input
-              id='edit-title'
-              value={form.title ?? announcementData.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder='Nhập tiêu đề thông báo...'
-              maxLength={200}
-              aria-invalid={!!errors.title}
-            />
-            <div className='flex justify-between'>
-              {errors.title ? (
-                <span className='text-destructive text-xs'>{errors.title}</span>
-              ) : (
-                <span />
-              )}
-              <span className='text-muted-foreground text-xs'>
-                {(form.title ?? announcementData.title).length}/200
-              </span>
-            </div>
-          </div>
-
-          {/* Summary */}
-          <div className='space-y-1.5'>
-            <Label htmlFor='edit-summary'>Tóm tắt</Label>
-            <Input
-              id='edit-summary'
-              value={form.summary ?? announcementData.summary ?? ''}
-              onChange={(e) =>
-                setForm({ ...form, summary: e.target.value || null })
-              }
-              placeholder='Mô tả ngắn (tùy chọn)...'
-              maxLength={500}
-            />
-          </div>
-
-          {/* Content */}
-          <div className='space-y-1.5'>
-            <Label htmlFor='edit-content'>
-              Nội dung <span className='text-destructive'>*</span>
-            </Label>
-            <Textarea
-              id='edit-content'
-              value={form.content ?? announcementData.content ?? ''}
-              onChange={(e) => setForm({ ...form, content: e.target.value })}
-              placeholder='Nhập nội dung thông báo (hỗ trợ HTML)...'
-              rows={6}
-              maxLength={10000}
-              aria-invalid={!!errors.content}
-            />
-            <div className='flex justify-between'>
-              {errors.content ? (
-                <span className='text-destructive text-xs'>
-                  {errors.content}
-                </span>
-              ) : (
-                <span />
-              )}
-              <span className='text-muted-foreground text-xs'>
-                {(form.content ?? announcementData.content ?? '').length}/10,000
-              </span>
-            </div>
-          </div>
-
-          {/* Image URL */}
-          <div className='space-y-1.5'>
-            <Label htmlFor='edit-imageUrl'>Hình ảnh đại diện</Label>
-            <Input
-              id='edit-imageUrl'
-              type='url'
-              value={form.imageUrl ?? announcementData.imageUrl ?? ''}
-              onChange={(e) =>
-                setForm({ ...form, imageUrl: e.target.value || null })
-              }
-              placeholder='https://example.com/image.jpg'
-            />
-          </div>
-
-          {/* Target */}
-          <div className='space-y-1.5'>
-            <Label>Đối tượng nhận</Label>
-            <div className='flex flex-col gap-2'>
-              {TARGET_OPTIONS.map((opt) => (
-                <label
-                  key={opt.value}
-                  className='flex cursor-pointer items-center gap-2'
-                >
-                  <input
-                    type='radio'
-                    name='edit-target'
-                    value={opt.value}
-                    checked={
-                      (form.target ?? announcementData.target) === opt.value
+          <form
+            onSubmit={handleSubmit}
+            className='flex min-h-0 flex-1 flex-col'
+          >
+            <div className='min-h-0 flex-1 overflow-y-auto px-6 py-4'>
+              <div className='space-y-4'>
+                {/* Title */}
+                <div className='space-y-1.5'>
+                  <Label htmlFor='edit-title'>
+                    Tiêu đề <span className='text-destructive'>*</span>
+                  </Label>
+                  <Input
+                    id='edit-title'
+                    value={form.title ?? announcementData.title}
+                    onChange={(e) =>
+                      setForm({ ...form, title: e.target.value })
                     }
-                    onChange={() =>
-                      setForm({ ...form, target: opt.value, targetValue: null })
-                    }
-                    className='accent-primary'
+                    placeholder='Nhập tiêu đề thông báo...'
+                    maxLength={200}
+                    aria-invalid={!!errors.title}
                   />
-                  <span className='text-sm'>{opt.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+                  <div className='flex justify-between'>
+                    {errors.title ? (
+                      <span className='text-destructive text-xs'>
+                        {errors.title}
+                      </span>
+                    ) : (
+                      <span />
+                    )}
+                    <span className='text-muted-foreground text-xs'>
+                      {(form.title ?? announcementData.title).length}/200
+                    </span>
+                  </div>
+                </div>
 
-          {/* Target Value */}
-          {(form.target ?? announcementData.target) !== 'all' && (
-            <div className='space-y-1.5'>
-              <Label htmlFor='edit-targetValue'>
-                {form.target === 'region' ? 'Mã khu vực' : 'Tên vai trò'}
-              </Label>
-              <Input
-                id='edit-targetValue'
-                value={form.targetValue ?? announcementData.targetValue ?? ''}
-                onChange={(e) =>
-                  setForm({ ...form, targetValue: e.target.value || null })
-                }
-                placeholder={
-                  (form.target ?? announcementData.target) === 'region'
-                    ? 'VD: HCM, HN...'
-                    : 'VD: USER, MODERATOR...'
-                }
-              />
-            </div>
-          )}
-
-          {/* Priority */}
-          <div className='space-y-1.5'>
-            <Label>Độ ưu tiên</Label>
-            <div className='flex flex-wrap gap-3'>
-              {PRIORITY_OPTIONS.map((opt) => (
-                <label
-                  key={opt.value}
-                  className='flex cursor-pointer items-center gap-1.5'
-                >
-                  <input
-                    type='radio'
-                    name='edit-priority'
-                    value={opt.value}
-                    checked={
-                      (form.priority ?? announcementData.priority) === opt.value
+                {/* Summary */}
+                <div className='space-y-1.5'>
+                  <Label htmlFor='edit-summary'>Tóm tắt</Label>
+                  <Input
+                    id='edit-summary'
+                    value={form.summary ?? announcementData.summary ?? ''}
+                    onChange={(e) =>
+                      setForm({ ...form, summary: e.target.value || null })
                     }
-                    onChange={() => setForm({ ...form, priority: opt.value })}
-                    className='accent-primary'
+                    placeholder='Mô tả ngắn (tùy chọn)...'
+                    maxLength={500}
                   />
-                  <span className='text-sm'>{opt.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+                </div>
 
-          {/* Schedule */}
-          <div className='space-y-2'>
-            <Label className='flex items-center gap-2'>
-              <input
-                type='checkbox'
-                checked={scheduleEnabled}
-                onChange={(e) => {
-                  setScheduleEnabled(e.target.checked);
-                  if (!e.target.checked) {
-                    setForm({ ...form, scheduledAt: null });
-                    setScheduleDateTime('');
-                  }
-                }}
-                className='accent-primary'
-              />
-              Đặt lịch đăng
-            </Label>
-            {scheduleEnabled && (
-              <div>
-                <Input
-                  type='datetime-local'
-                  value={scheduleDateTime}
-                  onChange={(e) => {
-                    setScheduleDateTime(e.target.value);
-                    setErrors({ ...errors, scheduleDateTime: '' });
-                  }}
-                  min={new Date().toISOString().slice(0, 16)}
-                  aria-invalid={!!errors.scheduleDateTime}
-                />
-                {errors.scheduleDateTime && (
-                  <span className='text-destructive text-xs'>
-                    {errors.scheduleDateTime}
-                  </span>
+                {/* Content */}
+                <div className='space-y-1.5'>
+                  <Label htmlFor='edit-content'>
+                    Nội dung <span className='text-destructive'>*</span>
+                  </Label>
+                  <Textarea
+                    id='edit-content'
+                    value={form.content ?? announcementData.content ?? ''}
+                    onChange={(e) =>
+                      setForm({ ...form, content: e.target.value })
+                    }
+                    placeholder='Nhập nội dung thông báo (hỗ trợ HTML)...'
+                    rows={6}
+                    maxLength={10000}
+                    aria-invalid={!!errors.content}
+                  />
+                  <div className='flex justify-between'>
+                    {errors.content ? (
+                      <span className='text-destructive text-xs'>
+                        {errors.content}
+                      </span>
+                    ) : (
+                      <span />
+                    )}
+                    <span className='text-muted-foreground text-xs'>
+                      {(form.content ?? announcementData.content ?? '').length}
+                      /10,000
+                    </span>
+                  </div>
+                </div>
+
+                {/* Image URL */}
+                <div className='space-y-1.5'>
+                  <Label htmlFor='edit-imageUrl'>Hình ảnh đại diện</Label>
+                  <Input
+                    id='edit-imageUrl'
+                    type='url'
+                    value={form.imageUrl ?? announcementData.imageUrl ?? ''}
+                    onChange={(e) =>
+                      setForm({ ...form, imageUrl: e.target.value || null })
+                    }
+                    placeholder='https://example.com/image.jpg'
+                  />
+                </div>
+
+                {/* Target */}
+                <div className='space-y-1.5'>
+                  <Label>Đối tượng nhận</Label>
+                  <div className='flex flex-col gap-2'>
+                    {TARGET_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className='flex cursor-pointer items-center gap-2'
+                      >
+                        <input
+                          type='radio'
+                          name='edit-target'
+                          value={opt.value}
+                          checked={
+                            (form.target ?? announcementData.target) ===
+                            opt.value
+                          }
+                          onChange={() =>
+                            setForm({
+                              ...form,
+                              target: opt.value,
+                              targetValue: null
+                            })
+                          }
+                          className='accent-primary'
+                        />
+                        <span className='text-sm'>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Target Value */}
+                {(form.target ?? announcementData.target) !== 'all' && (
+                  <div className='space-y-1.5'>
+                    <Label htmlFor='edit-targetValue'>
+                      {form.target === 'region' ? 'Mã khu vực' : 'Tên vai trò'}
+                    </Label>
+                    <Input
+                      id='edit-targetValue'
+                      value={
+                        form.targetValue ?? announcementData.targetValue ?? ''
+                      }
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          targetValue: e.target.value || null
+                        })
+                      }
+                      placeholder={
+                        (form.target ?? announcementData.target) === 'region'
+                          ? 'VD: HCM, HN...'
+                          : 'VD: USER, MODERATOR...'
+                      }
+                    />
+                  </div>
                 )}
-              </div>
-            )}
-          </div>
 
-          <DialogFooter>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => handleClose(false)}
-            >
-              Hủy
-            </Button>
-            <Button type='submit' disabled={submitting}>
-              {submitting ? 'Đang lưu...' : 'Lưu thay đổi'}
-            </Button>
-          </DialogFooter>
-        </form>
+                {/* Priority */}
+                <div className='space-y-1.5'>
+                  <Label>Độ ưu tiên</Label>
+                  <div className='flex flex-wrap gap-3'>
+                    {PRIORITY_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className='flex cursor-pointer items-center gap-1.5'
+                      >
+                        <input
+                          type='radio'
+                          name='edit-priority'
+                          value={opt.value}
+                          checked={
+                            (form.priority ?? announcementData.priority) ===
+                            opt.value
+                          }
+                          onChange={() =>
+                            setForm({ ...form, priority: opt.value })
+                          }
+                          className='accent-primary'
+                        />
+                        <span className='text-sm'>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Schedule */}
+                <div className='space-y-2'>
+                  <Label className='flex items-center gap-2'>
+                    <input
+                      type='checkbox'
+                      checked={scheduleEnabled}
+                      onChange={(e) => {
+                        setScheduleEnabled(e.target.checked);
+                        if (!e.target.checked) {
+                          setForm({ ...form, scheduledAt: null });
+                          setScheduleDateTime('');
+                        }
+                      }}
+                      className='accent-primary'
+                    />
+                    Đặt lịch đăng
+                  </Label>
+                  {scheduleEnabled && (
+                    <div>
+                      <Input
+                        type='datetime-local'
+                        value={scheduleDateTime}
+                        onChange={(e) => {
+                          setScheduleDateTime(e.target.value);
+                          setErrors({ ...errors, scheduleDateTime: '' });
+                        }}
+                        min={new Date().toISOString().slice(0, 16)}
+                        aria-invalid={!!errors.scheduleDateTime}
+                      />
+                      {errors.scheduleDateTime && (
+                        <span className='text-destructive text-xs'>
+                          {errors.scheduleDateTime}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className='border-t px-6 py-4'>
+              <DialogFooter>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => handleClose(false)}
+                >
+                  Hủy
+                </Button>
+                <Button type='submit' disabled={submitting}>
+                  {submitting ? 'Đang lưu...' : 'Lưu thay đổi'}
+                </Button>
+              </DialogFooter>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

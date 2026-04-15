@@ -3,6 +3,8 @@ import {
   CreateAlertTemplatePayload,
   UpdateAlertTemplatePayload
 } from '../types/alert-template.type';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/features/authenticate/store/auth-store';
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
@@ -54,6 +56,12 @@ async function fetchJson<T>(
     const msg =
       (data && (data.message || data.error || data.msg)) ||
       `Request failed (${res.status})`;
+    if (res.status === 401) {
+      useAuthStore.getState().logout();
+      if (typeof window !== 'undefined') window.location.href = '/auth/login';
+    } else if (res.status === 403) {
+      toast.error('Không đủ quyền');
+    }
     throw new ApiError(msg, res.status, data);
   }
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, Button } from '@/components/ui/common';
 import { AlertTriangle, Droplets, Clock, Activity, MapPin } from 'lucide-react';
 import type { FloodStationProperties } from '@/features/zones/api/flood-severity.api';
+import { usePathname } from 'next/navigation';
 
 export type FloodFeatureProps = {
   properties: FloodStationProperties;
@@ -12,6 +13,7 @@ export type FloodFeatureProps = {
 };
 
 export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
+  const pathname = usePathname();
   const severityKey =
     properties.severity ??
     (properties.severityLevel === 3
@@ -91,6 +93,8 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
     : 'N/A';
 
   const stationDetailId = properties.stationId ?? properties.id ?? null;
+  const isModeratorPortal = pathname.startsWith('/moderator');
+  const stationDetailBasePath = isModeratorPortal ? '/moderator' : '/admin';
 
   return (
     <div className='pointer-events-auto w-full max-w-xs'>
@@ -197,11 +201,11 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
               <Link
                 href={
                   stationDetailId
-                    ? `/admin/stations/${stationDetailId}`
-                    : '/admin/stations'
+                    ? `${stationDetailBasePath}/stations/${stationDetailId}`
+                    : `${stationDetailBasePath}/stations`
                 }
               >
-                Chi tiết
+                Xem trạm
               </Link>
             </Button>
           </div>

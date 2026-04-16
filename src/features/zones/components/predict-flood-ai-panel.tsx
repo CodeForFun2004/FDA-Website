@@ -588,28 +588,29 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
         </details>
       )}
 
-      {pred.accuracyMetrics && Object.keys(pred.accuracyMetrics).length > 0 && (
-        <div className={cn('rounded-xl border px-3 py-3', tierUi.recBox)}>
-          <p className='mb-2 text-[11px] font-semibold'>
-            Độ chính xác ước tính (theo giai đoạn mô hình)
-          </p>
-          <ul className='space-y-2 text-[11px] leading-snug'>
-            {Object.entries(pred.accuracyMetrics).map(([k, v]) => (
-              <li
-                key={k}
-                className='flex items-start justify-between gap-3 rounded-lg border border-current/10 bg-white/60 px-2.5 py-2'
-              >
-                <span className='min-w-0 flex-1 text-left text-[10px] leading-snug opacity-90'>
-                  {accuracyMetricLabelWithNote(k)}
-                </span>
-                <span className='shrink-0 rounded-full bg-white px-2 py-0.5 text-right font-semibold tabular-nums'>
-                  {accuracyPercentOnly(String(v))}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {pred?.accuracyMetrics &&
+        Object.keys(pred.accuracyMetrics).length > 0 && (
+          <div className={cn('rounded-xl border px-3 py-3', tierUi.recBox)}>
+            <p className='mb-2 text-[11px] font-semibold'>
+              Độ chính xác ước tính (theo giai đoạn mô hình)
+            </p>
+            <ul className='space-y-2 text-[11px] leading-snug'>
+              {Object.entries(pred.accuracyMetrics).map(([k, v]) => (
+                <li
+                  key={k}
+                  className='flex items-start justify-between gap-3 rounded-lg border border-current/10 bg-white/60 px-2.5 py-2'
+                >
+                  <span className='min-w-0 flex-1 text-left text-[10px] leading-snug opacity-90'>
+                    {accuracyMetricLabelWithNote(k)}
+                  </span>
+                  <span className='shrink-0 rounded-full bg-white px-2 py-0.5 text-right font-semibold tabular-nums'>
+                    {accuracyPercentOnly(String(v))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
     </div>
   );
 }

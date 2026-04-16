@@ -43,40 +43,40 @@ type NavItem = NavLink | NavGroup;
 const navItemsAdmin: NavItem[] = [
   {
     type: 'link',
-    label: 'Bảng điều khiển',
+    label: 'Bảng Điều Khiển',
     href: '/admin',
     icon: LayoutDashboard,
     exact: true
   },
   {
     type: 'link',
-    label: 'Lịch sử ngập',
+    label: 'Lịch Sử Ngập',
     href: '/admin/flood-history',
     icon: History
   },
   {
     type: 'link',
-    label: 'Người dùng & vai trò',
+    label: 'Người Dùng & Vai Trò',
     href: '/admin/users',
     icon: Users
   },
   {
     type: 'group',
-    label: 'Thanh toán & gói',
+    label: 'Thanh Toán & Gói',
     icon: Wallet,
     children: [
       {
-        label: 'Gói đăng ký',
+        label: 'Gói Đăng Ký',
         href: '/admin/plan-subscriptions',
         icon: CreditCard
       },
       {
-        label: 'Khiếu nại gói',
+        label: 'Khiếu Nại Gói',
         href: '/admin/subscription-disputes',
         icon: MessageSquareWarning
       },
       {
-        label: 'Giao dịch thanh toán',
+        label: 'Giao Dịch Thanh Toán',
         href: '/admin/billing-payment',
         icon: Receipt
       }
@@ -84,7 +84,7 @@ const navItemsAdmin: NavItem[] = [
   },
   {
     type: 'link',
-    label: 'Trạm quan trắc',
+    label: 'Trạm Quan Trắc',
     href: '/admin/stations',
     icon: SmartphoneNfc
   },
@@ -95,27 +95,27 @@ const navItemsAdmin: NavItem[] = [
   //   icon: BellRing,
   //   children: [
   //     {
-  //       label: 'Mẫu cảnh báo',
+  //       label: 'Mẫu Cảnh Báo',
   //       href: '/admin/alerts',
   //       icon: BellRing
   //     },
   //     {
-  //       label: 'Tin tức',
+  //       label: 'Tin Tức',
   //       href: '/admin/news',
   //       icon: Newspaper
   //     }
   //   ]
   // },
-  { type: 'link', label: 'Bản đồ & vùng', href: '/admin/zones', icon: MapIcon },
+  { type: 'link', label: 'Bản Đồ & Vùng', href: '/admin/zones', icon: MapIcon },
   {
     type: 'link',
-    label: 'Logs hệ thống',
+    label: 'Logs Hệ Thống',
     href: '/admin/operational-logs',
     icon: ServerCog
   },
   {
     type: 'link',
-    label: 'Tác vụ',
+    label: 'Tác Vụ',
     href: '/admin/tasks',
     icon: ServerCog
   }
@@ -124,41 +124,41 @@ const navItemsAdmin: NavItem[] = [
 const navItemsModerator: NavItem[] = [
   {
     type: 'link',
-    label: 'Bảng điều khiển',
+    label: 'Bảng Điều Khiển',
     href: '/moderator',
     icon: LayoutDashboard,
     exact: true
   },
   {
     type: 'link',
-    label: 'Lịch sử ngập',
+    label: 'Lịch Sử Ngập',
     href: '/moderator/flood-history',
     icon: History
   },
   {
     type: 'link',
-    label: 'Trạm quan trắc',
+    label: 'Trạm Quan Trắc',
     href: '/moderator/stations',
     icon: SmartphoneNfc
   },
   {
     type: 'link',
-    label: 'Cộng đồng',
+    label: 'Cộng Đồng',
     href: '/moderator/community',
     icon: SmartphoneNfc
   },
   {
     type: 'group',
-    label: 'Cảnh báo & tin',
+    label: 'Cảnh Báo & Tin',
     icon: BellRing,
     children: [
       {
-        label: 'Mẫu cảnh báo',
+        label: 'Mẫu Cảnh Báo',
         href: '/moderator/alerts',
         icon: BellRing
       },
       {
-        label: 'Tin tức',
+        label: 'Tin Tức',
         href: '/moderator/news',
         icon: Newspaper
       }
@@ -166,13 +166,13 @@ const navItemsModerator: NavItem[] = [
   },
   {
     type: 'link',
-    label: 'Bản đồ & vùng',
+    label: 'Bản Đồ & Vùng',
     href: '/moderator/zones',
     icon: MapIcon
   },
   {
     type: 'link',
-    label: 'Tác vụ',
+    label: 'Tác Vụ',
     href: '/moderator/tasks',
     icon: ServerCog
   }
@@ -350,7 +350,7 @@ export const Sidebar = () => {
                 !isSidebarOpen && 'lg:w-0 lg:overflow-hidden lg:opacity-0'
               )}
             >
-              {isModeratorPortal ? 'FDA Moderator' : 'FDA Admin'}
+              {isModeratorPortal ? 'FDA Dashboard' : 'FDA Dashboard'}
             </span>
           </div>
         </div>
@@ -376,7 +376,7 @@ export const Sidebar = () => {
         >
           <div
             title={
-              !isSidebarOpen ? 'System Status: Monitoring Active' : undefined
+              !isSidebarOpen ? 'Trạng thái hệ thống: Đang giám sát' : undefined
             }
             className={cn(
               'flex items-center overflow-hidden rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 transition-all dark:border-blue-900/50 dark:from-blue-950/30 dark:to-indigo-950/30',
@@ -398,10 +398,10 @@ export const Sidebar = () => {
               )}
             >
               <p className='text-[10px] font-semibold whitespace-nowrap text-blue-800 dark:text-blue-300'>
-                System Status
+                Trạng thái hệ thống
               </p>
               <span className='text-muted-foreground text-[10px] whitespace-nowrap'>
-                Monitoring Active
+                Đang giám sát
               </span>
             </div>
           </div>

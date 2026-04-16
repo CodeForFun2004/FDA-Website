@@ -11,7 +11,7 @@ export default function Page() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Gói đăng ký'
+      pageTitle='Gói Đăng Ký'
       pageDescription='Cấu hình gói, mức giá và tính năng đi kèm.'
     >
       <Suspense

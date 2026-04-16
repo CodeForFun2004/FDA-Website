@@ -104,15 +104,14 @@ export function ComponentEditDialog({
 
   const onSubmit = async (values: FormValues) => {
     if (!component?.id) {
-      toast.error('Component ID is missing');
+      toast.error('Thiếu mã thiết bị');
       return;
     }
 
     setIsLoading(true);
     try {
       const token = await getAccessToken();
-      if (!token)
-        throw new Error('Authentication required. Please log in again.');
+      if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
 
       const payload: ComponentUpsertPayload = {
         componentType: values.componentType,
@@ -132,14 +131,14 @@ export function ComponentEditDialog({
       );
 
       if (res.success) {
-        toast.success('Component updated successfully!');
+        toast.success('Cập nhật thiết bị thành công!');
         onOpenChange(false);
         onSuccess?.();
       } else {
-        toast.error('Failed to update component', { description: res.message });
+        toast.error('Cập nhật thiết bị thất bại', { description: res.message });
       }
     } catch (error: any) {
-      toast.error('Error updating component', { description: error.message });
+      toast.error('Lỗi khi cập nhật thiết bị', { description: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -156,10 +155,10 @@ export function ComponentEditDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Edit className='text-primary h-5 w-5' />
-            Edit Component
+            Sửa thiết bị
           </DialogTitle>
           <DialogDescription>
-            Update the component information. Fields marked with * are required.
+            Cập nhật thông tin thiết bị. Các trường có dấu * là bắt buộc.
           </DialogDescription>
         </DialogHeader>
 
@@ -171,8 +170,8 @@ export function ComponentEditDialog({
           <FormSelect
             control={formControl}
             name='componentType'
-            label='Component Type'
-            placeholder='Select type'
+            label='Loại thiết bị'
+            placeholder='Chọn loại'
             required
             disabled={isLoading}
             options={COMPONENT_TYPE_OPTIONS}
@@ -182,7 +181,7 @@ export function ComponentEditDialog({
             <FormInput
               control={formControl}
               name='name'
-              label='Name'
+              label='Tên'
               placeholder='ESP32 Main Controller'
               required
               disabled={isLoading}
@@ -190,8 +189,8 @@ export function ComponentEditDialog({
             <FormSelect
               control={formControl}
               name='status'
-              label='Status'
-              placeholder='Select status'
+              label='Trạng thái'
+              placeholder='Chọn trạng thái'
               required
               disabled={isLoading}
               options={COMPONENT_STATUS_OPTIONS}
@@ -202,14 +201,14 @@ export function ComponentEditDialog({
             <FormInput
               control={formControl}
               name='model'
-              label='Model'
+              label='Mẫu'
               placeholder='ESP32-WROOM-32'
               disabled={isLoading}
             />
             <FormInput
               control={formControl}
               name='serialNumber'
-              label='Serial Number'
+              label='Số serial'
               placeholder='ESP32-001234'
               disabled={isLoading}
             />
@@ -218,7 +217,7 @@ export function ComponentEditDialog({
           <FormInput
             control={formControl}
             name='firmwareVersion'
-            label='Firmware Version'
+            label='Phiên bản firmware'
             placeholder='1.0.0'
             disabled={isLoading}
           />
@@ -226,8 +225,8 @@ export function ComponentEditDialog({
           <FormTextarea
             control={formControl}
             name='notes'
-            label='Notes'
-            placeholder='Additional notes...'
+            label='Ghi chú'
+            placeholder='Ghi chú thêm...'
             disabled={isLoading}
             config={{ maxLength: 500, showCharCount: true, rows: 3 }}
           />
@@ -239,18 +238,18 @@ export function ComponentEditDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type='submit' disabled={isLoading} className='gap-2'>
               {isLoading ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Updating...
+                  Đang cập nhật...
                 </>
               ) : (
                 <>
                   <Edit className='h-4 w-4' />
-                  Update Component
+                  Cập nhật thiết bị
                 </>
               )}
             </Button>

@@ -9,7 +9,7 @@ export default function NewsPage() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Tin tức'
+      pageTitle='Tin Tức'
       pageDescription='Đăng và chỉnh sửa tin tức, thông báo liên quan đến ngập lụt.'
     >
       <NewsPageClient />

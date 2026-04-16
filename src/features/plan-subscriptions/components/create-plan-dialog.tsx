@@ -139,14 +139,13 @@ export function CreatePlanDialog({
   const createMutation = useMutation({
     mutationFn: async (payload: CreatePlanPayload) => {
       const token = await getAccessToken();
-      if (!token)
-        throw new Error('Authentication required. Please log in again.');
+      if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       return planSubscriptionApi.createPlan(payload, token);
     },
     onSuccess: async (res) => {
       await queryClient.invalidateQueries({ queryKey: ['plans'] });
-      toast.success('Plan created successfully!', {
-        description: `Plan "${res.data?.name ?? form.name}" is now available.`
+      toast.success('Tạo gói thành công!', {
+        description: `Gói \"${res.data?.name ?? form.name}\" đã sẵn sàng.`
       });
       setForm(DEFAULT_FORM);
       setErrors({});
@@ -154,7 +153,7 @@ export function CreatePlanDialog({
       onSuccess?.();
     },
     onError: (error: Error) => {
-      toast.error('Failed to create plan', { description: error.message });
+      toast.error('Tạo gói thất bại', { description: error.message });
     }
   });
 
@@ -195,11 +194,11 @@ export function CreatePlanDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <CreditCard className='text-primary h-5 w-5' />
-            Create New Plan
+            Tạo gói mới
           </DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new subscription plan. Fields marked
-            with <span className='text-destructive'>*</span> are required.
+            Điền thông tin để tạo gói đăng ký mới. Các trường có dấu{' '}
+            <span className='text-destructive'>*</span> là bắt buộc.
           </DialogDescription>
         </DialogHeader>
 
@@ -210,7 +209,7 @@ export function CreatePlanDialog({
               {/* Code */}
               <div className='space-y-1.5'>
                 <Label htmlFor='create-code'>
-                  Plan Code <span className='text-destructive'>*</span>
+                  Mã gói <span className='text-destructive'>*</span>
                 </Label>
                 <Input
                   id='create-code'
@@ -230,7 +229,7 @@ export function CreatePlanDialog({
               {/* Name */}
               <div className='space-y-1.5'>
                 <Label htmlFor='create-name'>
-                  Plan Name <span className='text-destructive'>*</span>
+                  Tên gói <span className='text-destructive'>*</span>
                 </Label>
                 <Input
                   id='create-name'

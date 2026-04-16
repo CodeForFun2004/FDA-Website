@@ -93,7 +93,8 @@ export function getPaymentColumns(params: {
       enableColumnFilter: true,
       meta: {
         label: 'Search',
-        placeholder: 'Search order code, user, plan...',
+        viewLabel: 'Order Code',
+        placeholder: 'Tìm kiếm order code, user, plan...',
         variant: 'text' as const
       }
     },
@@ -113,7 +114,10 @@ export function getPaymentColumns(params: {
         </div>
       ),
       enableSorting: false,
-      enableColumnFilter: false
+      enableColumnFilter: false,
+      meta: {
+        viewLabel: 'User'
+      }
     },
     {
       id: 'plan',
@@ -131,7 +135,10 @@ export function getPaymentColumns(params: {
         </div>
       ),
       enableSorting: false,
-      enableColumnFilter: false
+      enableColumnFilter: false,
+      meta: {
+        viewLabel: 'Plan'
+      }
     },
     {
       id: 'amount',
@@ -145,7 +152,10 @@ export function getPaymentColumns(params: {
         </div>
       ),
       enableSorting: false,
-      enableColumnFilter: false
+      enableColumnFilter: false,
+      meta: {
+        viewLabel: 'Amount'
+      }
     },
     {
       id: 'durationMonths',
@@ -160,7 +170,10 @@ export function getPaymentColumns(params: {
         </div>
       ),
       enableSorting: false,
-      enableColumnFilter: false
+      enableColumnFilter: false,
+      meta: {
+        viewLabel: 'Duration'
+      }
     },
     {
       id: 'status',
@@ -183,6 +196,7 @@ export function getPaymentColumns(params: {
       enableColumnFilter: true,
       meta: {
         label: 'Status',
+        viewLabel: 'Status',
         variant: 'select' as const,
         options: PAYMENT_STATUS_OPTIONS
       }
@@ -198,7 +212,10 @@ export function getPaymentColumns(params: {
         </div>
       ),
       enableSorting: false,
-      enableColumnFilter: false
+      enableColumnFilter: false,
+      meta: {
+        viewLabel: 'Payment Date'
+      }
     }
   ];
 }

@@ -55,8 +55,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       const token = await getAccessToken();
 
       if (!token) {
-        toast.error('Authentication required', {
-          description: 'Please log in again to delete stations.'
+        toast.error('Cần đăng nhập', {
+          description: 'Vui lòng đăng nhập lại để xóa trạm.'
         });
         setOpenDelete(false);
         return;
@@ -68,10 +68,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       await queryClient.invalidateQueries({ queryKey: ['stations'] });
 
       // Show success toast after UI updates
-      toast.success('Station deleted successfully');
+      toast.success('Đã xóa trạm');
       setOpenDelete(false);
     } catch (error: any) {
-      toast.error('Failed to delete station', {
+      toast.error('Xóa trạm thất bại', {
         description: error.message
       });
     } finally {
@@ -104,26 +104,26 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
+            <span className='sr-only'>Mở menu</span>
             <IconDotsVertical className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
 
           <DropdownMenuItem onClick={() => router.push(detailPath)}>
-            <IconEye className='mr-2 h-4 w-4' /> Detail
+            <IconEye className='mr-2 h-4 w-4' /> Chi tiết
           </DropdownMenuItem>
 
           {canManageStations ? (
             <>
               <DropdownMenuItem onClick={() => setOpenEdit(true)}>
-                <IconEdit className='mr-2 h-4 w-4' /> Update
+                <IconEdit className='mr-2 h-4 w-4' /> Cập nhật
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={() => setOpenDelete(true)}>
-                <IconTrash className='mr-2 h-4 w-4' /> Delete
+                <IconTrash className='mr-2 h-4 w-4' /> Xóa
               </DropdownMenuItem>
             </>
           ) : null}

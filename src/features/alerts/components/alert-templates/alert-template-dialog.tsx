@@ -39,14 +39,14 @@ import {
 import { toast } from 'sonner';
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, 'Tên là bắt buộc'),
   channel: z.enum(['Push', 'Email', 'SMS', 'InApp']),
   severity: z
     .enum(['info', 'caution', 'warning', 'critical'])
     .nullable()
     .optional(),
-  titleTemplate: z.string().min(1, 'Title template is required'),
-  bodyTemplate: z.string().min(1, 'Body template is required'),
+  titleTemplate: z.string().min(1, 'Mẫu tiêu đề là bắt buộc'),
+  bodyTemplate: z.string().min(1, 'Mẫu nội dung là bắt buộc'),
   isActive: z.boolean().default(true),
   sortOrder: z.number().int().default(0)
 });
@@ -110,14 +110,14 @@ export function AlertTemplateDialog({
     try {
       if (isEditing) {
         await updateMutation.mutateAsync({ id: template!.id, data: values });
-        toast.success('Template updated successfully');
+        toast.success('Cập nhật mẫu thành công');
       } else {
         await createMutation.mutateAsync({ data: values });
-        toast.success('Template created successfully');
+        toast.success('Tạo mẫu thành công');
       }
       onOpenChange(false);
     } catch (error: any) {
-      toast.error('Operation failed', { description: error.message });
+      toast.error('Thao tác thất bại', { description: error.message });
     }
   };
 
@@ -126,7 +126,7 @@ export function AlertTemplateDialog({
       <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Edit Alert Template' : 'Create Alert Template'}
+            {isEditing ? 'Sửa mẫu cảnh báo' : 'Tạo mẫu cảnh báo'}
           </DialogTitle>
         </DialogHeader>
 
@@ -140,9 +140,9 @@ export function AlertTemplateDialog({
             name='name'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Tên</FormLabel>
                 <FormControl>
-                  <Input placeholder='e.g. Critical Push Template' {...field} />
+                  <Input placeholder='VD: Mẫu Push khẩn cấp' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -155,14 +155,14 @@ export function AlertTemplateDialog({
               name='channel'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Channel</FormLabel>
+                  <FormLabel>Kênh</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select channel' />
+                        <SelectValue placeholder='Chọn kênh' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -182,7 +182,7 @@ export function AlertTemplateDialog({
               name='severity'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Severity (Optional)</FormLabel>
+                  <FormLabel>Mức độ (tùy chọn)</FormLabel>
                   <Select
                     onValueChange={(val) =>
                       field.onChange(val === 'null' ? null : val)
@@ -191,15 +191,15 @@ export function AlertTemplateDialog({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='All' />
+                        <SelectValue placeholder='Tất cả' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='null'>All (Fallback)</SelectItem>
-                      <SelectItem value='info'>Info</SelectItem>
-                      <SelectItem value='caution'>Caution</SelectItem>
-                      <SelectItem value='warning'>Warning</SelectItem>
-                      <SelectItem value='critical'>Critical</SelectItem>
+                      <SelectItem value='null'>Tất cả (mặc định)</SelectItem>
+                      <SelectItem value='info'>Thông tin</SelectItem>
+                      <SelectItem value='caution'>Cảnh giác</SelectItem>
+                      <SelectItem value='warning'>Cảnh báo</SelectItem>
+                      <SelectItem value='critical'>Khẩn cấp</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -213,16 +213,15 @@ export function AlertTemplateDialog({
             name='titleTemplate'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title Template</FormLabel>
+                <FormLabel>Mẫu tiêu đề</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder='e.g. ⚠️ Warning - {{station_name}}'
+                    placeholder='VD: Cảnh báo - {{station_name}}'
                     {...field}
                   />
                 </FormControl>
                 <FormDescription className='text-xs'>
-                  Supports variables like {`{{station_name}}`},{' '}
-                  {`{{water_level}}`}
+                  Hỗ trợ biến như {`{{station_name}}`}, {`{{water_level}}`}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -234,10 +233,10 @@ export function AlertTemplateDialog({
             name='bodyTemplate'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Body Template</FormLabel>
+                <FormLabel>Mẫu nội dung</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder='e.g. Water level at {{station_name}} reached {{water_level}}.'
+                    placeholder='VD: Mực nước tại {{station_name}} đã đạt {{water_level}}.'
                     rows={4}
                     {...field}
                   />
@@ -253,10 +252,8 @@ export function AlertTemplateDialog({
             render={({ field }) => (
               <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm'>
                 <div className='space-y-0.5'>
-                  <FormLabel>Active Status</FormLabel>
-                  <FormDescription>
-                    Enable or disable this template
-                  </FormDescription>
+                  <FormLabel>Trạng thái hoạt động</FormLabel>
+                  <FormDescription>Bật hoặc tắt mẫu này</FormDescription>
                 </div>
                 <FormControl>
                   <Switch
@@ -274,13 +271,13 @@ export function AlertTemplateDialog({
               variant='outline'
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               type='submit'
               disabled={createMutation.isPending || updateMutation.isPending}
             >
-              {isEditing ? 'Save Changes' : 'Create'}
+              {isEditing ? 'Lưu thay đổi' : 'Tạo'}
             </Button>
           </DialogFooter>
         </Form>

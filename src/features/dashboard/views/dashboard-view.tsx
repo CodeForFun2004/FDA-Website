@@ -339,7 +339,7 @@ export function DashboardView({
       <div className='flex flex-col justify-between gap-4 md:flex-row md:items-center'>
         <div>
           <h1 className='text-foreground text-3xl font-bold tracking-tight'>
-            Tổng quan
+            Tổng Quan
           </h1>
           <p className='text-muted-foreground mt-1'>
             Giám sát ngập và thời tiết khu vực

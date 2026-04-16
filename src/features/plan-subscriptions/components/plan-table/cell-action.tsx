@@ -39,19 +39,18 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const deactivateMutation = useMutation({
     mutationFn: async () => {
       const token = await getAccessToken();
-      if (!token)
-        throw new Error('Authentication required. Please log in again.');
+      if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       return planSubscriptionApi.deactivatePlan(data.id, token);
     },
     onSuccess: async (res) => {
       await queryClient.invalidateQueries({ queryKey: ['plans'] });
-      toast.success(
-        res.message || `Plan "${data.name}" deactivated successfully`
-      );
+      toast.success(res.message || `Đã ngừng kích hoạt gói \"${data.name}\"`);
       setOpenDeactivate(false);
     },
     onError: (error: Error) => {
-      toast.error('Failed to deactivate plan', { description: error.message });
+      toast.error('Ngừng kích hoạt gói thất bại', {
+        description: error.message
+      });
     }
   });
 
@@ -63,16 +62,16 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DialogHeader>
             <DialogTitle className='text-destructive flex items-center gap-2'>
               <AlertTriangle className='h-5 w-5' />
-              Deactivate Plan
+              Ngừng kích hoạt gói
             </DialogTitle>
             <DialogDescription className='pt-1'>
-              Are you sure you want to deactivate{' '}
+              Bạn có chắc muốn ngừng kích hoạt{' '}
               <strong className='text-foreground'>{data.name}</strong>?
             </DialogDescription>
           </DialogHeader>
           <div className='rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-300'>
-            ⚠️ This will hide the plan from users. Existing subscribers will{' '}
-            <strong>not</strong> be affected.
+            Việc này sẽ ẩn gói khỏi người dùng. Người đang đăng ký sẽ{' '}
+            <strong>không</strong> bị ảnh hưởng.
           </div>
           <DialogFooter className='gap-2'>
             <Button
@@ -80,7 +79,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               onClick={() => setOpenDeactivate(false)}
               disabled={deactivateMutation.isPending}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               variant='destructive'
@@ -91,10 +90,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               {deactivateMutation.isPending ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Deactivating...
+                  Đang ngừng kích hoạt...
                 </>
               ) : (
-                'Deactivate'
+                'Ngừng kích hoạt'
               )}
             </Button>
           </DialogFooter>
@@ -115,18 +114,18 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
+            <span className='sr-only'>Mở menu</span>
             <IconDotsVertical className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
           <DropdownMenuItem onClick={() => setOpenEdit(true)}>
             <IconEdit className='mr-2 h-4 w-4' />
-            Edit Plan
+            Sửa gói
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -135,7 +134,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             disabled={!data.isActive}
           >
             <IconTrash className='mr-2 h-4 w-4' />
-            {data.isActive ? 'Deactivate' : 'Already Inactive'}
+            {data.isActive ? 'Ngừng kích hoạt' : 'Đã ngừng kích hoạt'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

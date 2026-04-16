@@ -113,7 +113,7 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='code'
-              label='Station Code'
+              label='Mã trạm'
               placeholder='ST_DN_DRAGON_01'
               required
             />
@@ -121,37 +121,37 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='name'
-              label='Station Name'
-              placeholder='Dragon Bridge Traffic Monitoring Station'
+              label='Tên trạm'
+              placeholder='Trạm quan trắc Cầu Rồng'
               required
             />
 
             <FormSelect
               control={formControl}
               name='status'
-              label='Status'
-              placeholder='Select status'
+              label='Trạng thái'
+              placeholder='Chọn trạng thái'
               required
               options={[
-                { label: 'Online', value: 'online' },
-                { label: 'Offline', value: 'offline' },
-                { label: 'Maintenance', value: 'maintenance' }
+                { label: 'Đang hoạt động', value: 'online' },
+                { label: 'Ngoại tuyến', value: 'offline' },
+                { label: 'Bảo trì', value: 'maintenance' }
               ]}
             />
 
             <FormInput
               control={formControl}
               name='roadName'
-              label='Road Name'
-              placeholder='2 September Street'
+              label='Tên đường'
+              placeholder='Đường 2 Tháng 9'
             />
           </div>
 
           <FormTextarea
             control={formControl}
             name='locationDesc'
-            label='Location Description'
-            placeholder='Located on the west side of Dragon Bridge, near the museum...'
+            label='Mô tả vị trí'
+            placeholder='Ví dụ: Nằm phía tây Cầu Rồng, gần bảo tàng...'
             config={{
               maxLength: 500,
               showCharCount: true,
@@ -163,8 +163,8 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='direction'
-              label='Direction'
-              placeholder='upstream / downstream / road section...'
+              label='Hướng'
+              placeholder='thượng lưu / hạ lưu / đoạn đường...'
             />
           </div>
 
@@ -172,7 +172,7 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='latitude'
-              label='Latitude'
+              label='Vĩ độ'
               placeholder='16.061153'
               type='number'
               step='0.000001'
@@ -181,7 +181,7 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='longitude'
-              label='Longitude'
+              label='Kinh độ'
               placeholder='108.221589'
               type='number'
               step='0.000001'
@@ -192,7 +192,7 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='thresholdWarning'
-              label='Threshold Warning'
+              label='Ngưỡng cảnh báo'
               placeholder='0.5'
               type='number'
               step='0.0001'
@@ -202,7 +202,7 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='thresholdCritical'
-              label='Threshold Critical'
+              label='Ngưỡng khẩn cấp'
               placeholder='1.2'
               type='number'
               step='0.0001'
@@ -211,7 +211,7 @@ export default function StationForm({
           </div>
 
           <Button type='submit'>
-            {initialData?.id ? 'Update Station' : 'Create Station'}
+            {initialData?.id ? 'Cập nhật trạm' : 'Tạo trạm'}
           </Button>
         </Form>
       </CardContent>

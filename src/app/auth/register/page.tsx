@@ -2,8 +2,8 @@ import RegisterViewPage from '@/features/authenticate/components/register-view';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Authentication | Register',
-  description: 'Register page for authentication.'
+  title: 'Xác thực | Đăng ký',
+  description: 'Trang đăng ký.'
 };
 
 export default function Page() {

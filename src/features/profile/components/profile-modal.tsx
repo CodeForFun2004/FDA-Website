@@ -94,7 +94,7 @@ function extractErrorMessage(err: any) {
     ? data.errors.map((e: any) => e?.message).filter(Boolean)
     : [];
   if (messages.length) return messages.join(' ');
-  return data?.message ?? err?.message ?? 'Change password failed.';
+  return data?.message ?? err?.message ?? 'Đổi mật khẩu thất bại.';
 }
 
 function AvatarCircle({
@@ -171,7 +171,7 @@ function SegmentTabs({
   tabs: { value: string; label: string }[];
 }) {
   return (
-    <div className='border-input bg-muted/60 inline-flex rounded-xl border p-1'>
+    <div className='inline-flex rounded-2xl bg-slate-50 p-1.5'>
       {tabs.map((t) => {
         const active = value === t.value;
         return (
@@ -180,16 +180,55 @@ function SegmentTabs({
             type='button'
             onClick={() => onChange(t.value)}
             className={cn(
-              'rounded-lg px-3 py-2 text-sm transition',
+              'rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200',
               active
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'bg-primary text-primary-foreground shadow-[0_0_0_1px_rgba(37,99,235,0.15)] ring-2 ring-white'
+                : 'text-slate-500 hover:text-slate-700'
             )}
           >
             {t.label}
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function PasswordField({
+  value,
+  placeholder,
+  visible,
+  onChange,
+  onToggle
+}: {
+  value: string;
+  placeholder: string;
+  visible: boolean;
+  onChange: (value: string) => void;
+  onToggle: () => void;
+}) {
+  return (
+    <div className='border-input bg-background flex items-center gap-3 rounded-2xl border px-4 py-3'>
+      <div className='bg-muted/70 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl'>
+        <KeyRound className='h-4 w-4' />
+      </div>
+      <div className='min-w-0 flex-1'>
+        <Input
+          type={visible ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className='border-0 bg-transparent px-0 shadow-none focus-visible:ring-0'
+        />
+      </div>
+      <button
+        type='button'
+        onClick={onToggle}
+        className='text-muted-foreground hover:text-foreground shrink-0 transition'
+        aria-label='Hiện/ẩn mật khẩu'
+      >
+        {visible ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
+      </button>
     </div>
   );
 }
@@ -333,11 +372,9 @@ export function ProfileModal({
           {/* header */}
           <div className='border-input flex items-center justify-between border-b px-5 py-4'>
             <div>
-              <div className='text-base font-semibold'>
-                Personnal Information
-              </div>
+              <div className='text-base font-semibold'>Thông tin cá nhân</div>
               <div className='text-muted-foreground text-sm'>
-                View & update account information
+                Xem và cập nhật thông tin tài khoản
               </div>
             </div>
             <button
@@ -357,9 +394,9 @@ export function ProfileModal({
                 value={tab}
                 onChange={(v) => setTab(v as any)}
                 tabs={[
-                  { value: 'profile', label: 'Information' },
-                  { value: 'password', label: 'Passsword' },
-                  { value: 'phone', label: 'Phone Number' }
+                  { value: 'profile', label: 'Thông tin' },
+                  { value: 'password', label: 'Mật khẩu' },
+                  { value: 'phone', label: 'Số điện thoại' }
                 ]}
               />
               {/* <div className="text-xs text-muted-foreground">
@@ -401,7 +438,7 @@ export function ProfileModal({
                   <div className='border-input bg-background rounded-2xl border p-4'>
                     <div className='mb-3 flex items-center justify-between gap-3'>
                       <div className='text-sm font-semibold'>
-                        Account Information
+                        Thông tin tài khoản
                       </div>
                       <div className='text-muted-foreground text-xs'>
                         {/* ID: <span className='font-mono'>{user.id}</span> */}
@@ -412,13 +449,13 @@ export function ProfileModal({
                       {/* Editable: fullName */}
                       <InfoBlock
                         icon={User}
-                        label='Full Name'
-                        hint='Can be updated'
+                        label='Họ và tên'
+                        hint='Có thể cập nhật'
                       >
                         <Input
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          placeholder='Enter full name'
+                          placeholder='Nhập họ và tên'
                         />
                       </InfoBlock>
 
@@ -428,7 +465,7 @@ export function ProfileModal({
                       </InfoBlock>
 
                       {/* Readonly: phoneNumber */}
-                      <InfoBlock icon={Phone} label='Phone Number'>
+                      <InfoBlock icon={Phone} label='Số điện thoại'>
                         <Input
                           value={user.phoneNumber ?? ''}
                           disabled
@@ -437,7 +474,10 @@ export function ProfileModal({
                       </InfoBlock>
 
                       {/* provider/status */}
-                      <InfoBlock icon={ShieldCheck} label='Provider / Status'>
+                      <InfoBlock
+                        icon={ShieldCheck}
+                        label='Nhà cung cấp / Trạng thái'
+                      >
                         <div className='grid grid-cols-2 gap-2'>
                           <Input
                             value={user.provider ?? ''}
@@ -453,17 +493,17 @@ export function ProfileModal({
                       </InfoBlock>
 
                       {/* verification */}
-                      <InfoBlock icon={ShieldCheck} label='Verification Status'>
+                      <InfoBlock icon={ShieldCheck} label='Trạng thái xác thực'>
                         <div className='space-y-2 text-sm'>
                           <div className='flex items-center justify-between gap-2'>
                             <span className='text-muted-foreground'>Email</span>
                             {user.emailVerifiedAt ? (
                               <span className='inline-flex items-center gap-1 text-emerald-600'>
-                                <ShieldCheck className='h-4 w-4' /> Verified
+                                <ShieldCheck className='h-4 w-4' /> Đã xác thực
                               </span>
                             ) : (
                               <span className='text-muted-foreground inline-flex items-center gap-1'>
-                                <ShieldX className='h-4 w-4' /> Not Verified
+                                <ShieldX className='h-4 w-4' /> Chưa xác thực
                               </span>
                             )}
                           </div>
@@ -472,11 +512,11 @@ export function ProfileModal({
                             <span className='text-muted-foreground'>SĐT</span>
                             {user.phoneVerifiedAt ? (
                               <span className='inline-flex items-center gap-1 text-emerald-600'>
-                                <ShieldCheck className='h-4 w-4' /> Verified
+                                <ShieldCheck className='h-4 w-4' /> Đã xác thực
                               </span>
                             ) : (
                               <span className='text-muted-foreground inline-flex items-center gap-1'>
-                                <ShieldX className='h-4 w-4' /> Not Verified
+                                <ShieldX className='h-4 w-4' /> Chưa xác thực
                               </span>
                             )}
                           </div>
@@ -484,7 +524,7 @@ export function ProfileModal({
                       </InfoBlock>
 
                       {/* roles */}
-                      <InfoBlock icon={ShieldCheck} label='Roles'>
+                      <InfoBlock icon={ShieldCheck} label='Vai trò'>
                         <div className='flex flex-wrap gap-2'>
                           {(user.roles ?? []).map((r) => (
                             <span
@@ -522,7 +562,7 @@ export function ProfileModal({
                           setAvatarFile(null);
                         }}
                       >
-                        Cancel
+                        Hủy
                       </Button>
 
                       <Button
@@ -544,7 +584,7 @@ export function ProfileModal({
                           }
                         }}
                       >
-                        {saving ? 'Saving...' : 'Save Changes'}
+                        {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                       </Button>
                     </div>
                   </div>
@@ -553,106 +593,49 @@ export function ProfileModal({
                   <div className='border-input bg-background rounded-2xl border p-4'>
                     <div className='mb-3 flex items-center gap-2 text-sm font-semibold'>
                       <KeyRound className='h-4 w-4' />
-                      Change Password
+                      Đổi mật khẩu
                     </div>
 
-                    <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-                      <InfoBlock icon={KeyRound} label='Current Password'>
-                        <div className='relative'>
-                          <Input
-                            type={showPw.current ? 'text' : 'password'}
-                            value={pw.currentPassword}
-                            onChange={(e) =>
-                              setPw((p) => ({
-                                ...p,
-                                currentPassword: e.target.value
-                              }))
-                            }
-                            placeholder='Enter current password'
-                            autoComplete='current-password'
-                          />
-                          <button
-                            type='button'
-                            onClick={() =>
-                              setShowPw((s) => ({ ...s, current: !s.current }))
-                            }
-                            className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2'
-                            aria-label='Toggle password'
-                          >
-                            {showPw.current ? (
-                              <EyeOff className='h-4 w-4' />
-                            ) : (
-                              <Eye className='h-4 w-4' />
-                            )}
-                          </button>
-                        </div>
-                      </InfoBlock>
+                    <div className='grid grid-cols-1 gap-3'>
+                      <PasswordField
+                        value={pw.currentPassword}
+                        placeholder='Nhập mật khẩu hiện tại'
+                        visible={showPw.current}
+                        onChange={(value) =>
+                          setPw((p) => ({ ...p, currentPassword: value }))
+                        }
+                        onToggle={() =>
+                          setShowPw((s) => ({ ...s, current: !s.current }))
+                        }
+                      />
 
-                      <InfoBlock icon={KeyRound} label='New Password'>
-                        <div className='relative'>
-                          <Input
-                            type={showPw.next ? 'text' : 'password'}
-                            value={pw.newPassword}
-                            onChange={(e) =>
-                              setPw((p) => ({
-                                ...p,
-                                newPassword: e.target.value
-                              }))
-                            }
-                            placeholder='Enter new password'
-                            autoComplete='new-password'
-                          />
-                          <button
-                            type='button'
-                            onClick={() =>
-                              setShowPw((s) => ({ ...s, next: !s.next }))
-                            }
-                            className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2'
-                            aria-label='Toggle password'
-                          >
-                            {showPw.next ? (
-                              <EyeOff className='h-4 w-4' />
-                            ) : (
-                              <Eye className='h-4 w-4' />
-                            )}
-                          </button>
-                        </div>
-                      </InfoBlock>
+                      <PasswordField
+                        value={pw.newPassword}
+                        placeholder='Nhập mật khẩu mới'
+                        visible={showPw.next}
+                        onChange={(value) =>
+                          setPw((p) => ({ ...p, newPassword: value }))
+                        }
+                        onToggle={() =>
+                          setShowPw((s) => ({ ...s, next: !s.next }))
+                        }
+                      />
 
-                      <InfoBlock icon={KeyRound} label='Confirm New Password'>
-                        <div className='relative'>
-                          <Input
-                            type={showPw.confirm ? 'text' : 'password'}
-                            value={pw.confirmPassword}
-                            onChange={(e) =>
-                              setPw((p) => ({
-                                ...p,
-                                confirmPassword: e.target.value
-                              }))
-                            }
-                            placeholder='Confirm new password'
-                            autoComplete='new-password'
-                          />
-                          <button
-                            type='button'
-                            onClick={() =>
-                              setShowPw((s) => ({ ...s, confirm: !s.confirm }))
-                            }
-                            className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2'
-                            aria-label='Toggle password'
-                          >
-                            {showPw.confirm ? (
-                              <EyeOff className='h-4 w-4' />
-                            ) : (
-                              <Eye className='h-4 w-4' />
-                            )}
-                          </button>
-                        </div>
-                      </InfoBlock>
+                      <PasswordField
+                        value={pw.confirmPassword}
+                        placeholder='Nhập lại mật khẩu mới'
+                        visible={showPw.confirm}
+                        onChange={(value) =>
+                          setPw((p) => ({ ...p, confirmPassword: value }))
+                        }
+                        onToggle={() =>
+                          setShowPw((s) => ({ ...s, confirm: !s.confirm }))
+                        }
+                      />
 
-                      <div className='border-input bg-muted/30 text-muted-foreground rounded-2xl border p-3 text-xs sm:col-span-2'>
-                        Tip: Use a strong password that you haven't used before
-                        on this site.
+                      <div className='border-input bg-muted/30 text-muted-foreground rounded-2xl border p-3 text-xs'>
+                        Gợi ý: hãy dùng mật khẩu mạnh và chưa từng dùng trên hệ
+                        thống này.
                       </div>
                     </div>
 
@@ -669,7 +652,7 @@ export function ProfileModal({
                           })
                         }
                       >
-                        Reset
+                        Đặt lại
                       </Button>
 
                       <Button
@@ -684,13 +667,11 @@ export function ProfileModal({
                             !pw.newPassword ||
                             !pw.confirmPassword
                           ) {
-                            toast.error('Please fill in all fields.');
+                            toast.error('Vui lòng điền đầy đủ thông tin.');
                             return;
                           }
                           if (pw.newPassword !== pw.confirmPassword) {
-                            toast.error(
-                              'Password confirmation does not match.'
-                            );
+                            toast.error('Mật khẩu xác nhận không khớp.');
                             return;
                           }
 
@@ -711,7 +692,7 @@ export function ProfileModal({
                           }
                         }}
                       >
-                        {changingPw ? 'Changing...' : 'Change Password'}
+                        {changingPw ? 'Đang đổi...' : 'Đổi mật khẩu'}
                       </Button>
                     </div>
                   </div>
@@ -719,11 +700,11 @@ export function ProfileModal({
                   // PHONE NUMBER TAB
                   <div className='border-input bg-background rounded-2xl border p-4'>
                     <div className='mb-3 text-sm font-semibold'>
-                      Update Phone Number
+                      Cập nhật số điện thoại
                     </div>
 
                     <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-                      <InfoBlock icon={Phone} label='New Phone Number'>
+                      <InfoBlock icon={Phone} label='Số điện thoại mới'>
                         <Input
                           value={newPhoneNumber}
                           onChange={(e) => setNewPhoneNumber(e.target.value)}
@@ -732,11 +713,11 @@ export function ProfileModal({
                         />
                       </InfoBlock>
 
-                      <InfoBlock icon={KeyRound} label='OTP Verification'>
+                      <InfoBlock icon={KeyRound} label='Xác thực OTP'>
                         <Input
                           value={otpCode}
                           onChange={(e) => setOtpCode(e.target.value)}
-                          placeholder='Enter OTP'
+                          placeholder='Nhập OTP'
                           inputMode='numeric'
                           maxLength={6}
                         />
@@ -745,15 +726,14 @@ export function ProfileModal({
                       <div className='border-input bg-muted/30 text-muted-foreground rounded-2xl border p-3 text-xs sm:col-span-2'>
                         {secondsLeft !== null ? (
                           <span>
-                            OTP will expire in{' '}
-                            <b>{Math.max(0, secondsLeft)}s</b>. If you haven't
-                            received it, please request a new one.
+                            OTP sẽ hết hạn sau{' '}
+                            <b>{Math.max(0, secondsLeft)}s</b>. Nếu chưa nhận
+                            được, vui lòng yêu cầu gửi lại.
                           </span>
                         ) : (
                           <span>
-                            Enter your new phone number to receive an OTP for
-                            verification. If you haven't received it, please
-                            request a new one.
+                            Nhập số điện thoại mới để nhận OTP xác thực. Nếu
+                            chưa nhận được, vui lòng yêu cầu gửi lại.
                           </span>
                         )}
                       </div>
@@ -766,7 +746,7 @@ export function ProfileModal({
                         disabled={otpSending}
                         onClick={async () => {
                           if (!newPhoneNumber.trim()) {
-                            toast.error('Please enter a new phone number.');
+                            toast.error('Vui lòng nhập số điện thoại mới.');
                             return;
                           }
 
@@ -776,15 +756,11 @@ export function ProfileModal({
                               identifier: newPhoneNumber.trim()
                             });
                             if (!res?.success) {
-                              toast.error(
-                                res?.message || 'Failed to send OTP.'
-                              );
+                              toast.error(res?.message || 'Gửi OTP thất bại.');
                               return;
                             }
                             setOtpExpiresAt(res.expiresAt ?? null);
-                            toast.success(
-                              res?.message || 'OTP sent successfully.'
-                            );
+                            toast.success(res?.message || 'Đã gửi OTP.');
                           } catch (error: any) {
                             toast.error(extractErrorMessage(error));
                           } finally {
@@ -792,7 +768,7 @@ export function ProfileModal({
                           }
                         }}
                       >
-                        {otpSending ? 'Sending...' : 'Send OTP'}
+                        {otpSending ? 'Đang gửi...' : 'Gửi OTP'}
                       </Button>
 
                       <Button
@@ -800,7 +776,7 @@ export function ProfileModal({
                         disabled={updatingPhone}
                         onClick={async () => {
                           if (!newPhoneNumber.trim() || !otpCode.trim()) {
-                            toast.error('Please fill in all fields.');
+                            toast.error('Vui lòng điền đầy đủ thông tin.');
                             return;
                           }
 
@@ -812,13 +788,14 @@ export function ProfileModal({
                             });
                             if (!res?.success) {
                               toast.error(
-                                res?.message || 'Failed to update phone number.'
+                                res?.message ||
+                                  'Cập nhật số điện thoại thất bại.'
                               );
                               return;
                             }
                             toast.success(
                               res?.message ||
-                                'Phone number updated successfully.'
+                                'Cập nhật số điện thoại thành công.'
                             );
                             onOpenChange(false);
                           } catch (error: any) {
@@ -828,7 +805,7 @@ export function ProfileModal({
                           }
                         }}
                       >
-                        {updatingPhone ? 'Updating...' : 'Update Phone Number'}
+                        {updatingPhone ? 'Đang cập nhật...' : 'Cập nhật'}
                       </Button>
                     </div>
                   </div>

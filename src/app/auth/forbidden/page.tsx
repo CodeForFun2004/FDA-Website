@@ -48,35 +48,37 @@ export default function ForbiddenPage() {
 
         {/* Title */}
         <h1 className='mb-2 text-3xl font-bold tracking-tight'>
-          Access Denied
+          Truy cập bị từ chối
         </h1>
 
         {/* Subtitle */}
-        <p className='text-muted-foreground mb-6 text-lg'>Access not allowed</p>
+        <p className='text-muted-foreground mb-6 text-lg'>
+          Bạn không có quyền truy cập
+        </p>
 
         {/* Description */}
         <div className='bg-muted/50 mb-8 rounded-lg border p-4 text-left'>
           <p className='text-sm leading-relaxed'>
-            You do not have permission to access this page. The FDA management
-            system is only for:
+            Bạn không có quyền truy cập trang này. Hệ thống quản lý FDA chỉ dành
+            cho:
           </p>
           <ul className='mt-3 space-y-1.5 text-sm'>
             <li className='flex items-center gap-2'>
               <span className='text-primary'>•</span>
               <span>
-                <strong>Admin</strong> - Administrator
+                <strong>Admin</strong> - Quản trị viên
               </span>
             </li>
             <li className='flex items-center gap-2'>
               <span className='text-primary'>•</span>
               <span>
-                <strong>Moderator</strong> - Moderator Officer
+                <strong>Moderator</strong> - Điều phối viên
               </span>
             </li>
             <li className='flex items-center gap-2'>
               <span className='text-primary'>•</span>
               <span>
-                <strong>Super Admin</strong> - Senior Administrator
+                <strong>Super Admin</strong> - Quản trị cấp cao
               </span>
             </li>
           </ul>
@@ -84,9 +86,9 @@ export default function ForbiddenPage() {
           {user && (
             <div className='mt-4 border-t pt-3'>
               <p className='text-muted-foreground text-xs'>
-                Signed in with role:{' '}
+                Đang đăng nhập với vai trò:{' '}
                 <span className='font-semibold'>
-                  {user.roles?.join(', ') || 'Unknown'}
+                  {user.roles?.join(', ') || 'Không rõ'}
                 </span>
               </p>
             </div>
@@ -97,11 +99,11 @@ export default function ForbiddenPage() {
         <div className='flex flex-col gap-3'>
           <Button onClick={handleGoBack} variant='default' className='w-full'>
             <IconArrowLeft className='mr-2 h-4 w-4' />
-            Go back
+            Quay lại
           </Button>
 
           <Button onClick={handleGoHome} variant='outline' className='w-full'>
-            Go to home
+            Về trang chính
           </Button>
 
           <Button
@@ -110,15 +112,14 @@ export default function ForbiddenPage() {
             className='text-muted-foreground w-full'
           >
             <IconLogout className='mr-2 h-4 w-4' />
-            Sign out
+            Đăng xuất
           </Button>
         </div>
 
         {/* Footer */}
         <div className='text-muted-foreground mt-8 text-xs'>
           <p>
-            If you believe this is a mistake, please contact a system
-            administrator.
+            Nếu bạn nghĩ đây là nhầm lẫn, vui lòng liên hệ quản trị hệ thống.
           </p>
         </div>
       </div>

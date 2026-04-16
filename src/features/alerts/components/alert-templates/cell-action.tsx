@@ -31,10 +31,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirmDelete = async () => {
     try {
       await deleteMutation.mutateAsync({ id: data.id });
-      toast.success('Alert template deleted successfully');
+      toast.success('Đã xóa mẫu cảnh báo');
       setOpenDelete(false);
     } catch (error: any) {
-      toast.error('Failed to delete template', {
+      toast.error('Xóa mẫu thất bại', {
         description: error.message
       });
     }
@@ -52,13 +52,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
+            <span className='sr-only'>Mở menu</span>
             <IconDotsVertical className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
               // Document event to open edit modal
@@ -67,7 +67,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               );
             }}
           >
-            <IconEdit className='mr-2 h-4 w-4' /> Edit
+            <IconEdit className='mr-2 h-4 w-4' /> Sửa
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
@@ -77,10 +77,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               );
             }}
           >
-            <IconEye className='mr-2 h-4 w-4' /> Preview
+            <IconEye className='mr-2 h-4 w-4' /> Xem trước
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpenDelete(true)}>
-            <IconTrash className='mr-2 h-4 w-4 text-red-600' /> Delete
+            <IconTrash className='mr-2 h-4 w-4 text-red-600' /> Xóa
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

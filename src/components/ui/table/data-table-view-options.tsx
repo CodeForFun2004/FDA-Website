@@ -39,26 +39,33 @@ export function DataTableViewOptions<TData>({
     [table]
   );
 
+  const getColumnViewLabel = React.useCallback(
+    (column: (typeof columns)[number]) => {
+      return column.columnDef.meta?.viewLabel ?? column.id;
+    },
+    []
+  );
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          aria-label='Toggle columns'
+          aria-label='Hiện/ẩn cột'
           role='combobox'
           variant='outline'
           size='sm'
           className='ml-auto hidden h-8 lg:flex'
         >
           <Settings2 />
-          View
+          Cột
           <CaretSortIcon className='ml-auto opacity-50' />
         </Button>
       </PopoverTrigger>
       <PopoverContent align='end' className='w-44 p-0'>
         <Command>
-          <CommandInput placeholder='Search columns...' />
+          <CommandInput placeholder='Tìm cột...' />
           <CommandList>
-            <CommandEmpty>No columns found.</CommandEmpty>
+            <CommandEmpty>Không tìm thấy cột.</CommandEmpty>
             <CommandGroup>
               {columns.map((column) => (
                 <CommandItem
@@ -67,9 +74,7 @@ export function DataTableViewOptions<TData>({
                     column.toggleVisibility(!column.getIsVisible())
                   }
                 >
-                  <span className='truncate'>
-                    {column.columnDef.meta?.label ?? column.id}
-                  </span>
+                  <span className='truncate'>{getColumnViewLabel(column)}</span>
                   <CheckIcon
                     className={cn(
                       'ml-auto size-4 shrink-0',

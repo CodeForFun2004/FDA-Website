@@ -40,8 +40,7 @@ export function ComponentDeleteDialog({
     setIsLoading(true);
     try {
       const token = await getAccessToken();
-      if (!token)
-        throw new Error('Authentication required. Please log in again.');
+      if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
 
       const res = await stationsApi.deleteComponent(
         stationId,
@@ -50,16 +49,16 @@ export function ComponentDeleteDialog({
       );
 
       if (res.success) {
-        toast.success('Component deleted successfully!', {
-          description: `Removed: ${component.name || component.componentType}`
+        toast.success('Xóa thiết bị thành công!', {
+          description: `Đã xóa: ${component.name || component.componentType}`
         });
         onOpenChange(false);
         onSuccess?.();
       } else {
-        toast.error('Failed to delete component', { description: res.message });
+        toast.error('Xóa thiết bị thất bại', { description: res.message });
       }
     } catch (error: any) {
-      toast.error('Error deleting component', { description: error.message });
+      toast.error('Lỗi khi xóa thiết bị', { description: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -73,14 +72,14 @@ export function ComponentDeleteDialog({
         <DialogHeader>
           <DialogTitle className='text-destructive flex items-center gap-2'>
             <AlertTriangle className='h-5 w-5' />
-            Delete Component
+            Xóa thiết bị
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete{' '}
+            Bạn có chắc muốn xóa{' '}
             <span className='font-semibold'>
               {component.name || component.componentType}
             </span>
-            ? This action cannot be undone.
+            ? Thao tác này không thể hoàn tác.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className='pt-2'>
@@ -89,7 +88,7 @@ export function ComponentDeleteDialog({
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
           >
-            Cancel
+            Hủy
           </Button>
           <Button
             variant='destructive'
@@ -100,12 +99,12 @@ export function ComponentDeleteDialog({
             {isLoading ? (
               <>
                 <Loader2 className='h-4 w-4 animate-spin' />
-                Deleting...
+                Đang xóa...
               </>
             ) : (
               <>
                 <Trash2 className='h-4 w-4' />
-                Delete
+                Xóa
               </>
             )}
           </Button>

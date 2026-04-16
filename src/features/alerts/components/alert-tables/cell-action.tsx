@@ -27,7 +27,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const queryClient = useQueryClient();
 
   const onAcknowledge = async () => {
-    toast.success('Alert acknowledged successfully');
+    toast.success('Đã xác nhận cảnh báo');
     // Implement API call when ready
   };
 
@@ -37,10 +37,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       // Implement API call when ready
 
       await queryClient.invalidateQueries({ queryKey: ['alerts'] });
-      toast.success('Alert resolved successfully');
+      toast.success('Đã đánh dấu xử lý cảnh báo');
       setOpenResolve(false);
     } catch (error: any) {
-      toast.error('Failed to resolve alert', {
+      toast.error('Xử lý cảnh báo thất bại', {
         description: error.message
       });
     } finally {
@@ -60,25 +60,25 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
+            <span className='sr-only'>Mở menu</span>
             <IconDotsVertical className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => {}}>
-            <IconEye className='mr-2 h-4 w-4' /> View Details
+            <IconEye className='mr-2 h-4 w-4' /> Xem chi tiết
           </DropdownMenuItem>
           {data.status === 'New' && (
             <DropdownMenuItem onClick={onAcknowledge}>
-              <IconCheck className='mr-2 h-4 w-4' /> Acknowledge
+              <IconCheck className='mr-2 h-4 w-4' /> Xác nhận
             </DropdownMenuItem>
           )}
           {data.status !== 'Resolved' && (
             <DropdownMenuItem onClick={() => setOpenResolve(true)}>
-              <IconCheck className='mr-2 h-4 w-4 text-emerald-500' /> Mark
-              Resolved
+              <IconCheck className='mr-2 h-4 w-4 text-emerald-500' /> Đánh dấu
+              đã xử lý
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

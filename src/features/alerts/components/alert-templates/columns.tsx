@@ -34,7 +34,7 @@ export const columns: ColumnDef<AlertTemplate>[] = [
     ),
     meta: {
       label: 'Name',
-      placeholder: 'Search templates...',
+      placeholder: 'Tìm kiếm templates...',
       variant: 'text',
       icon: Text
     },

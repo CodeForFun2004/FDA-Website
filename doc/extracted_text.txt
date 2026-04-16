@@ -1,0 +1,577 @@
+
+
+3.2 Website
+3.2.1 Authentication
+3.2.1.1 Login
+Step 1: Access the FDA System Login Page
+The user (Admin, Authority, or Super Admin) navigates to the FDA System administration portal at the official URL:
+ 
+fda-website.vercel.app
+ .
+The authentication page is displayed with a split-screen layout:
+Left panel: A branded gradient panel (blue to cyan) displaying the FDA System logo (water-drop icon), the headline 'Flood Monitoring System', and two feature cards: 'Real-time' and 'Safe Route'.
+Right panel: A centered login form area with the title 'Welcome Back' and a subtitle notice explaining this portal is for Admin, Authority, and Super Admin roles only.
+Figure 32: Login – Login Page Overview
+Step 2: Enter Email or Phone Number
+The user enters their registered email address or phone number into the 'Email / Phone number' input field.
+The user then clicks 'Continue' to proceed.
+The system calls the identifier-check API to determine the appropriate authentication method for the account.
+Figure 33: Login – Enter Identifier
+Step 3.1: Login with Password
+If the system determines the account uses password-based authentication, the form transitions to a password entry step:
+A text line displays: “
+Account
+: &lt;user's email/phone&gt;”
+A “
+Password
+” field appears with a lock icon on the left and a show/hide eye icon on the right.
+A “
+Forgot password?
+” link appears next to the password label.
+A “
+Sign In
+” → primary button and a “
+Back
+” secondary button are shown.
+The user enters their password and clicks 'Sign In' to submit.
+Figure 34: Login – Password Entry Form
+Step 3.2: Login with OTP
+If the system determines the account uses OTP-based authentication, the system automatically sends an OTP to the identifier and the form transitions to an OTP entry step:
+Header text shows: “
+OTP
+ sent to: &lt;identifier&gt;”
+A 6-digit OTP input field is displayed.
+A countdown timer shows OTP expiry time (e.g., '4:59').
+“Sign In” primary button and two secondary buttons: “
+Change email/phone
+” and “
+Resend OTP
+”.
+The user enters the 6-digit OTP received via email or phone and clicks “
+Sign In
+”.
+Figure 35: Login – OTP Entry Form
+Step 4: Successful Login – Redirect to Dashboard
+Upon successful credential verification, the system:
+Validates the user's role (SUPER_ADMIN, ADMIN, or AUTHORITY).
+Redirects Admin/Super Admin roles to the '/admin' dashboard.
+Redirects Authority roles to the '/authority' dashboard.
+Displays a green toast notification: 'Signed in successfully!'
+Figure 36: Login – Successful Login (Role-based Redirect)
+ 
+Step 5: Login with Google Account
+As an alternative, the user can click the 'Google' button below the form separator.
+The system calls the Google OAuth initialization API to generate the authorization URL.
+The browser is redirected to Google's sign-in page (accounts.google.com).
+The user selects their Google account and grants permission.
+Google redirects back to /auth/callback, completing authentication and redirecting to the role-based dashboard.
+Figure 37: Login – Google OAuth Login Flow
+3.2.1.2 Forgot and Reset Password
+Step 1: Initiate Forgot Password from the Login Form
+On the Login screen (identifier step or password step), the user clicks the 'Forgot password?' link.
+The system requires the identifier field to contain a value before initiating forgot password.
+If the identifier field is empty, a warning is shown: 'Please enter email or phone number.'
+Figure 38: Forgot Password – Trigger Link Location
+Step 2: OTP Sent for Password Reset
+With a valid identifier entered, the system calls the OTP send API and transitions the form to OTP verification mode (FORGOT_PASSWORD mode).
+A success toast is displayed: 'Password reset OTP has been sent!'
+Figure 39: Forgot Password – OTP Sent Confirmation
+Step 3: Enter and Verify OTP
+The user retrieves the 6-digit OTP from their email or phone.
+The user types the OTP into the input field and clicks 'Verify OTP'.
+If the OTP is fewer than 6 digits: yellow toast 'OTP must be 6 digits.'
+If the OTP has expired, the 'Resend OTP' button becomes clickable to request a new code.
+Figure 40: Forgot Password – OTP Input Interaction
+Step 4: Set a New Password
+Upon successful OTP verification in FORGOT_PASSWORD mode, the system logs the user in and automatically opens the 'Set a new password' modal over the dashboard.
+Inside the dialog, the user enters:
+New Password – must satisfy all five security requirements.
+Confirm Password – must match the new password exactly.
+Requirements are shown as a real-time checklist:
+At least 8 characters
+Contains uppercase (A-Z)
+Contains lowercase (a-z)
+Contains a number (0-9)
+Contains a special character (!@#$...)
+A password match indicator also appears when the user types in the Confirm Password field.
+Figure 41: Forgot Password – Set New Password Modal
+ 
+Step 5: Confirm Reset and Log In Normally
+After the user clicks 'Set password' and the API confirms success:
+Green toast: 'Password reset successful!'
+The modal closes automatically.
+The user is fully logged in and can use the system normally.
+For future logins, the user signs in with their email and the newly set password (password-based flow).
+ 
+Figure 42: Forgot Password – Password Reset Successful
+3.2.2 Profile Management
+3.2.1.1 Information Tab
+Step 1: Open the Profile Pannel
+Click on your avatar or display name at the top-right corner of the dashboard.
+From the dropdown menu, select &quot;
+Profile
+&quot; to open the profile modal.
+The panel opens on the Information tab by default.
+Figure 43: View Profile
+      
+Step 2: View Account Information
+The Information tab displays the following details:
+Full Name
+ - Your display name. This field can be edited.
+Email 
+- The email address associated with your account. This field cannot be changed.
+ 
+Phone Number
+ - Your phone number registered to the account (view only on this tab; updates are done in the Phone Number tab).
+Provider / Status
+ - The login method used (e.g., local or Google) and the current account status (e.g., Active).
+Verification
+ - Shows whether your Email and Phone Number have been verified.
+Roles
+ - The role(s) assigned to your account (e.g., User, Admin, Authority, Super Admin).
+Figure 44: View account profile information
+      
+Step 3: Update Your Full Name
+Click inside the Full Name field and type your new name.
+The name entered here will be displayed throughout the system.
+Figure 45: View account profile information
+Step 4: Update Your Profile Picture
+On the left side of the panel, click the small camera icon located at the bottom-right corner of your avatar.
+A file picker will open. Select an image file from your device (JPG, PNG, etc.).
+The new image will appear as a preview immediately. It will only be saved after you click Save.
+Figure 46: View account profile information
+Step 5: Save or Cancel Changes
+After making your changes, click the &quot;Save Changes&quot; button at the bottom-right of the form.
+Success
+ - The profile is updated and the panel closes automatically.
+Cancel
+ - Click &quot;Cancel&quot; to discard all unsaved changes and restore the original values.
+Figure 47: View account profile information
+3.2.1.2 Password Tab
+Step 1: Switch to the Password Tab
+Inside the profile panel, click the &quot;
+Password
+&quot; tab at the top of the right section.
+The Change Password form will appear.
+Figure 48: View profile
+Step 2: Fill in the Password Fields
+The form contains three required fields:
+Current Password
+ - Enter the password you are currently using to log in. Use the eye icon on the right of the field to show or hide the characters.
+New Password
+ - Enter the new password you want to set. Use the eye icon to show or hide the characters.
+Confirm New Password
+ - Re-enter the new password to confirm it matches. Use the eye icon to show or hide the characters.
+Note: 
+The new password and the Confirm New Password must be exactly the same. If they do not match, the system will display an error and prevent the 
+Figure 49: View profile
+Step 3: Submit the Password Change
+After filling in all three fields, click the “Change Password” button at the bottom-right.
+Success
+ - The password is updated and the panel closes automatically. You will need to use the new password the next time you log in.
+Error (fields empty)
+ - If any field is left blank, a message will appear: &quot;Please fill in all fields.&quot;
+Error (passwords do not match)
+ - If the New Password and Confirm New Password do not match, a message will appear: &quot;Confirm password does not match.&quot;
+Error (wrong current password)
+ - If the current password entered is incorrect, the system will show an error from the server.
+Click “Reset” to clear all three fields and start over without closing the panel
+Figure 50: Submit the Password Change
+3.2.1.3 Phone Number Tab
+Step 1: Switch to the Phone Number Tab
+Inside the profile panel, click the &quot;Phone Number&quot; tab at the top of the right section.
+The Update Phone Number form will appear.
+Figure 51: Phone Number Tab
+Step 2: Enter the New Phone Number
+In the &quot;New Phone Number&quot; field, type the phone number you want to link to your account.
+Use the international format if applicable (e.g., +84901234567 for a Vietnamese number).
+Make sure the number is correct, as the OTP verification code will be sent to this number.
+Figure 52: Enter the New Phone Number
+Step 3: Request an OTP Code
+Click the “Send OTP” button on the left side of the action bar.
+Success
+ - An OTP code will be sent as an SMS to the phone number you entered. A countdown timer will appear, showing how many seconds remain before the OTP expires.
+Error (empty field)
+ - If the phone number field is empty, the system will show a message: &quot;Please enter a phone number.&quot;
+Error (invalid number)
+ - If the number is not valid or cannot receive SMS, the system will display an error.
+ 
+Note: 
+The OTP code is valid for a limited time (shown by the countdown timer). If it expires before you enter it, click &quot;Send OTP&quot; again to receive a new code.
+Figure 53: “Send OTP” button
+          
+  
+Step 4: Enter the OTP Code
+Check your phone for the SMS message containing the OTP code.
+Type the 6-digit OTP code into the “OTP Verification” field.
+Figure 54: Enter the OTP Code
+Step 5: Confirm the Update
+Click the &quot;Update&quot; button on the right side of the action bar.
+Success
+ - The phone number is updated and the panel closes automatically. Your new phone number now appears on the Information tab.
+Error (OTP expired or wrong)
+ - If the code is incorrect or has expired, an error message will appear. Click &quot;Send OTP&quot; again to request a new code.
+Error (fields empty)
+ - If either field is empty, the system will show: &quot;Please enter your phone number and OTP.&quot;
+Figure 55: Confirm the Update
+                       
+3.2.3 User Management
+3.2.3.1 View and Search Users
+Step 1: 
+Navigate to the Users &amp; Roles Tab
+After
+ logging in with the Super Admin account, the system redirects to the Admin Dashboard.
+O
+n the left-hand sidebar, click on &quot;Users &amp; Roles&quot; to open the user management section
+The main area now displays a data table listing all registered users in the system.
+Figure 56: View User List
+Step 2: 
+Understand the User Table
+The table presents the following columns for each user account:
+User
+ – Displays the user's full name and email address, along with an avatar initial for quick recognition.
+ 
+Role
+ – Shows the assigned role(s) of the user, displayed as a colored badge:
+ 
+Super Admin
+ – Highest-level administrator
+Admin
+ – System administrator
+Authority
+ – Government/authority-level account
+User
+ – Standard end-user account
+ 
+Status
+ – Shows the current account status:
+Active
+ – The account is in normal use
+Banned
+ – The account has been blocked from logging in
+Inactive
+ – The account exists but is not currently active
+Last Login
+ – The most recent date and time the user logged into the system.
+Figure 57: View User List
+Step 3: Search and Filter the User List
+The toolbar above the table provides multiple ways to find specific users quickly:
+Search box
+ – Type a name or email address to filter results as you type. Results update automatically.
+Role filter
+ – Click the 
+&quot;Role&quot;
+ dropdown to show only users who have a specific role (e.g., Admin, Authority, User).
+Status filter
+ – Click the 
+&quot;Status&quot;
+ dropdown to display only users with a chosen account status (e.g., Active, Banned).
+Multiple filters can be combined at the same time for a more refined search
+Figure 58: Search User
+3.2.3.2 Create a New User
+Step 1: Open the Create User Form
+In the User Management page, click the &quot;+ Add User&quot; button located at the top-right of the user table toolbar.
+A dialog box titled &quot;Create New User&quot; will appear on the screen.
+Figure 59: Add User
+Step 2: Fill in User Information
+The form contains the following fields (fields marked with * are required):
+Email *
+ – Enter a valid email address for the new user (e.g., user@example.com). This email will be used for login and system notifications.
+Password *
+ – Set an initial password for the account. The password must be at least 
+6 characters
+ long.
+Full Name *
+ – Enter the user's full name as it will be displayed in the system.
+Phone Number
+ (optional) – Enter a 10–11 digit Vietnamese phone number. This field is not required but can be provided for contact purposes.
+Status
+ – Select the initial account status from the dropdown:
+Active
+ – The user can log in immediately after the account is created.
+Inactive
+ – The account is created but the user cannot log in yet.
+Banned
+ – The account is created in a blocked state.
+Role *
+ – Choose the role assigned to this user. Available roles are:
+User
+ – Standard citizen/end-user (default)
+Admin
+ – System administrator
+Super Admin
+ – Highest-level administrator
+·
+ 
+Authority
+ – Government or regulatory authority
+Figure 60: View Create User Form
+Step 3: Submit the Form
+After filling in all required fields, click the &quot;Create User&quot; button at the bottom of the dialog.
+If all information is valid, the system will create the account and display a success notification: &quot;User created successfully!&quot; The new user will immediately appear in the user table.
+If any required field is missing or invalid (e.g., incorrect email format, password too short, invalid phone number), the system will highlight the problematic field in red and display a clear error message asking you to correct it.
+Figure 61: Submit the Form
+3.2.3.3 Edit an Existing User
+Note:
+ Only user accounts that were 
+created by an admin
+ can be edited. Accounts registered directly by users through the app cannot be edited from this interface.
+Step 1: Open User Management Module
+In the user table, locate the user account you want to update.
+Click the 
+⋮
+ (three-dot menu) icon located at the far-right of that user's row.
+A small dropdown menu will appear showing the available actions.
+Figure 62: Edit User
+Step 2: Select “Edit”
+Click 
+&quot;Edit&quot;
+ from the dropdown menu.
+An 
+&quot;Edit User&quot;
+ dialog box will appear, pre-filled with the user's current information.
+If the selected user was not created by an admin, the 
+Edit
+ option will be disabled (grayed out), and an error toast will appear indicating that only admin-created accounts can be edited.
+Figure 63: Edit User
+Step 3: Update User information
+This edit form contains the following fields:
+Email
+ – This field is shown for reference only and 
+cannot be changed
+.
+Full Name *
+ – Update the user's display name.
+Phone Number
+ (optional) – Update or add a phone number (10–11 digits).
+Status *
+ – Change the account's current status (Active / Inactive / Banned).
+Role *
+ – Change the user's assigned role. Use the radio buttons to select one of the available roles:
+User
+Admin
+Super Admin
+Authority
+Figure 64: Update User information
+Step 4: Save the changes
+Click the &quot;Update&quot; button to save all changes.
+If the update is successful, a notification will appear: &quot;User updated successfully!&quot; The table will automatically refresh to reflect the changes.
+If an error occurs (e.g., a required field is empty or the phone number is in the wrong format), the system will display an error message next to the relevant filed.
+Figure 65: Save the changes
+3.2.3.4 Ban/ Unban a User
+This action lets the Super Admin immediately block a user from logging into the system, or restore access to a previously banned account.
+Step 1: Open the Actions Menu
+In the user table, locate the user account you want to ban or unban.
+Click the ⋮ (three-dot menu) icon at the right end of that user's row.
+Figure 66: Ban User
+Step 2: Select &quot;Ban&quot; or &quot;Unban&quot;
+If the user's current status is Active or Inactive, the menu will show &quot;Ban&quot;.
+ If the user's current status is already Banned, the menu will show &quot;Unban&quot;.
+Click the appropriate option.
+Figure 67: Select &quot;Ban&quot; or &quot;Unban&quot;
+Step 3: Confirm the Action
+A confirmation dialog will appear, showing:
+· The email address of the user about to be banned or unbanned.
+· A short explanation of what the action does:
+· &quot;User will not be able to sign in after being banned.&quot;
+· &quot;User will be able to sign in after being unbanned.&quot;
+Click 
+&quot;Ban user&quot;
+ (or 
+&quot;Unban user&quot;
+) to proceed, or click 
+&quot;Cancel&quot;
+ to go back without making any changes.
+Figure 68: Confirm the Action
+Step 4: Outcome after Ban/ Unban
+I
+f the action is successful, a confirmation toast message will appear:
+· &quot;User [email] has been banned.&quot;
+· &quot;User [email] has been unbanned.&quot;
+· The user's 
+Status
+ badge in the table will immediately update to reflect the new state.
+· A banned user will be immediately prevented from logging into the system until the Super Admin unbans their account.
+Figure 69: Outcome after Ban/ Unban
+3.2.4 Station Management
+3.2.4.1 View and Search Stations
+Step 1: Navigate to the Station Management Page
+After logging in, click on &quot;Stations&quot; in the left-hand sidebar of the Admin Dashboard.
+The main area displays a table listing all monitoring stations registered in the system.
+Figure 70: Station Management
+Step 2: View Station Table
+Each row in the table represents one monitoring station with the following information:
+Code
+ - The unique identifier code of the station (e.g., ST_DN_DRAGON_01). Used to quickly reference a station in the system.
+Name
+ - The full display name of the station (e.g., Dragon Bridge Station).
+Road
+ - The name of the road or area where the station is located.
+Direction
+ - The water flow direction relative to the station location:
+Upstream
+ - The station monitors water flowing toward the area.
+Downstream
+ - The station monitors water flowing away from the area.
+Road Section
+ - The station is placed at a specific road section.
+Status - 
+The current operating status of the station, shown as a colored badge:
+Active (Green)
+ - The station is running normally and sending data.
+Maintenance (Yellow)
+ - The station is temporarily offline for maintenance work.
+Offline (Red)
+ - The station is not responding or has stopped sending data.
+Warn (Warning Threshold)
+ - The water level (in meters) at which a Warning alert is triggered.
+Critical (Critical Threshold)
+ - The water level (in meters) at which a Critical alert is triggered.
+Figure 71: View Station Table
+Step 3: Search and Filter Stations
+The toolbar above the table provides tools to quickly find a specific station:
+Search by Name 
+- Type part of the station name in the search box. The table filters results automatically as you type.
+Status filter 
+- Click the &quot;Status&quot; dropdown to show only stations with a specific status. You can select multiple statuses at the same time (e.g., show both Active and Maintenance stations at once).
+Figure 72: Search and Filter Stations
+Figure 73: Filter Station
+3.2.4.2 Add a New Station
+Step 1: Open the Add Station Form
+On the Station Management page, click the &quot;+ Add Station&quot; button at the top-right of the toolbar.
+A dialog box titled &quot;Create New Station&quot; will appear on the screen.
+Figure 74: Add Station Button
+      
+Figure 75: Add Station Form
+Step 2: Fill in Basic Information
+The form is divided into several sections. Start with the basic details (fields marked with * are required):
+Station Code * 
+- Enter a unique code to identify this station. Use a consistent naming pattern (e.g., ST_DN_DRAGON_01 for Station - Da Nang - Dragon Bridge - Unit 01). Must be at least 2 characters.
+Station Name * 
+- Enter a descriptive name for the station (e.g., Dragon Bridge Station). Must be at least 2 characters.
+Status * 
+- Select the station's current operating state from the dropdown:
+Active
+ - The station is installed and operational.
+Offline
+ - The station is not currently sending data.
+ Maintenance
+ - The station is undergoing maintenance.
+Road Name
+ - Enter the name of the road or street where the station is placed (e.g., 2 Thang 9 Street).
+Figure 76: Fill in Basic Information
+Step 3: Add Location Details
+Provide more information about where the station is physically located:
+Location Description
+ - Write a short description of the installation spot (e.g., &quot;Located on the west side of Dragon Bridge, near the riverbank&quot;). Maximum 500 characters.
+Direction
+ - Describe the water flow direction at this station (e.g., upstream, downstream, or road section).
+Installed At
+ - Enter the date and time when the station was physically installed. Use the standard date-time format shown in the placeholder.
+Latitude
+ - Enter the geographic latitude coordinate of the station (e.g., 16.061153). Must be between -90 and 90.
+Longitude
+ - Enter the geographic longitude coordinate of the station (e.g., 108.221589). Must be between -180 and 180.
+Note: 
+Latitude and Longitude are used to show the station on the map. If you do not know the exact coordinates, you can look them up using Google Maps.
+Figure 77: Add Location Details
+  
+Step 4: Set Alert Thresholds
+Alert thresholds define the water levels that trigger flood warnings for this station:
+Threshold Warning
+ - Set the water level (in meters) at which a Warning alert is sent (e.g., 0.5). When the measured water level reaches this value, the system will notify relevant users.
+Threshold Critical
+ - Set the water level (in meters) at which a Critical alert is sent (e.g., 1.2). This represents a more serious flooding condition that requires urgent attention.
+Note: 
+The Critical threshold should always be set higher than the Warning threshold to ensure alerts are triggered in the correct order.
+Figure 78: View Technical Chart
+Step 5: Save the New Station
+After filling in all required fields, click the &quot;Create Station&quot; button at the bottom of the form.
+Success 
+- A notification appears: &quot;Station created successfully!&quot; The new station will immediately appear in the station table.
+Validation error 
+- If a required field is missing or a value is out of range (e.g., invalid coordinates), the field will be highlighted red with an error message. Correct the error and try 
+Click &quot;Cancel&quot; to close the form without saving anything.
+Figure 79: Save the New Station
+3.2.4.3 Update a Station
+Step 1: Open the Actions Menu
+In the station table, locate the station you want to update.
+Click the three-dot menu icon (kebab menu) at the far-right of that station's row.
+A dropdown menu will appear with two options: Update and Delete.
+Figure 80: Open the Actions Menu
+Step 2: Select “Update”
+Click &quot;Update&quot; from the dropdown menu.
+An &quot;Edit Station&quot; dialog box will appear, pre-filled with the station's existing information.
+Figure 81: Click &quot;Update&quot;
+Step 3: Modify the Station Information
+The edit form contains the same fields as the create form. You can update any of the following:
+Station Code *
+ - Change the station's unique code if needed.
+Station Name *
+ - Update the display name of the station.
+Status *
+ - Change the operating status (Active / Offline / Maintenance).
+Road Name
+ - Update the road name.
+Location Description
+ - Update the written description of the location.
+Direction
+ - Update the water flow direction.
+Installed At
+ - Correct or update the installation date.
+Latitude / Longitude
+ - Update the geographic coordinates.
+Threshold Warning / Threshold Critical
+ - Adjust the flood alert thresholds.
+Figure 82: Modify the Station
+Step 4: Save the Changes
+After making all desired changes, click the &quot;Update Station&quot; button.
+Success
+ - A notification appears: &quot;Station updated successfully!&quot; The table will automatically show the updated information.
+Validation error
+ - If a required field is empty or a value is invalid, the field is highlighted in red. Correct it and click &quot;Update Station&quot; again.
+Click &quot;Cancel&quot; to close the dialog without saving any changes.
+Figure 83: Save the Changes
+3.2.4.4 Delete a Station
+Step 1: Open the Actions Menu
+In the station table, locate the station you want to remove.
+Click the three-dot menu icon at the far-right of that station's row.
+Figure 84: Delete a Station
+Step 2: Select “Delete”
+Click &quot;Delete&quot; from the dropdown menu.
+A confirmation dialog will appear asking you to confirm the action.
+Figure 85: Select “Delete”
+Step 3: Confirm the Deletion
+Read the confirmation message carefully to ensure you have selected the correct station.
+Confirm
+ - Click &quot;Confirm&quot; (or &quot;Continue&quot;) to permanently delete the station. The station will be removed from the table immediately.
+Cancel
+ - Click &quot;Cancel&quot; to go back without deleting anything.
+Figure 86: Deletion
+3.2.5 Alert and Notification Management
+3.2.5.1 
+Alert Message Template Management
+3.2.5.2 Notification Management
+3.2.6 Payment and Subscription Plan Management
+3.2.6.1 Subscription Plan
+3.2.6.2 View Payment Records
+3.2.6.3 Handle customer Disputes
+3.2.7 Flood Map Realtime
+3.2.7.1 View Flood Map Realtime
+3.2.7.2 
+ View Flood Condition by Sensor Stations
+3.2.7.3 Filter and Toggle Flood Map
+3.2.8 AI-based Flood Prediction
+3.2.8.1 View AI-based Flood Prediction
+3.2.8.2
+ Compare AI Predictions with Actual Data
+3.2.8.3 Identify High-risk Flood Zones (AI)
+3.2.9 Community Management
+3.2.9.1 View Community Flood Report
+3.2.9.2 
+ Compare AI Predictions with Actual Data
+3.2.9.3 Identify High-risk Flood Zones (AI)
+3.2.10 Flood History and Trends
+3.2.10.1 View Flood History
+3.2.10.2 
+ Flood Trends

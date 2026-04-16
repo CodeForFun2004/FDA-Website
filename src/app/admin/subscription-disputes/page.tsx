@@ -11,7 +11,7 @@ export default function Page() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Khiếu nại gói'
+      pageTitle='Khiếu Nại Gói'
       pageDescription='Xem xét và xử lý khiếu nại liên quan đến gói đăng ký.'
     >
       <Suspense

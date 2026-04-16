@@ -144,7 +144,7 @@ export function StationSummaryCards({
         <CardContent className='p-4'>
           <div className='mb-2 flex items-center justify-between'>
             <span className='text-muted-foreground text-sm font-medium'>
-              Calibration
+              Hiệu chuẩn
             </span>
             <div className='flex h-8 w-8 items-center justify-center rounded-full bg-orange-500/10'>
               <Settings2 className='h-4 w-4 text-orange-600 dark:text-orange-400' />
@@ -156,7 +156,7 @@ export function StationSummaryCards({
               : '-'}
           </div>
           <div className='text-muted-foreground mt-1 text-xs'>
-            Updated:{' '}
+            Cập nhật:{' '}
             {station.updatedAt
               ? new Date(station.updatedAt).toLocaleDateString()
               : '-'}
@@ -169,7 +169,7 @@ export function StationSummaryCards({
         <CardContent className='p-4'>
           <div className='mb-2 flex items-center justify-between'>
             <span className='text-muted-foreground text-sm font-medium'>
-              Connection Status
+              Trạng thái kết nối
             </span>
             <div className='flex items-center gap-1'>
               {onRefreshStatus ? (

@@ -1,7 +1,7 @@
-import React from 'react';
+'use client';
 
-const page = () => {
-  return <div>Operational Logs page</div>;
-};
+import { OperationalLogsView } from '@/features/operational-logs';
 
-export default page;
+export default function OperationalLogsPage() {
+  return <OperationalLogsView />;
+}

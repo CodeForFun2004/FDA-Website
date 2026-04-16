@@ -82,7 +82,7 @@ export function Pagination({
   return (
     <nav
       role='navigation'
-      aria-label='Pagination'
+      aria-label='Phân trang'
       className={cn('flex items-center justify-center gap-1', className)}
     >
       {/* Previous Button */}
@@ -92,7 +92,7 @@ export function Pagination({
         className='h-9 w-9 rounded-lg'
         onClick={handlePrevious}
         disabled={page === 1}
-        aria-label='Go to previous page'
+        aria-label='Trang trước'
       >
         <ChevronLeft className='h-4 w-4' />
       </Button>
@@ -123,7 +123,7 @@ export function Pagination({
               isActive && 'bg-primary text-primary-foreground shadow-sm'
             )}
             onClick={() => onChange(pageNumber)}
-            aria-label={`Go to page ${pageNumber}`}
+            aria-label={`Tới trang ${pageNumber}`}
             aria-current={isActive ? 'page' : undefined}
           >
             {pageNumber}
@@ -138,7 +138,7 @@ export function Pagination({
         className='h-9 w-9 rounded-lg'
         onClick={handleNext}
         disabled={page === total}
-        aria-label='Go to next page'
+        aria-label='Trang sau'
       >
         <ChevronRight className='h-4 w-4' />
       </Button>

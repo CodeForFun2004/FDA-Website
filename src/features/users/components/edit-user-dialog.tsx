@@ -44,16 +44,16 @@ export type EditUserDialogProps = {
 
 // Available roles for selection
 const ROLE_OPTIONS = [
-  { value: 'USER', label: 'User' },
-  { value: 'ADMIN', label: 'Admin' },
-  { value: 'SUPERADMIN', label: 'Super Admin' },
-  { value: 'MODERATOR', label: 'Moderator' }
+  { value: 'USER', label: 'Người dùng' },
+  { value: 'ADMIN', label: 'Quản trị viên' },
+  { value: 'SUPERADMIN', label: 'Quản trị cấp cao' },
+  { value: 'MODERATOR', label: 'Điều phối viên' }
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-  { value: 'banned', label: 'Banned' }
+  { value: 'active', label: 'Hoạt động' },
+  { value: 'inactive', label: 'Không hoạt động' },
+  { value: 'banned', label: 'Bị khóa' }
 ];
 
 // ===== Component =====
@@ -100,7 +100,7 @@ export function EditUserDialog({
     }) => updateAdminUserApi(userId, data),
     onSuccess: (response) => {
       if (response.success) {
-        toast.success('User updated successfully!');
+        toast.success('Cập nhật người dùng thành công!');
         // Invalidate users query to refetch
         queryClient.invalidateQueries({ queryKey: ['users'] });
         // Close dialog
@@ -108,13 +108,13 @@ export function EditUserDialog({
         // Call onSuccess callback
         onSuccess?.();
       } else {
-        toast.error('Failed to update user', {
+        toast.error('Cập nhật người dùng thất bại', {
           description: response.message
         });
       }
     },
     onError: (error: Error) => {
-      toast.error('User update error', {
+      toast.error('Lỗi cập nhật người dùng', {
         description: error.message
       });
     }
@@ -125,15 +125,15 @@ export function EditUserDialog({
     const newErrors: Record<string, string> = {};
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+      newErrors.fullName = 'Họ và tên là bắt buộc';
     }
 
     if (formData.phoneNumber && !/^[0-9]{10,11}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Invalid phone number (10-11 digits)';
+      newErrors.phoneNumber = 'Số điện thoại không hợp lệ (10–11 chữ số)';
     }
 
     if (!formData.role) {
-      newErrors.role = 'Role is required';
+      newErrors.role = 'Vai trò là bắt buộc';
     }
 
     setErrors(newErrors);
@@ -187,10 +187,11 @@ export function EditUserDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Edit className='text-primary h-5 w-5' />
-            Edit User
+            Sửa người dùng
           </DialogTitle>
           <DialogDescription>
-            Update user information. Applies only to users created by admin.
+            Cập nhật thông tin người dùng. Áp dụng cho các tài khoản do admin
+            tạo.
           </DialogDescription>
         </DialogHeader>
 
@@ -205,12 +206,12 @@ export function EditUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='fullName' className='flex items-center gap-2'>
               <UserIcon className='text-muted-foreground h-4 w-4' />
-              Full name <span className='text-destructive'>*</span>
+              Họ và tên <span className='text-destructive'>*</span>
             </Label>
             <Input
               id='fullName'
               type='text'
-              placeholder='John Doe'
+              placeholder='Nguyễn Văn A'
               value={formData.fullName}
               onChange={(e) => handleInputChange('fullName', e.target.value)}
               disabled={isLoading}
@@ -225,7 +226,7 @@ export function EditUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='phoneNumber' className='flex items-center gap-2'>
               <Phone className='text-muted-foreground h-4 w-4' />
-              Phone number
+              Số điện thoại
             </Label>
             <Input
               id='phoneNumber'
@@ -245,7 +246,7 @@ export function EditUserDialog({
           <div className='space-y-2'>
             <Label htmlFor='status' className='flex items-center gap-2'>
               <Activity className='text-muted-foreground h-4 w-4' />
-              Status <span className='text-destructive'>*</span>
+              Trạng thái <span className='text-destructive'>*</span>
             </Label>
             <Select
               value={formData.status}
@@ -253,7 +254,7 @@ export function EditUserDialog({
               disabled={isLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Select status' />
+                <SelectValue placeholder='Chọn trạng thái' />
               </SelectTrigger>
               <SelectContent>
                 {STATUS_OPTIONS.map((option) => (
@@ -269,7 +270,7 @@ export function EditUserDialog({
           <div className='space-y-2'>
             <Label className='flex items-center gap-2'>
               <Shield className='text-muted-foreground h-4 w-4' />
-              Role <span className='text-destructive'>*</span>
+              Vai trò <span className='text-destructive'>*</span>
             </Label>
             <div className='space-y-2 rounded-md border p-3'>
               {ROLE_OPTIONS.map((option) => (
@@ -304,18 +305,18 @@ export function EditUserDialog({
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type='submit' disabled={isLoading} className='gap-2'>
               {isLoading ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Updating...
+                  Đang cập nhật...
                 </>
               ) : (
                 <>
                   <Edit className='h-4 w-4' />
-                  Update
+                  Cập nhật
                 </>
               )}
             </Button>

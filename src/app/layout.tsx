@@ -17,8 +17,8 @@ const META_THEME_COLORS = {
 };
 
 export const metadata: Metadata = {
-  title: 'Next Shadcn',
-  description: 'Basic dashboard with Next.js and Shadcn'
+  title: 'FDA Web',
+  description: 'Bảng điều khiển quản trị FDA.'
 };
 
 export const viewport: Viewport = {

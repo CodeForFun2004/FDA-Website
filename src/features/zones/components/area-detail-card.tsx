@@ -2,15 +2,17 @@
 
 import React from 'react';
 import { Card, Button } from '@/components/ui/common';
-import { Building2, Satellite, Sparkles, AlertCircle } from 'lucide-react';
-import type { FeatureCollection } from 'geojson';
+import { Building2, Satellite, Sparkles, AlertCircle, X } from 'lucide-react';
+import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import {
   AiApiError,
   extractSatelliteGeoJsonFromAnalysisResponse,
+  extractPredictGeoJsonFromPredictResponse,
   fetchPredictFloodAssemble,
   fetchSatelliteAnalysis,
   normalizeAreaId
 } from '@/features/zones/api/area-ai.api';
+import { resolveModelUiTier } from '@/features/zones/lib/flood-severity-ui';
 import {
   PredictFloodAiPanel,
   describePredictAreaMismatch,
@@ -21,6 +23,7 @@ type Props = {
   feature: any;
   onClose: () => void;
   onSatelliteGeoJson?: (fc: FeatureCollection | null) => void;
+  onPredictGeoJson?: (fc: FeatureCollection | null) => void;
 };
 
 type SatelliteAnalysisPayload = {
@@ -47,7 +50,8 @@ type PredictRoot = {
 export function AreaDetailCard({
   feature,
   onClose,
-  onSatelliteGeoJson
+  onSatelliteGeoJson,
+  onPredictGeoJson
 }: Props) {
   const props = feature?.properties ?? {};
   const name =
@@ -80,6 +84,8 @@ export function AreaDetailCard({
     null
   );
 
+  const aiPanelScrollRef = React.useRef<HTMLDivElement | null>(null);
+
   React.useEffect(() => {
     setPredictRoot(null);
     setSatError(null);
@@ -87,7 +93,14 @@ export function AreaDetailCard({
     setSatelliteMismatch(null);
     setPredictMismatch(null);
     onSatelliteGeoJson?.(null);
-  }, [areaId, onSatelliteGeoJson]);
+    onPredictGeoJson?.(null);
+  }, [areaId, onSatelliteGeoJson, onPredictGeoJson]);
+
+  React.useEffect(() => {
+    // Khi bật dự đoán, đảm bảo panel scroll về đầu để không bị "thụt lùi/mất UI".
+    if (!predictRoot?.data) return;
+    aiPanelScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+  }, [predictRoot?.data]);
 
   async function runSatellite() {
     if (!areaId) {
@@ -128,6 +141,16 @@ export function AreaDetailCard({
       setPredError('Không có id khu vực.');
       return;
     }
+
+    // Toggle off: nếu đã có kết quả dự đoán -> tắt luôn layer + panel dữ liệu
+    if (predictRoot?.data && !predLoading) {
+      setPredictRoot(null);
+      setPredError(null);
+      setPredictMismatch(null);
+      onPredictGeoJson?.(null);
+      return;
+    }
+
     setPredLoading(true);
     setPredError(null);
     setPredictMismatch(null);
@@ -135,6 +158,30 @@ export function AreaDetailCard({
       const raw = (await fetchPredictFloodAssemble(areaId)) as PredictRoot;
       setPredictRoot(raw);
       setPredictMismatch(describePredictAreaMismatch(areaId, raw?.data));
+
+      // Extract geojson polygon cho layer tô màu
+      const fc = await extractPredictGeoJsonFromPredictResponse(raw);
+      const aiPred = raw?.data?.forecast?.aiPrediction;
+      const tier = resolveModelUiTier({
+        ensembleProbability:
+          typeof aiPred?.ensembleProbability === 'number'
+            ? aiPred.ensembleProbability
+            : null,
+        riskLevel:
+          typeof aiPred?.riskLevel === 'string' ? aiPred.riskLevel : null,
+        severityLevel:
+          typeof raw?.data?.severityLevel === 'number'
+            ? raw.data.severityLevel
+            : null
+      });
+
+      const predictFc = buildPredictOverlayFeatureCollection({
+        extracted: fc,
+        fallbackFeature: feature,
+        tier
+      });
+
+      onPredictGeoJson?.(predictFc);
     } catch (e) {
       const msg =
         e instanceof AiApiError
@@ -143,6 +190,7 @@ export function AreaDetailCard({
             ? e.message
             : 'Lỗi không xác định';
       setPredError(msg);
+      onPredictGeoJson?.(null);
     } finally {
       setPredLoading(false);
     }
@@ -199,7 +247,14 @@ export function AreaDetailCard({
               variant='outline'
               className='gap-1.5'
               disabled={satLoading || !areaId}
-              onClick={() => void runSatellite()}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                void runSatellite();
+              }}
             >
               <Satellite className='h-3.5 w-3.5' />
               {satLoading ? 'Đang phân tích…' : 'Chụp ảnh vệ tinh'}
@@ -207,12 +262,33 @@ export function AreaDetailCard({
             <Button
               type='button'
               size='sm'
-              className='gap-1.5 bg-violet-600 text-white hover:bg-violet-700'
+              variant={pd ? 'outline' : undefined}
+              className={
+                pd
+                  ? 'gap-1.5 border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                  : 'gap-1.5 bg-violet-600 text-white hover:bg-violet-700'
+              }
               disabled={predLoading || !areaId}
-              onClick={() => void runPredict()}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                void runPredict();
+              }}
             >
-              <Sparkles className='h-3.5 w-3.5' />
-              {predLoading ? 'Đang gọi AI…' : 'Dự đoán AI'}
+              {pd ? (
+                <>
+                  <X className='h-3.5 w-3.5' />
+                  Tắt dự đoán
+                </>
+              ) : (
+                <>
+                  <Sparkles className='h-3.5 w-3.5' />
+                  {predLoading ? 'Đang gọi AI…' : 'Dự đoán AI'}
+                </>
+              )}
             </Button>
           </div>
 
@@ -263,7 +339,10 @@ export function AreaDetailCard({
               <p className='text-muted-foreground text-xs'>Đang tải…</p>
             )}
             {pd && (
-              <div className='max-h-[min(480px,65vh)] overflow-y-auto'>
+              <div
+                ref={aiPanelScrollRef}
+                className='max-h-[min(480px,65vh)] overflow-y-auto'
+              >
                 <PredictFloodAiPanel data={pd} />
               </div>
             )}
@@ -272,4 +351,47 @@ export function AreaDetailCard({
       </Card>
     </div>
   );
+}
+
+function buildPredictOverlayFeatureCollection(args: {
+  extracted: FeatureCollection | null;
+  fallbackFeature: any;
+  tier: string;
+}): FeatureCollection | null {
+  if (args.extracted && args.extracted.features.length > 0) {
+    return {
+      ...args.extracted,
+      features: args.extracted.features.map((f) => ({
+        ...f,
+        properties: {
+          ...(f.properties ?? {}),
+          predictTier: args.tier
+        }
+      }))
+    };
+  }
+
+  const geometry = args.fallbackFeature?.geometry as Geometry | undefined;
+  if (!geometry) return null;
+  if (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon') {
+    return null;
+  }
+
+  const fallback: Feature = {
+    type: 'Feature',
+    id:
+      args.fallbackFeature?.id ??
+      args.fallbackFeature?.properties?.id ??
+      'predict-area-fallback',
+    geometry,
+    properties: {
+      ...(args.fallbackFeature?.properties ?? {}),
+      predictTier: args.tier
+    }
+  };
+
+  return {
+    type: 'FeatureCollection',
+    features: [fallback]
+  };
 }

@@ -66,7 +66,10 @@ export type PredictFloodData = {
       accuracyMetrics?: Record<string, string>;
       components?: Record<string, unknown>;
       impact?: {
+        /** BE có thể trả _m nhưng giá trị đang là cm theo spec mới */
         estimated_depth_m?: number;
+        /** Nếu BE đổi field sang cm */
+        estimated_depth_cm?: number;
         estimated_area_affected?: string;
         recommendation?: string;
       };
@@ -156,6 +159,11 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
       : null;
   const risk = pred?.riskLevel ?? '';
   const impact = pred?.impact;
+  const estimatedDepthCm =
+    impact?.estimated_depth_cm ??
+    // theo yêu cầu: đổi từ m sang cm (giá trị đang là cm)
+    impact?.estimated_depth_m ??
+    null;
 
   const ensembleP =
     typeof pred?.ensembleProbability === 'number' &&
@@ -244,49 +252,72 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
             </div>
           </div>
 
-          {pred.accuracyMetrics &&
-            Object.keys(pred.accuracyMetrics).length > 0 && (
-              <div className='border-t border-white/10 bg-black/20 px-4 py-3'>
-                <p
-                  className={cn(
-                    'mb-2 text-[11px] font-semibold',
-                    tierUi.heroSub
-                  )}
-                >
-                  Độ chính xác ước tính (theo giai đoạn mô hình)
-                </p>
-                <ul className='space-y-2 text-[11px] leading-snug'>
-                  {Object.entries(pred.accuracyMetrics).map(([k, v]) => (
-                    <li
-                      key={k}
-                      className='flex items-start justify-between gap-3'
+          {comps && Object.keys(comps).length > 0 && (
+            <div className='border-t border-white/10 bg-black/20 px-4 py-3'>
+              <p
+                className={cn('mb-2 text-[11px] font-semibold', tierUi.heroSub)}
+              >
+                Chỉ số đóng góp (tóm tắt)
+              </p>
+              <div className='grid gap-2 sm:grid-cols-2'>
+                {Object.entries(comps)
+                  .filter(([, obj]) => shouldShowComponentSummary(obj))
+                  .slice(0, 6)
+                  .map(([key, obj]) => (
+                    <div
+                      key={key}
+                      className='rounded-xl border border-white/10 bg-white/10 px-3 py-2 backdrop-blur-sm'
+                      title={labelComponent(key)}
                     >
-                      <span
-                        className={cn(
-                          'min-w-0 flex-1 text-left text-[10px] leading-snug',
-                          tierUi.heroMuted
+                      <div className='flex items-center justify-between gap-2'>
+                        <span
+                          className={cn(
+                            'text-[11px] font-semibold',
+                            tierUi.heroSub
+                          )}
+                        >
+                          {labelComponent(key)}
+                        </span>
+                      </div>
+
+                      <div className='mt-2 flex flex-wrap gap-1.5'>
+                        {extractComponentHighlights(obj).length > 0 ? (
+                          extractComponentHighlights(obj)
+                            .slice(0, 3)
+                            .map((item) => (
+                              <span
+                                key={`${key}-${item.label}`}
+                                className='rounded-full bg-white/90 px-2 py-1 text-[10px] font-medium text-slate-700'
+                              >
+                                <span className='text-slate-500'>
+                                  {item.label}:
+                                </span>{' '}
+                                <span className='font-semibold text-slate-900'>
+                                  {item.value}
+                                </span>
+                              </span>
+                            ))
+                        ) : (
+                          <span className='rounded-full bg-white/90 px-2 py-1 text-[10px] font-medium text-slate-700'>
+                            {summarizeComponentShort(obj)}
+                          </span>
                         )}
-                      >
-                        {accuracyMetricLabelWithNote(k)}
-                      </span>
-                      <span className='shrink-0 text-right font-semibold text-white tabular-nums'>
-                        {accuracyPercentOnly(String(v))}
-                      </span>
-                    </li>
+                      </div>
+                    </div>
                   ))}
-                </ul>
               </div>
-            )}
+            </div>
+          )}
 
           {impact && (
             <div className='space-y-2 border-t border-white/10 bg-white/95 px-4 py-4 text-slate-800'>
-              {impact.estimated_depth_m != null && (
+              {estimatedDepthCm != null && (
                 <div className='flex items-baseline justify-between gap-2'>
                   <span className='text-xs text-slate-600'>
                     Độ sâu nước ước tính
                   </span>
                   <span className='text-base font-semibold tabular-nums'>
-                    {impact.estimated_depth_m} m
+                    {estimatedDepthCm} cm
                   </span>
                 </div>
               )}
@@ -439,7 +470,7 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
                     <p className='mt-0.5 text-xs text-slate-600'>
                       Mức nước:{' '}
                       <span className='font-medium tabular-nums'>
-                        {s.waterLevel} m
+                        {s.waterLevel} cm
                       </span>
                       {s.severity && (
                         <span
@@ -534,23 +565,52 @@ export function PredictFloodAiPanel({ data }: { data: PredictFloodData }) {
           <summary className='cursor-pointer px-3 py-2.5 font-medium text-slate-600'>
             Chi tiết kỹ thuật (thời tiết, đất, địa hình…)
           </summary>
+
           <div className='space-y-2 border-t border-slate-200 p-2'>
-            {Object.entries(comps).map(([key, obj]) => (
-              <details
-                key={key}
-                className='rounded-lg border border-slate-100 bg-white text-[10px]'
-              >
-                <summary className='cursor-pointer px-2 py-1.5 font-medium text-slate-700 capitalize'>
-                  {labelComponent(key)}
-                </summary>
-                <pre className='max-h-36 overflow-auto p-2 text-[9px] whitespace-pre-wrap text-slate-500'>
-                  {JSON.stringify(obj, null, 2)}
-                </pre>
-              </details>
-            ))}
+            {Object.entries(comps)
+              .filter(([, obj]) => shouldShowComponentDetails(obj))
+              .map(([key, obj]) => {
+                return (
+                  <details
+                    key={key}
+                    className='rounded-lg border border-slate-100 bg-white text-[10px]'
+                  >
+                    <summary className='cursor-pointer px-2 py-1.5 font-medium text-slate-700 capitalize'>
+                      {labelComponent(key)}
+                    </summary>
+                    <pre className='max-h-36 overflow-auto p-2 text-[9px] whitespace-pre-wrap text-slate-500'>
+                      {JSON.stringify(localizeComponentObject(obj), null, 2)}
+                    </pre>
+                  </details>
+                );
+              })}
           </div>
         </details>
       )}
+
+      {pred?.accuracyMetrics &&
+        Object.keys(pred.accuracyMetrics).length > 0 && (
+          <div className={cn('rounded-xl border px-3 py-3', tierUi.recBox)}>
+            <p className='mb-2 text-[11px] font-semibold'>
+              Độ chính xác ước tính (theo giai đoạn mô hình)
+            </p>
+            <ul className='space-y-2 text-[11px] leading-snug'>
+              {Object.entries(pred.accuracyMetrics).map(([k, v]) => (
+                <li
+                  key={k}
+                  className='flex items-start justify-between gap-3 rounded-lg border border-current/10 bg-white/60 px-2.5 py-2'
+                >
+                  <span className='min-w-0 flex-1 text-left text-[10px] leading-snug opacity-90'>
+                    {accuracyMetricLabelWithNote(k)}
+                  </span>
+                  <span className='shrink-0 rounded-full bg-white px-2 py-0.5 text-right font-semibold tabular-nums'>
+                    {accuracyPercentOnly(String(v))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
     </div>
   );
 }
@@ -563,6 +623,375 @@ function labelComponent(key: string): string {
     historical_similarity: 'Tương đồng lịch sử'
   };
   return m[key] ?? key.replace(/_/g, ' ');
+}
+
+function summarizeComponentShort(obj: unknown): string {
+  if (obj == null) return '';
+
+  if (typeof obj === 'number' && Number.isFinite(obj)) {
+    return formatNumberCompact(obj);
+  }
+
+  if (typeof obj === 'string') {
+    const s = obj.trim();
+    if (!s) return '';
+    return s.length > 24 ? `${s.slice(0, 22)}...` : s;
+  }
+
+  if (typeof obj !== 'object') return '';
+  const o = obj as Record<string, unknown>;
+
+  const preferredKeys = [
+    'weight',
+    'contribution',
+    'score',
+    'probability',
+    'impact',
+    'importance',
+    'similarity',
+    'value'
+  ];
+
+  const candidates: Array<{ key: string; value: number }> = [];
+  for (const pk of preferredKeys) {
+    const v = o[pk];
+    const num = coerceFiniteNumber(v);
+    if (num != null) candidates.push({ key: pk, value: num });
+  }
+
+  if (candidates.length === 0) {
+    for (const [k, v] of Object.entries(o)) {
+      const num = coerceFiniteNumber(v);
+      if (num != null) candidates.push({ key: k, value: num });
+    }
+  }
+
+  // Chọn top 2 (để gọn)
+  candidates.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  const top = candidates.slice(0, 2);
+  if (top.length === 0) return extractInputsShort(o);
+
+  const inputsHint = extractInputsShort(o);
+  const metricPart = top
+    .map(
+      ({ key, value }) => `${metricLabel(key)}:${formatMetricValue(key, value)}`
+    )
+    .join(' · ');
+
+  return inputsHint ? `${metricPart} · ${inputsHint}` : metricPart;
+}
+
+function extractComponentHighlights(
+  obj: unknown
+): Array<{ label: string; value: string }> {
+  if (!obj || typeof obj !== 'object') return [];
+  const o = obj as Record<string, unknown>;
+
+  const preferredKeys = [
+    'contribution',
+    'weight',
+    'score',
+    'probability',
+    'similarity',
+    'best_match_similarity',
+    'similarity_signal',
+    'distance_to_river',
+    'elevation',
+    'elevation_m',
+    'precipitation_24h_mm',
+    'precipitation_6h_mm',
+    'precipitation_mm',
+    'infiltration_capacity',
+    'saturation_level',
+    'level',
+    'flow_accumulation'
+  ];
+
+  const seen = new Set<string>();
+  const out: Array<{ label: string; value: string }> = [];
+
+  for (const key of preferredKeys) {
+    const direct = o[key];
+    const directNum = coerceFiniteNumber(direct);
+    if (directNum != null) {
+      out.push({
+        label: metricLabel(key),
+        value: formatMetricValue(key, directNum)
+      });
+      seen.add(key);
+    }
+  }
+
+  if (out.length < 3) {
+    for (const [key, value] of Object.entries(o)) {
+      if (seen.has(key)) continue;
+      const num = coerceFiniteNumber(value);
+      if (num == null) continue;
+      out.push({
+        label: metricLabel(key),
+        value: formatMetricValue(key, num)
+      });
+      if (out.length >= 3) break;
+    }
+  }
+
+  if (out.length === 0) {
+    const inputs = extractInputsShort(o);
+    if (inputs) {
+      return [{ label: 'Tín hiệu', value: inputs }];
+    }
+  }
+
+  return out;
+}
+
+function coerceFiniteNumber(v: unknown): number | null {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  if (typeof v === 'string') {
+    const n = Number(v);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
+function formatNumberCompact(n: number): string {
+  if (!Number.isFinite(n)) return '—';
+  if (n >= 0 && n <= 1) return n.toFixed(2);
+  if (Math.abs(n) >= 100) return String(Math.round(n));
+  return String(Math.round(n * 100) / 100);
+}
+
+function formatMetricValue(key: string, n: number): string {
+  const k = key.toLowerCase();
+
+  // Nếu là tỷ lệ/khớp trong [0..1] thì hiển thị %
+  const isRatio =
+    n >= 0 &&
+    n <= 1 &&
+    (k.includes('probability') ||
+      k.includes('similarity') ||
+      k.includes('match') ||
+      k.includes('contribution') ||
+      k.includes('weight') ||
+      k.includes('level'));
+  if (isRatio) return `${Math.round(n * 100)}%`;
+
+  // Mưa / mm
+  if (k.includes('precipitation') || k.includes('mm') || k.endsWith('_mm')) {
+    return `${formatNumberCompact(n)} mm`;
+  }
+
+  if (k.includes('distance')) return `${Math.round(n)} m`;
+  if (k.includes('elevation')) return `${Math.round(n)} m`;
+  if (k.includes('elevation_m')) return `${Math.round(n)} m`;
+
+  return formatNumberCompact(n);
+}
+
+function metricLabel(key: string): string {
+  const k = key.trim().toLowerCase();
+  if (k.includes('precipitation')) {
+    if (k.includes('24')) return 'Mưa 24 giờ';
+    if (k.includes('6')) return 'Mưa 6 giờ';
+    return 'Lượng mưa';
+  }
+
+  if (k.includes('infiltration') && k.includes('capacity'))
+    return 'Khả năng thấm';
+
+  if (k.includes('elevation')) return 'Cao độ';
+  if (k === 'level' || k.endsWith('_level') || k.includes(' level '))
+    return 'Mức';
+
+  const map: Record<string, string> = {
+    contribution: 'Đóng góp',
+    contribution_score: 'Điểm đóng góp',
+    weight: 'Trọng số',
+    score: 'Điểm',
+    probability: 'Xác suất',
+    similarity: 'Tương đồng',
+    best_match_similarity: 'Khớp tốt nhất',
+    similarity_signal: 'Tín hiệu khớp',
+    distance_to_river: 'Cách sông',
+    elevation: 'Cao độ',
+    elevation_m: 'Cao độ',
+    flow_accumulation: 'Tích tụ dòng chảy',
+
+    // Weather
+    precipitation_24h_mm: 'Mưa 24 giờ',
+    precipitation_24h: 'Mưa 24 giờ',
+    precipitation_6h_mm: 'Mưa 6 giờ',
+    precipitation_6h: 'Mưa 6 giờ',
+    precipitation_mm: 'Lượng mưa',
+
+    // Soil / infiltration
+    saturation_level: 'Mức độ bão hòa',
+    level: 'Mức',
+    infiltration_capacity: 'Khả năng thấm',
+
+    // Sources (mục này thường dùng để debug - sẽ bị ẩn ở phần lọc)
+    weather_data_source: 'Nguồn dữ liệu thời tiết',
+    weather_source: 'Nguồn dữ liệu thời tiết',
+    data_source: 'Nguồn dữ liệu',
+    source: 'Nguồn',
+    importance: 'Mức độ quan trọng',
+    impact: 'Tác động',
+    value: 'Giá trị'
+  };
+  return map[k] ?? humanizeKey(k);
+}
+
+function humanizeKey(key: string): string {
+  return localizeLooseText(
+    key
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (m) => m.toUpperCase())
+      .trim()
+  );
+}
+
+function extractInputsShort(o: Record<string, unknown>): string {
+  const keys = ['inputs', 'features', 'signals', 'metrics', 'data', 'sources'];
+  for (const k of keys) {
+    const v = o[k];
+    if (!Array.isArray(v)) continue;
+    const strings = (v as unknown[]).filter((x) => typeof x === 'string') as
+      | string[]
+      | undefined;
+    if (!strings?.length) continue;
+    const top = strings
+      .filter((item) => {
+        const s = item.toLowerCase();
+        return !(
+          s.includes('open_meteo') ||
+          s.includes('weather data source') ||
+          s.includes('weather_source') ||
+          s.includes('data_source') ||
+          s.includes('data source')
+        );
+      })
+      .map((item) => localizeLooseText(item))
+      .filter((item) => item.trim() !== '')
+      .slice(0, 2);
+    if (top.length === 0) continue;
+    return top.join(', ');
+  }
+  return '';
+}
+
+function shouldShowComponentSummary(obj: unknown): boolean {
+  if (!obj || typeof obj !== 'object') return false;
+  const highlights = extractComponentHighlights(obj);
+  if (highlights.length > 0) {
+    return !(
+      highlights.length === 1 &&
+      highlights[0].label === 'Tín hiệu' &&
+      highlights[0].value.trim() === ''
+    );
+  }
+  return summarizeComponentShort(obj).trim() !== '';
+}
+
+function shouldShowComponentDetails(obj: unknown): boolean {
+  if (!obj || typeof obj !== 'object') return false;
+  return Object.keys(pruneEmptyDeep(obj)).length > 0;
+}
+
+function localizeComponentObject(obj: unknown): unknown {
+  if (Array.isArray(obj)) {
+    return obj
+      .map((item) => localizeComponentObject(item))
+      .filter((item) => !isEmptyValue(item));
+  }
+  if (!obj || typeof obj !== 'object') {
+    return typeof obj === 'string' ? localizeLooseText(obj) : obj;
+  }
+
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    const nextValue = localizeComponentObject(value);
+    if (isEmptyValue(nextValue)) continue;
+    out[metricLabel(key)] = nextValue;
+  }
+  return out;
+}
+
+function pruneEmptyDeep(obj: unknown): Record<string, unknown> {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return {};
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    if (Array.isArray(value)) {
+      const cleaned = value.filter((item) => !isEmptyValue(item));
+      if (cleaned.length > 0) out[key] = cleaned;
+      continue;
+    }
+    if (value && typeof value === 'object') {
+      const nested = pruneEmptyDeep(value);
+      if (Object.keys(nested).length > 0) out[key] = nested;
+      continue;
+    }
+    if (!isEmptyValue(value)) out[key] = value;
+  }
+  return out;
+}
+
+function isEmptyValue(value: unknown): boolean {
+  if (value == null) return true;
+  if (typeof value === 'string') {
+    const s = value.trim();
+    if (!s) return true;
+    const l = s.toLowerCase();
+    // xem như "không có data hữu ích" nếu chỉ là chuỗi debug nguồn dữ liệu
+    if (
+      l.includes('open_meteo') ||
+      l.includes('weather data source') ||
+      l.includes('weather_source') ||
+      l.includes('data_source') ||
+      l.includes('nguon du lieu') ||
+      l.includes('nguồn dữ liệu')
+    ) {
+      return true;
+    }
+  }
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === 'object')
+    return Object.keys(value as object).length === 0;
+  return false;
+}
+
+function localizeLooseText(value: string): string {
+  const map: Array<[RegExp, string]> = [
+    [/weather data source/gi, 'Nguồn dữ liệu thời tiết'],
+    [/open_meteo/gi, 'Open-Meteo'],
+    [/weather source/gi, 'nguồn thời tiết'],
+    [/weather/gi, 'thời tiết'],
+    [/terrain/gi, 'địa hình'],
+    [/saturation/gi, 'độ bão hòa đất'],
+    [/historical similarity/gi, 'tương đồng lịch sử'],
+    [/similarity signal/gi, 'tín hiệu tương đồng'],
+    [/best match similarity/gi, 'độ khớp tốt nhất'],
+    [/distance to river/gi, 'khoảng cách tới sông'],
+    [/flow accumulation/gi, 'tích tụ dòng chảy'],
+    [/elevation/gi, 'cao độ'],
+    [/precipitation/gi, 'lượng mưa'],
+    [/infiltration capacity/gi, 'khả năng thấm'],
+    [/infiltration/gi, 'thấm'],
+    [/contribution/gi, 'đóng góp'],
+    [/weight/gi, 'trọng số'],
+    [/probability/gi, 'xác suất'],
+    [/similarity/gi, 'tương đồng'],
+    [/importance/gi, 'mức độ quan trọng'],
+    [/impact/gi, 'tác động'],
+    [/value/gi, 'giá trị']
+  ];
+
+  let out = value.trim();
+  for (const [pattern, replacement] of map) {
+    out = out.replace(pattern, replacement);
+  }
+  // chuẩn hóa "cao độ m" -> "Cao độ"
+  out = out.replace(/\b(cao\s*độ)\s*m\b/gi, '$1');
+  return out;
 }
 
 export function describePredictAreaMismatch(

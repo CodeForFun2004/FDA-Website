@@ -22,6 +22,7 @@ import {
   COMMUNITY_REPORTS_LAYER_ID
 } from '../../hooks/useCommunityReportsLayer';
 import { useSatelliteAnalysisOverlay } from '../../hooks/useSatelliteAnalysisOverlay';
+import { usePredictFloodOverlay } from '../../hooks/usePredictFloodOverlay';
 import { pickBestAdminAreaFeature } from '../../lib/pick-admin-area-feature';
 import { useFloodStationsStore } from '../../store/flood-stations-store';
 
@@ -70,6 +71,8 @@ export default function MapView({ prefs }: Props) {
     React.useState<any>(null);
   const [satelliteOverlayFc, setSatelliteOverlayFc] =
     React.useState<FeatureCollection | null>(null);
+  const [predictOverlayFc, setPredictOverlayFc] =
+    React.useState<FeatureCollection | null>(null);
   const [selectedCommunityReport, setSelectedCommunityReport] =
     React.useState<CommunityFloodReport | null>(null);
 
@@ -80,8 +83,13 @@ export default function MapView({ prefs }: Props) {
     []
   );
 
+  const onPredictGeoJson = React.useCallback((fc: FeatureCollection | null) => {
+    setPredictOverlayFc(fc);
+  }, []);
+
   React.useEffect(() => {
     setSatelliteOverlayFc(null);
+    setPredictOverlayFc(null);
   }, [selectedAreaFeature]);
   const setStationsFromGeojson = useFloodStationsStore(
     (state) => state.setStationsFromGeojson
@@ -342,6 +350,13 @@ export default function MapView({ prefs }: Props) {
     fitBounds: true
   });
 
+  usePredictFloodOverlay({
+    mapRef,
+    enabled: !!predictOverlayFc && predictOverlayFc.features.length > 0,
+    data: predictOverlayFc,
+    opacity: 0.28
+  });
+
   /** Stations (dưới) → Community 🚩 (giữa) → Admin (trên). */
   React.useEffect(() => {
     const map = mapRef.current;
@@ -494,6 +509,7 @@ export default function MapView({ prefs }: Props) {
             feature={selectedAreaFeature}
             onClose={() => setSelectedAreaFeature(null)}
             onSatelliteGeoJson={onSatelliteGeoJson}
+            onPredictGeoJson={onPredictGeoJson}
           />
         </div>
       )}

@@ -35,7 +35,7 @@ export default function LayerPanel({
     <div className='bg-background/95 space-y-4 rounded-2xl border p-4 shadow-lg backdrop-blur'>
       <div className='flex items-start justify-between gap-3'>
         <div>
-          <div className='text-base font-semibold'>Layers</div>
+          <div className='text-base font-semibold'>Lớp Bản Đồ</div>
           <div className='text-muted-foreground text-xs'>
             {isAuthenticated ? 'Logged-in' : 'Guest'} • {syncLabel}
           </div>
@@ -48,7 +48,7 @@ export default function LayerPanel({
 
       {/* Base map */}
       <div className='space-y-2'>
-        <div className='text-sm font-medium'>Lớp Bản Đồ</div>
+        <div className='text-sm font-medium'>Loại Bản Đồ</div>
         <div className='flex gap-2'>
           <button
             className={`flex-1 rounded-xl border px-3 py-2 text-sm ${

@@ -183,3 +183,58 @@ export async function extractSatelliteGeoJsonFromAnalysisResponse(
   if (merged.length === 0) return null;
   return { type: 'FeatureCollection', features: merged };
 }
+
+/**
+ * Extract GeoJSON cho response predict-flood-assemble.
+ * BE có thể nhét geometry theo nhiều shape:
+ * - data.geoJson (FeatureCollection/Feature)
+ * - data.geo_json (FeatureCollection/Feature)
+ * - data.geojson_url (url)
+ *
+ * Nếu không tìm thấy -> null.
+ */
+export async function extractPredictGeoJsonFromPredictResponse(
+  json: unknown
+): Promise<FeatureCollection | null> {
+  const root = json as Record<string, unknown> | null;
+  const data = (root?.data ?? root) as Record<string, unknown> | null;
+  const g: unknown = data
+    ? ((data.geoJson as unknown) ??
+      (data.geojson as unknown) ??
+      (data.geo_json as unknown) ??
+      (data.geojson_url as unknown) ??
+      (data.visuals as any)?.geojson_url)
+    : undefined;
+
+  if (!g) return null;
+
+  // Url geojson
+  if (typeof g === 'string') {
+    const features = await fetchGeojsonUrl(g);
+    if (features.length === 0) return null;
+    return { type: 'FeatureCollection', features };
+  }
+
+  // Direct FC
+  if (isFeatureCollection(g)) return g;
+
+  // Single Feature
+  if (typeof g === 'object' && g != null && (g as Feature).type === 'Feature') {
+    const f = g as Feature;
+    if (!f.geometry) return null;
+    return { type: 'FeatureCollection', features: [f] };
+  }
+
+  // Some APIs return { features: [...] } without explicit FeatureCollection.type
+  if (
+    typeof g === 'object' &&
+    g != null &&
+    Array.isArray((g as any).features)
+  ) {
+    const features = (g as any).features as Feature[];
+    if (features.length === 0) return null;
+    return { type: 'FeatureCollection', features };
+  }
+
+  return null;
+}

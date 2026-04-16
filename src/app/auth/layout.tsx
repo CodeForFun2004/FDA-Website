@@ -33,21 +33,21 @@ export default function AuthLayout({
           </div>
 
           <h2 className='text-4xl leading-tight font-bold'>
-            Flood Monitoring System
+            Hệ thống giám sát ngập lụt
           </h2>
 
           <p className='text-lg text-blue-100'>
-            Real-time flood alerts and area monitoring for the community.
+            Cảnh báo ngập theo thời gian thực và theo dõi khu vực cho cộng đồng.
           </p>
 
           <div className='flex justify-center gap-4 pt-8'>
             <div className='flex w-32 flex-col items-center gap-2 rounded-xl bg-white/10 p-4 backdrop-blur-sm'>
               <Activity className='h-6 w-6 text-white' />
-              <span className='text-sm font-medium'>Real-time</span>
+              <span className='text-sm font-medium'>Thời gian thực</span>
             </div>
             <div className='flex w-32 flex-col items-center gap-2 rounded-xl bg-white/10 p-4 backdrop-blur-sm'>
               <MapPin className='h-6 w-6 text-white' />
-              <span className='text-sm font-medium'>Area coverage</span>
+              <span className='text-sm font-medium'>Phạm vi khu vực</span>
             </div>
           </div>
         </div>

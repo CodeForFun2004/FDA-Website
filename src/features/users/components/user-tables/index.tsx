@@ -51,7 +51,7 @@ export function UserTable<TData, TValue>({
             size='sm'
           >
             <Plus className='h-4 w-4' />
-            Add User
+            Thêm người dùng
           </Button>
         </DataTableToolbar>
       </DataTable>

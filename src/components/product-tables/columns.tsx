@@ -11,7 +11,7 @@ import { CATEGORY_OPTIONS } from './options';
 export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: 'photo_url',
-    header: 'IMAGE',
+    header: 'ẢNH',
     cell: ({ row }) => {
       return (
         <div className='relative aspect-square'>
@@ -29,12 +29,12 @@ export const columns: ColumnDef<Product>[] = [
     id: 'name',
     accessorKey: 'name',
     header: ({ column }: { column: Column<Product, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Name' />
+      <DataTableColumnHeader column={column} title='Tên' />
     ),
     cell: ({ cell }) => <div>{cell.getValue<Product['name']>()}</div>,
     meta: {
-      label: 'Name',
-      placeholder: 'Search products...',
+      label: 'Tên',
+      placeholder: 'Tìm sản phẩm...',
       variant: 'text',
       icon: Text
     },
@@ -44,33 +44,39 @@ export const columns: ColumnDef<Product>[] = [
     id: 'category',
     accessorKey: 'category',
     header: ({ column }: { column: Column<Product, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Category' />
+      <DataTableColumnHeader column={column} title='Danh mục' />
     ),
     cell: ({ cell }) => {
       const status = cell.getValue<Product['category']>();
       const Icon = status === 'active' ? CheckCircle2 : XCircle;
+      const statusLabel =
+        status === 'active'
+          ? 'Đang hoạt động'
+          : status === 'inactive'
+            ? 'Không hoạt động'
+            : String(status);
 
       return (
         <Badge variant='outline' className='capitalize'>
           <Icon />
-          {status}
+          {statusLabel}
         </Badge>
       );
     },
     enableColumnFilter: true,
     meta: {
-      label: 'categories',
+      label: 'Danh mục',
       variant: 'multiSelect',
       options: CATEGORY_OPTIONS
     }
   },
   {
     accessorKey: 'price',
-    header: 'PRICE'
+    header: 'GIÁ'
   },
   {
     accessorKey: 'description',
-    header: 'DESCRIPTION'
+    header: 'MÔ TẢ'
   },
 
   {

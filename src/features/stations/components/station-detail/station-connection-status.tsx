@@ -61,14 +61,14 @@ export function StationConnectionStatus({
     <Card className='border-border bg-card'>
       <CardHeader className='px-5 pt-5 pb-0'>
         <CardTitle className='text-foreground text-sm font-semibold'>
-          Connection Status
+          Trạng thái kết nối
         </CardTitle>
       </CardHeader>
       <CardContent className='space-y-4 p-5'>
         {/* Battery */}
         <div>
           <div className='mb-1 flex justify-between text-sm'>
-            <span className='text-muted-foreground'>Battery</span>
+            <span className='text-muted-foreground'>Pin</span>
             <span className='text-foreground font-semibold'>
               {batteryLevel}%
             </span>
@@ -90,9 +90,9 @@ export function StationConnectionStatus({
         {/* Signal */}
         <div>
           <div className='mb-1 flex justify-between text-sm'>
-            <span className='text-muted-foreground'>Signal</span>
+            <span className='text-muted-foreground'>Tín hiệu</span>
             <span className='text-foreground font-semibold'>
-              {rssi !== 0 ? `${rssi} dBm` : 'No signal'}
+              {rssi !== 0 ? `${rssi} dBm` : 'Không có tín hiệu'}
             </span>
           </div>
           <div className='flex items-center gap-1'>

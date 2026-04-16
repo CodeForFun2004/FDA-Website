@@ -46,25 +46,25 @@ export default function RegisterViewPage() {
 
     // ✅ validation bằng toast
     if (!name) {
-      toast.warning('Please enter your full name.', { id: 'register-warning' });
+      toast.warning('Vui lòng nhập họ và tên.', { id: 'register-warning' });
       return;
     }
     if (!mail) {
-      toast.warning('Please enter your email.', { id: 'register-warning' });
+      toast.warning('Vui lòng nhập email.', { id: 'register-warning' });
       return;
     }
     if (!password) {
-      toast.warning('Please enter your password.', { id: 'register-warning' });
+      toast.warning('Vui lòng nhập mật khẩu.', { id: 'register-warning' });
       return;
     }
     if (!confirmPassword) {
-      toast.warning('Please confirm your password.', {
+      toast.warning('Vui lòng xác nhận mật khẩu.', {
         id: 'register-warning'
       });
       return;
     }
     if (password !== confirmPassword) {
-      toast.error('Confirmation password does not match.', {
+      toast.error('Mật khẩu xác nhận không khớp.', {
         id: 'register-error'
       });
       return;
@@ -75,7 +75,7 @@ export default function RegisterViewPage() {
     try {
       // ✅ Backend register chưa có -> không gọi API, không login giả
       toast.info(
-        'Registration is not open yet. Please contact an administrator for access.',
+        'Chức năng đăng ký chưa mở. Vui lòng liên hệ quản trị viên để được cấp quyền.',
         { id: 'register-info' }
       );
 
@@ -90,7 +90,7 @@ export default function RegisterViewPage() {
 
   const handleGoogleRegister = () => {
     toast.warning(
-      'Google Sign-Up is not available yet. Please sign in with email/password.',
+      'Đăng ký bằng Google chưa khả dụng. Vui lòng đăng nhập bằng email/mật khẩu.',
       { id: 'register-google' }
     );
   };
@@ -98,23 +98,21 @@ export default function RegisterViewPage() {
   return (
     <div className='space-y-6'>
       <div className='space-y-2 text-center'>
-        <h1 className='text-3xl font-bold'>Create an account</h1>
-        <p className='text-muted-foreground'>
-          Enter your information to get started.
-        </p>
+        <h1 className='text-3xl font-bold'>Tạo tài khoản</h1>
+        <p className='text-muted-foreground'>Nhập thông tin để bắt đầu.</p>
       </div>
 
       <form onSubmit={handleRegister} className='space-y-4'>
         <div className='space-y-2'>
           <label className='text-sm font-medium' htmlFor='name'>
-            Full name
+            Họ và tên
           </label>
           <div className='relative'>
             <UserIcon className='text-muted-foreground absolute top-2.5 left-3 h-4 w-4' />
             <Input
               id='name'
               type='text'
-              placeholder='Your name'
+              placeholder='Nhập họ và tên'
               className='pl-9'
               required
               value={fullName}
@@ -144,7 +142,7 @@ export default function RegisterViewPage() {
 
         <div className='space-y-2'>
           <label className='text-sm font-medium' htmlFor='password'>
-            Password
+            Mật khẩu
           </label>
           <div className='relative'>
             <Lock className='text-muted-foreground absolute top-2.5 left-3 h-4 w-4' />
@@ -164,7 +162,7 @@ export default function RegisterViewPage() {
               type='button'
               onClick={() => setShowPassword((v) => !v)}
               className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2'
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
             >
               {showPassword ? (
                 <EyeOff className='h-4 w-4' />
@@ -177,7 +175,7 @@ export default function RegisterViewPage() {
 
         <div className='space-y-2'>
           <label className='text-sm font-medium' htmlFor='confirmPassword'>
-            Confirm password
+            Xác nhận mật khẩu
           </label>
           <div className='relative'>
             <Lock className='text-muted-foreground absolute top-2.5 left-3 h-4 w-4' />
@@ -197,9 +195,7 @@ export default function RegisterViewPage() {
               type='button'
               onClick={() => setShowConfirmPassword((v) => !v)}
               className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2'
-              aria-label={
-                showConfirmPassword ? 'Hide password' : 'Show password'
-              }
+              aria-label={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
             >
               {showConfirmPassword ? (
                 <EyeOff className='h-4 w-4' />
@@ -218,11 +214,11 @@ export default function RegisterViewPage() {
           {isLoading ? (
             <>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-              Processing...
+              Đang xử lý...
             </>
           ) : (
             <span className='flex items-center'>
-              Sign Up <ArrowRight className='ml-2 h-4 w-4' />
+              Đăng ký <ArrowRight className='ml-2 h-4 w-4' />
             </span>
           )}
         </Button>
@@ -233,7 +229,7 @@ export default function RegisterViewPage() {
           className='h-11 w-full'
           onClick={() => router.push('/auth/login')}
         >
-          Go to Sign In
+          Về trang đăng nhập
         </Button>
       </form>
 
@@ -243,7 +239,7 @@ export default function RegisterViewPage() {
         </div>
         <div className='relative flex justify-center text-xs uppercase'>
           <span className='bg-background text-muted-foreground px-2'>
-            Or continue with
+            Hoặc tiếp tục với
           </span>
         </div>
       </div>
@@ -264,12 +260,12 @@ export default function RegisterViewPage() {
       </Button>
 
       <p className='text-muted-foreground text-center text-sm'>
-        Already have an account?{' '}
+        Đã có tài khoản?{' '}
         <Link
           href='/auth/login'
           className='text-primary font-semibold hover:underline'
         >
-          Sign in
+          Đăng nhập
         </Link>
       </p>
     </div>

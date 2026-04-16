@@ -109,27 +109,27 @@ export function CreateStationDialog({
     mutationFn: async (data: StationUpsertPayload) => {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
       return stationsApi.createStation(data, token);
     },
     onSuccess: async (response) => {
       if (response.success) {
         await queryClient.invalidateQueries({ queryKey: ['stations'] });
-        toast.success('Station created successfully!', {
-          description: `Station: ${response.data.name}`
+        toast.success('Tạo trạm thành công!', {
+          description: `Trạm: ${response.data.name}`
         });
         form.reset();
         onOpenChange(false);
         onSuccess?.();
       } else {
-        toast.error('Failed to create station', {
+        toast.error('Tạo trạm thất bại', {
           description: response.message
         });
       }
     },
     onError: (error: Error) => {
-      toast.error('Error creating station', {
+      toast.error('Lỗi khi tạo trạm', {
         description: error.message
       });
     }
@@ -171,11 +171,11 @@ export function CreateStationDialog({
           <DialogHeader className='border-b px-6 py-4'>
             <DialogTitle className='flex items-center gap-2'>
               <Plus className='text-primary h-5 w-5' />
-              Create New Station
+              Tạo trạm mới
             </DialogTitle>
             <DialogDescription>
-              Fill in the information to create a new monitoring station. Fields
-              marked with * are required.
+              Điền thông tin để tạo trạm quan trắc mới. Các trường có dấu * là
+              bắt buộc.
             </DialogDescription>
           </DialogHeader>
 
@@ -190,7 +190,7 @@ export function CreateStationDialog({
                   <FormInput
                     control={formControl}
                     name='code'
-                    label='Station Code'
+                    label='Mã trạm'
                     placeholder='ST_DN_DRAGON_01'
                     required
                     disabled={isLoading}
@@ -199,8 +199,8 @@ export function CreateStationDialog({
                   <FormInput
                     control={formControl}
                     name='name'
-                    label='Station Name'
-                    placeholder='Dragon Bridge Station'
+                    label='Tên trạm'
+                    placeholder='Trạm Cầu Rồng'
                     required
                     disabled={isLoading}
                   />
@@ -208,22 +208,22 @@ export function CreateStationDialog({
                   <FormSelect
                     control={formControl}
                     name='status'
-                    label='Status'
-                    placeholder='Select status'
+                    label='Trạng thái'
+                    placeholder='Chọn trạng thái'
                     required
                     disabled={isLoading}
                     options={[
-                      { label: 'Online', value: 'online' },
-                      { label: 'Offline', value: 'offline' },
-                      { label: 'Maintenance', value: 'maintenance' }
+                      { label: 'Đang hoạt động', value: 'online' },
+                      { label: 'Ngoại tuyến', value: 'offline' },
+                      { label: 'Bảo trì', value: 'maintenance' }
                     ]}
                   />
 
                   <FormInput
                     control={formControl}
                     name='roadName'
-                    label='Road Name'
-                    placeholder='2 Thang 9 Street'
+                    label='Tên đường'
+                    placeholder='Đường 2 Tháng 9'
                     disabled={isLoading}
                   />
                 </div>
@@ -231,8 +231,8 @@ export function CreateStationDialog({
                 <FormTextarea
                   control={formControl}
                   name='locationDesc'
-                  label='Location Description'
-                  placeholder='Located on the west side of Dragon Bridge...'
+                  label='Mô tả vị trí'
+                  placeholder='Ví dụ: Nằm phía tây Cầu Rồng...'
                   disabled={isLoading}
                   config={{
                     maxLength: 500,
@@ -245,8 +245,8 @@ export function CreateStationDialog({
                   <FormInput
                     control={formControl}
                     name='direction'
-                    label='Direction'
-                    placeholder='upstream / downstream'
+                    label='Hướng'
+                    placeholder='thượng lưu / hạ lưu'
                     disabled={isLoading}
                   />
                 </div>
@@ -255,7 +255,7 @@ export function CreateStationDialog({
                   <FormInput
                     control={formControl}
                     name='latitude'
-                    label='Latitude'
+                    label='Vĩ độ'
                     placeholder='16.061153'
                     type='number'
                     step='0.000001'
@@ -265,7 +265,7 @@ export function CreateStationDialog({
                   <FormInput
                     control={formControl}
                     name='longitude'
-                    label='Longitude'
+                    label='Kinh độ'
                     placeholder='108.221589'
                     type='number'
                     step='0.000001'
@@ -277,7 +277,7 @@ export function CreateStationDialog({
                   <FormInput
                     control={formControl}
                     name='thresholdWarning'
-                    label='Threshold Warning'
+                    label='Ngưỡng cảnh báo'
                     placeholder='0.5'
                     type='number'
                     step='0.0001'
@@ -288,7 +288,7 @@ export function CreateStationDialog({
                   <FormInput
                     control={formControl}
                     name='thresholdCritical'
-                    label='Threshold Critical'
+                    label='Ngưỡng khẩn cấp'
                     placeholder='1.2'
                     type='number'
                     step='0.0001'
@@ -299,7 +299,7 @@ export function CreateStationDialog({
                   <FormInput
                     control={formControl}
                     name='calibrationOffset'
-                    label='Calibration Offset (±cm)'
+                    label='Offset hiệu chuẩn (±cm)'
                     placeholder='5'
                     type='number'
                     step='0.1'
@@ -319,18 +319,18 @@ export function CreateStationDialog({
                   onClick={() => handleOpenChange(false)}
                   disabled={isLoading}
                 >
-                  Cancel
+                  Hủy
                 </Button>
                 <Button type='submit' disabled={isLoading} className='gap-2'>
                   {isLoading ? (
                     <>
                       <Loader2 className='h-4 w-4 animate-spin' />
-                      Creating...
+                      Đang tạo...
                     </>
                   ) : (
                     <>
                       <Plus className='h-4 w-4' />
-                      Create Station
+                      Tạo trạm
                     </>
                   )}
                 </Button>

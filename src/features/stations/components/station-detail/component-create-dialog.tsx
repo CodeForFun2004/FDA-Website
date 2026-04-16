@@ -79,8 +79,7 @@ export function ComponentCreateDialog({
     setIsLoading(true);
     try {
       const token = await getAccessToken();
-      if (!token)
-        throw new Error('Authentication required. Please log in again.');
+      if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
 
       const payload: ComponentUpsertPayload = {
         componentType: values.componentType,
@@ -93,17 +92,17 @@ export function ComponentCreateDialog({
 
       const res = await stationsApi.createComponent(stationId, payload, token);
       if (res.success) {
-        toast.success('Component created successfully!', {
-          description: `Component: ${res.component?.name || values.componentType}`
+        toast.success('Tạo thiết bị thành công!', {
+          description: `Thiết bị: ${res.component?.name || values.componentType}`
         });
         form.reset();
         onOpenChange(false);
         onSuccess?.();
       } else {
-        toast.error('Failed to create component', { description: res.message });
+        toast.error('Tạo thiết bị thất bại', { description: res.message });
       }
     } catch (error: any) {
-      toast.error('Error creating component', { description: error.message });
+      toast.error('Lỗi khi tạo thiết bị', { description: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -120,11 +119,10 @@ export function ComponentCreateDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Plus className='text-primary h-5 w-5' />
-            Add Component
+            Thêm thiết bị
           </DialogTitle>
           <DialogDescription>
-            Add a new hardware component to this station. Component type is
-            required.
+            Thêm một thiết bị phần cứng mới cho trạm. Loại thiết bị là bắt buộc.
           </DialogDescription>
         </DialogHeader>
 
@@ -136,8 +134,8 @@ export function ComponentCreateDialog({
           <FormSelect
             control={formControl}
             name='componentType'
-            label='Component Type'
-            placeholder='Select type'
+            label='Loại thiết bị'
+            placeholder='Chọn loại'
             required
             disabled={isLoading}
             options={COMPONENT_TYPE_OPTIONS}
@@ -147,14 +145,14 @@ export function ComponentCreateDialog({
             <FormInput
               control={formControl}
               name='name'
-              label='Name'
+              label='Tên'
               placeholder='ESP32 Main Controller'
               disabled={isLoading}
             />
             <FormInput
               control={formControl}
               name='model'
-              label='Model'
+              label='Mẫu'
               placeholder='ESP32-WROOM-32'
               disabled={isLoading}
             />
@@ -164,14 +162,14 @@ export function ComponentCreateDialog({
             <FormInput
               control={formControl}
               name='serialNumber'
-              label='Serial Number'
+              label='Số serial'
               placeholder='ESP32-001234'
               disabled={isLoading}
             />
             <FormInput
               control={formControl}
               name='firmwareVersion'
-              label='Firmware Version'
+              label='Phiên bản firmware'
               placeholder='1.0.0'
               disabled={isLoading}
             />
@@ -180,8 +178,8 @@ export function ComponentCreateDialog({
           <FormTextarea
             control={formControl}
             name='notes'
-            label='Notes'
-            placeholder='Additional notes about this component...'
+            label='Ghi chú'
+            placeholder='Ghi chú thêm về thiết bị...'
             disabled={isLoading}
             config={{ maxLength: 500, showCharCount: true, rows: 3 }}
           />
@@ -193,18 +191,18 @@ export function ComponentCreateDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type='submit' disabled={isLoading} className='gap-2'>
               {isLoading ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Creating...
+                  Đang tạo...
                 </>
               ) : (
                 <>
                   <Plus className='h-4 w-4' />
-                  Add Component
+                  Thêm thiết bị
                 </>
               )}
             </Button>

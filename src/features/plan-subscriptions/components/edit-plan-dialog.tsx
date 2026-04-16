@@ -161,20 +161,19 @@ export function EditPlanDialog({
   const updateMutation = useMutation({
     mutationFn: async (payload: UpdatePlanPayload) => {
       const token = await getAccessToken();
-      if (!token)
-        throw new Error('Authentication required. Please log in again.');
+      if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       return planSubscriptionApi.updatePlan(plan.id, payload, token);
     },
     onSuccess: async (res) => {
       await queryClient.invalidateQueries({ queryKey: ['plans'] });
-      toast.success('Plan updated successfully!', {
-        description: `"${form.name}" has been updated.`
+      toast.success('Cập nhật gói thành công!', {
+        description: `\"${form.name}\" đã được cập nhật.`
       });
       onOpenChange(false);
       onSuccess?.();
     },
     onError: (error: Error) => {
-      toast.error('Failed to update plan', { description: error.message });
+      toast.error('Cập nhật gói thất bại', { description: error.message });
     }
   });
 
@@ -208,15 +207,15 @@ export function EditPlanDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Edit className='text-primary h-5 w-5' />
-            Edit Plan
+            Sửa gói
           </DialogTitle>
           <DialogDescription className='flex items-center gap-2'>
-            Editing plan:
+            Đang sửa gói:
             <Badge variant='secondary' className='font-mono text-xs'>
               {plan.code}
             </Badge>
             <span className='text-muted-foreground text-xs'>
-              (Code is read-only)
+              (mã gói chỉ đọc)
             </span>
           </DialogDescription>
         </DialogHeader>
@@ -224,7 +223,7 @@ export function EditPlanDialog({
         <form onSubmit={handleSubmit} className='space-y-6'>
           {/* Code (read-only) */}
           <div className='space-y-1.5'>
-            <Label>Plan Code</Label>
+            <Label>Mã gói</Label>
             <Input
               value={plan.code}
               disabled

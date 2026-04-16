@@ -89,8 +89,7 @@ export function CalibrationConfigDialog({
     setIsLoading(true);
     try {
       const token = await getAccessToken();
-      if (!token)
-        throw new Error('Authentication required. Please log in again.');
+      if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
 
       const res = await stationsApi.updateCalibration(
         stationId,
@@ -99,16 +98,18 @@ export function CalibrationConfigDialog({
       );
 
       if (res.success) {
-        toast.success('Calibration updated successfully!');
+        toast.success('Cập nhật hiệu chuẩn thành công!');
         onOpenChange(false);
         onSuccess?.();
       } else {
-        toast.error('Failed to update calibration', {
+        toast.error('Cập nhật hiệu chuẩn thất bại', {
           description: res.message
         });
       }
     } catch (error: any) {
-      toast.error('Error updating calibration', { description: error.message });
+      toast.error('Lỗi khi cập nhật hiệu chuẩn', {
+        description: error.message
+      });
     } finally {
       setIsLoading(false);
     }
@@ -127,10 +128,10 @@ export function CalibrationConfigDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Settings2 className='text-primary h-5 w-5' />
-            Update Calibration Offset
+            Cập nhật offset hiệu chuẩn
           </DialogTitle>
           <DialogDescription>
-            Current allowable error display for this station.
+            Điều chỉnh sai số hiển thị cho trạm này.
           </DialogDescription>
         </DialogHeader>
 
@@ -148,9 +149,9 @@ export function CalibrationConfigDialog({
               control={formControl}
               type='number'
               name='calibrationOffset'
-              label='New Offset (cm)'
+              label='Offset mới (cm)'
               placeholder='5'
-              description='Allowed: 0-50 cm (Default: 5cm)'
+              description='Cho phép: 0–50 cm (mặc định: 5cm)'
               disabled={isLoading}
             />
 
@@ -158,9 +159,8 @@ export function CalibrationConfigDialog({
               <div className='flex items-start gap-2'>
                 <AlertTriangle className='text-primary mt-0.5 h-4 w-4 shrink-0' />
                 <p className='text-muted-foreground'>
-                  <strong>Note:</strong> This value is for display purposes
-                  only. It does not affect measurement results or any system
-                  calculations.
+                  <strong>Lưu ý:</strong> Giá trị này chỉ để hiển thị, không ảnh
+                  hưởng kết quả đo hoặc các tính toán của hệ thống.
                 </p>
               </div>
             </div>
@@ -172,16 +172,16 @@ export function CalibrationConfigDialog({
                 onClick={() => handleOpenChange(false)}
                 disabled={isLoading}
               >
-                Cancel
+                Hủy
               </Button>
               <Button type='submit' disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                    Saving...
+                    Đang lưu...
                   </>
                 ) : (
-                  'Save'
+                  'Lưu'
                 )}
               </Button>
             </DialogFooter>

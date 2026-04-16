@@ -92,7 +92,7 @@ export function StationTable({
         <div className='w-full sm:max-w-sm'>
           <Input
             defaultValue={name}
-            placeholder='Search by name...'
+            placeholder='Tìm theo tên...'
             onChange={(e) => onSearch(e.target.value)}
           />
         </div>
@@ -164,7 +164,7 @@ export function StationTable({
                   >
                     <img
                       src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStPS9JVqfaTNagEnEvLeN-Ve92dzflAzBENw&s'
-                      alt='No results'
+                      alt='Không có kết quả'
                     />
                   </TableCell>
                 </TableRow>
@@ -176,22 +176,21 @@ export function StationTable({
 
       <div className='flex items-center justify-between'>
         <div className='text-muted-foreground text-sm'>
-          Page <span className='text-foreground font-medium'>{page}</span> /{' '}
+          Trang <span className='text-foreground font-medium'>{page}</span> /{' '}
           <span className='text-foreground font-medium'>{totalPages}</span> •
-          Total{' '}
-          <span className='text-foreground font-medium'>{totalItems}</span>
+          Tổng <span className='text-foreground font-medium'>{totalItems}</span>
         </div>
 
         <div className='flex items-center gap-2'>
           <Button variant='outline' onClick={goPrev} disabled={page <= 1}>
-            Previous
+            Trước
           </Button>
           <Button
             variant='outline'
             onClick={goNext}
             disabled={page >= totalPages}
           >
-            Next
+            Sau
           </Button>
         </div>
       </div>

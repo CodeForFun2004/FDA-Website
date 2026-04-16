@@ -32,7 +32,7 @@ export default async function UsersView(props: PageProps) {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Quản lý người dùng'
+      pageTitle='Quản Lý Người Dùng'
       pageDescription='Thêm, sửa và phân quyền tài khoản trong hệ thống.'
       // infoContent={stationInfoContent}
     >

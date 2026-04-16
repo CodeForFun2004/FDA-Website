@@ -14,7 +14,7 @@ export default function NewsPageClient() {
       <div className='mb-4 flex items-center justify-end'>
         <Button onClick={() => setCreateOpen(true)}>
           <IconPlus className='mr-2 h-4 w-4' />
-          Create Announcement
+          Tạo Bản Tin
         </Button>
       </div>
 

@@ -28,6 +28,7 @@ import { useFloodStationsStore } from '../../store/flood-stations-store';
 import { FloodDetailCard } from '../flood-detail-card';
 import { AreaDetailCard } from '../area-detail-card';
 import { CommunityReportCard } from '../community-report-card';
+import LegendFlood from './legend-flood';
 import type { CommunityFloodReport } from '../../api/flood-reports-community.api';
 
 // ✅ Flood roads overlay (new)
@@ -480,6 +481,12 @@ export default function MapView({ prefs }: Props) {
   return (
     <div className='relative h-full w-full'>
       <div ref={containerRef} className='h-full w-full' />
+      <div className='pointer-events-none absolute bottom-3 left-3 z-40'>
+        <LegendFlood
+          key={prefs.overlays.stations ? 'legend-on' : 'legend-off'}
+          visible={prefs.overlays.stations}
+        />
+      </div>
       {selectedFeature && prefs.overlays.stations && (
         <div className='animate-in slide-in-from-left-4 fade-in absolute top-5 left-4 z-50 duration-300'>
           <FloodDetailCard

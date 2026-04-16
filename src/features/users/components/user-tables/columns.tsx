@@ -9,16 +9,16 @@ import { formatDate } from '@/libs/utils';
 import { UserCellAction } from './cell-action';
 
 export const ROLE_OPTIONS = [
-  { label: 'Admin', value: 'ADMIN' },
-  { label: 'User', value: 'USER' },
-  { label: 'Super Admin', value: 'SUPERADMIN' },
-  { label: 'Moderator', value: 'MODERATOR' }
+  { label: 'Quản trị viên', value: 'ADMIN' },
+  { label: 'Người dùng', value: 'USER' },
+  { label: 'Quản trị cấp cao', value: 'SUPERADMIN' },
+  { label: 'Điều phối viên', value: 'MODERATOR' }
 ];
 
 export const STATUS_OPTIONS = [
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
-  { label: 'Banned', value: 'banned' }
+  { label: 'Hoạt động', value: 'active' },
+  { label: 'Không hoạt động', value: 'inactive' },
+  { label: 'Bị khóa', value: 'banned' }
 ];
 
 export const columns: ColumnDef<User>[] = [
@@ -26,7 +26,7 @@ export const columns: ColumnDef<User>[] = [
     id: 'name',
     accessorKey: 'name',
     header: ({ column }: { column: Column<User, unknown> }) => (
-      <DataTableColumnHeader column={column} title='User' />
+      <DataTableColumnHeader column={column} title='Người dùng' />
     ),
     cell: ({ row }) => (
       <div className='flex min-w-[220px] items-center gap-3'>
@@ -40,8 +40,8 @@ export const columns: ColumnDef<User>[] = [
       </div>
     ),
     meta: {
-      label: 'Search',
-      placeholder: 'Search name or email...',
+      label: 'Tìm kiếm',
+      placeholder: 'Tìm tên hoặc email...',
       variant: 'text',
       icon: Text
     },
@@ -51,7 +51,7 @@ export const columns: ColumnDef<User>[] = [
     id: 'role',
     accessorKey: 'roles',
     header: ({ column }: { column: Column<User, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Role' />
+      <DataTableColumnHeader column={column} title='Vai trò' />
     ),
     cell: ({ row }) => {
       const roles = row.original.roles ?? [];
@@ -68,10 +68,12 @@ export const columns: ColumnDef<User>[] = [
 
       const getRoleLabel = (role: string) =>
         role === 'SUPERADMIN'
-          ? 'Super Admin'
+          ? 'Quản trị cấp cao'
           : role === 'MODERATOR'
-            ? 'Moderator'
-            : role.charAt(0) + role.slice(1).toLowerCase();
+            ? 'Điều phối viên'
+            : role === 'ADMIN'
+              ? 'Quản trị viên'
+              : 'Người dùng';
 
       return (
         <div className='flex flex-wrap gap-1'>
@@ -87,14 +89,14 @@ export const columns: ColumnDef<User>[] = [
             ))
           ) : (
             <Badge variant='outline' className='border-gray-300 text-gray-600'>
-              User
+              Người dùng
             </Badge>
           )}
         </div>
       );
     },
     meta: {
-      label: 'Role',
+      label: 'Vai trò',
       variant: 'select',
       options: ROLE_OPTIONS
     },
@@ -104,10 +106,18 @@ export const columns: ColumnDef<User>[] = [
     id: 'status',
     accessorKey: 'status',
     header: ({ column }: { column: Column<User, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Status' />
+      <DataTableColumnHeader column={column} title='Trạng thái' />
     ),
     cell: ({ row }) => {
       const status = row.original.status.toLowerCase();
+      const statusLabel =
+        status === 'active'
+          ? 'Hoạt động'
+          : status === 'inactive'
+            ? 'Không hoạt động'
+            : status === 'banned'
+              ? 'Bị khóa'
+              : row.original.status;
       const getBadgeConfig = (value: string) => {
         switch (value) {
           case 'active':
@@ -143,12 +153,12 @@ export const columns: ColumnDef<User>[] = [
           className={`gap-1.5 font-medium ${config.className}`}
         >
           <Icon className={`h-3.5 w-3.5 ${config.iconClassName}`} />
-          {row.original.status}
+          {statusLabel}
         </Badge>
       );
     },
     meta: {
-      label: 'Status',
+      label: 'Trạng thái',
       variant: 'select',
       options: STATUS_OPTIONS
     },
@@ -158,7 +168,7 @@ export const columns: ColumnDef<User>[] = [
     id: 'lastLogin',
     accessorKey: 'lastLogin',
     header: ({ column }: { column: Column<User, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Last Login' />
+      <DataTableColumnHeader column={column} title='Lần đăng nhập gần nhất' />
     ),
     cell: ({ row }) => (
       <div className='text-muted-foreground'>

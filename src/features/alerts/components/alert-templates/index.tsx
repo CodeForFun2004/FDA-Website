@@ -38,7 +38,7 @@ export function AlertTemplatesTable<TData, TValue>({
         <DataTableToolbar table={table}>
           <Button onClick={onOpenCreate} className='gap-2' size='sm'>
             <Plus className='h-4 w-4' />
-            Create Template
+            Tạo Template
           </Button>
         </DataTableToolbar>
       </DataTable>

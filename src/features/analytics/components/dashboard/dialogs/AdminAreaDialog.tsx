@@ -184,12 +184,12 @@ export function AdminAreaDialog({
             {isEdit ? (
               <>
                 <IconEdit className='text-primary h-5 w-5' />
-                Edit Administrative Area
+                Tạo Khu vực quản lí
               </>
             ) : (
               <>
                 <IconPlus className='text-primary h-5 w-5' />
-                Create Administrative Area
+                Tạo Khu vực quản lí
               </>
             )}
           </DialogTitle>

@@ -92,7 +92,7 @@ export default function LoginViewPage() {
 
       window.location.assign(authorizationUrl);
     } catch (e: any) {
-      toast.error(e?.message ?? 'Unable to start Google Sign-In.');
+      toast.error(e?.message ?? 'Không thể bắt đầu đăng nhập Google.');
     } finally {
       setGoogleLoading(false);
     }
@@ -101,9 +101,9 @@ export default function LoginViewPage() {
   return (
     <div className='space-y-6'>
       <div className='space-y-2 text-center'>
-        <h1 className='text-3xl font-bold'>Welcome Back</h1>
+        <h1 className='text-3xl font-bold'>Chào mừng quay lại</h1>
         <p className='text-muted-foreground'>
-          Enter email/phone to sign in with OTP or password.
+          Nhập email/số điện thoại để đăng nhập bằng OTP hoặc mật khẩu.
         </p>
       </div>
 
@@ -125,13 +125,13 @@ export default function LoginViewPage() {
           </svg>
           <div className='flex-1 text-sm'>
             <p className='font-medium text-blue-900 dark:text-blue-100'>
-              Administration portal for authorities
+              Cổng đăng nhập dành cho cơ quan quản lý
             </p>
             <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
-              This login page is for <strong>Admin</strong>,{' '}
-              <strong>Authority</strong>, and <strong>Super Admin</strong>.
-              Regular users cannot self-register. Please contact an
-              administrator for access.
+              Trang này dành cho <strong>Admin</strong>,{' '}
+              <strong>Moderator</strong> và <strong>Super Admin</strong>. Người
+              dùng thường không thể tự đăng ký. Vui lòng liên hệ quản trị viên
+              để được cấp quyền.
             </p>
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function LoginViewPage() {
         </div>
         <div className='relative flex justify-center text-xs uppercase'>
           <span className='bg-background text-muted-foreground px-2'>
-            Or continue with
+            Hoặc tiếp tục với
           </span>
         </div>
       </div>

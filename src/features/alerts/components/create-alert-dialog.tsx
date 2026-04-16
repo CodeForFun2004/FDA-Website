@@ -103,7 +103,7 @@ export function CreateStationDialog({
       const token = await getAccessToken();
 
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
 
       console.log('🔑 Token retrieved: Valid token obtained');
@@ -117,8 +117,8 @@ export function CreateStationDialog({
         await queryClient.invalidateQueries({ queryKey: ['stations'] });
 
         // Show success toast after UI updates
-        toast.success('Station created successfully!', {
-          description: `Station: ${response.data.name}`
+        toast.success('Tạo trạm thành công!', {
+          description: `Trạm: ${response.data.name}`
         });
 
         // Reset form
@@ -130,13 +130,13 @@ export function CreateStationDialog({
         // Call onSuccess callback
         onSuccess?.();
       } else {
-        toast.error('Failed to create station', {
+        toast.error('Tạo trạm thất bại', {
           description: response.message
         });
       }
     },
     onError: (error: Error) => {
-      toast.error('Error creating station', {
+      toast.error('Lỗi khi tạo trạm', {
         description: error.message
       });
     }
@@ -176,11 +176,11 @@ export function CreateStationDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Plus className='text-primary h-5 w-5' />
-            Create New Station
+            Tạo trạm mới
           </DialogTitle>
           <DialogDescription>
-            Fill in the information to create a new monitoring station. Fields
-            marked with * are required.
+            Điền thông tin để tạo trạm quan trắc mới. Các trường có dấu * là bắt
+            buộc.
           </DialogDescription>
         </DialogHeader>
 

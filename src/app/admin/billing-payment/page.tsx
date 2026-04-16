@@ -11,7 +11,7 @@ export default function Page() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Giao dịch thanh toán'
+      pageTitle='Giao Dịch Thanh Toán'
       pageDescription='Xem lịch sử thanh toán và chi tiết từng đơn hàng.'
     >
       <Suspense

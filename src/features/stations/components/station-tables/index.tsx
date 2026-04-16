@@ -71,7 +71,7 @@ export function StationTable<TData, TValue>({
               size='sm'
             >
               <Plus className='h-4 w-4' />
-              Add Station
+              Tạo Trạm
             </Button>
           ) : null}
         </DataTableToolbar>

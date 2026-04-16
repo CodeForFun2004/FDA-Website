@@ -7,7 +7,7 @@ export default function AlertsPage() {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Mẫu cảnh báo'
+      pageTitle='Mẫu Cảnh Báo'
       pageDescription='Soạn và quản lý nội dung gửi cảnh báo tới người dùng.'
     >
       <AlertTemplatesView />

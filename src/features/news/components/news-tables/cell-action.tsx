@@ -43,10 +43,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
     try {
       setPublishing(true);
       await newsApi.publishAnnouncement(data.id);
-      toast.success('Announcement published successfully!');
+      toast.success('Đã đăng thông báo');
       onRefresh?.();
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to publish announcement');
+      toast.error(error?.message || 'Đăng thông báo thất bại');
     } finally {
       setPublishing(false);
     }
@@ -56,10 +56,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
     try {
       setDeleting(true);
       await newsApi.deleteAnnouncement(data.id);
-      toast.success('Announcement deleted successfully!');
+      toast.success('Đã xóa thông báo');
       onRefresh?.();
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to delete announcement');
+      toast.error(error?.message || 'Xóa thông báo thất bại');
     } finally {
       setDeleting(false);
       setDeleteOpen(false);
@@ -88,25 +88,25 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
       />
 
       <Modal
-        title='Delete announcement'
+        title='Xóa thông báo'
         description={
           isSoftDelete
-            ? `Announcement "${data.title}" will be hidden from the list (soft delete).`
-            : `Announcement "${data.title}" will be permanently deleted (hard delete).`
+            ? `Thông báo \"${data.title}\" sẽ bị ẩn khỏi danh sách (xóa mềm).`
+            : `Thông báo \"${data.title}\" sẽ bị xóa vĩnh viễn (xóa cứng).`
         }
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
       >
         <div className='flex w-full items-center justify-end gap-2 pt-4'>
           <Button variant='outline' onClick={() => setDeleteOpen(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button
             variant='destructive'
             onClick={handleDelete}
             disabled={deleting}
           >
-            {deleting ? 'Deleting...' : 'Delete'}
+            {deleting ? 'Đang xóa...' : 'Xóa'}
           </Button>
         </div>
       </Modal>
@@ -114,27 +114,27 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
+            <span className='sr-only'>Mở menu</span>
             <IconDotsVertical className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setDetailOpen(true)}>
-            <IconEye className='mr-2 h-4 w-4' /> View details
+            <IconEye className='mr-2 h-4 w-4' /> Xem chi tiết
           </DropdownMenuItem>
 
           {canEdit && (
             <DropdownMenuItem onClick={() => setEditOpen(true)}>
-              <IconEdit className='mr-2 h-4 w-4' /> Edit
+              <IconEdit className='mr-2 h-4 w-4' /> Sửa
             </DropdownMenuItem>
           )}
 
           {canPublish && (
             <DropdownMenuItem onClick={handlePublish} disabled={publishing}>
               <IconSend className='mr-2 h-4 w-4' />
-              {publishing ? 'Publishing...' : 'Publish now'}
+              {publishing ? 'Đang đăng...' : 'Đăng ngay'}
             </DropdownMenuItem>
           )}
 
@@ -144,7 +144,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data, onRefresh }) => {
             onClick={() => setDeleteOpen(true)}
             className='text-destructive focus:text-destructive'
           >
-            <IconTrash className='mr-2 h-4 w-4' /> Delete
+            <IconTrash className='mr-2 h-4 w-4' /> Xóa
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -20,7 +20,7 @@ export default async function Page(props: PageProps) {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Trạm quan trắc'
+      pageTitle='Trạm Quan Trắc'
       pageDescription='Theo dõi trạng thái vận hành và thông tin từng trạm.'
     >
       <Suspense

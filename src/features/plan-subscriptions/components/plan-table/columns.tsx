@@ -15,7 +15,7 @@ import { CellAction } from './cell-action';
 
 /** Format Vietnamese price: 49000 -> "49.000 VND" */
 export function formatVndPrice(value: number): string {
-  if (value === 0) return 'Free';
+  if (value === 0) return 'Miễn phí';
   return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
 }
 
@@ -25,25 +25,25 @@ function getTierConfig(tier: unknown) {
     { label: string; className: string; dotColor: string }
   > = {
     '1': {
-      label: 'Free',
+      label: 'Miễn phí',
       className:
         'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300/50',
       dotColor: 'bg-slate-400'
     },
     '2': {
-      label: 'Basic',
+      label: 'Cơ bản',
       className:
         'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border-blue-300/50',
       dotColor: 'bg-blue-400'
     },
     '3': {
-      label: 'Premium',
+      label: 'Cao cấp',
       className:
         'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300 border-violet-300/50',
       dotColor: 'bg-violet-500'
     },
     '4': {
-      label: 'Monitor',
+      label: 'Giám sát',
       className:
         'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300/50',
       dotColor: 'bg-amber-500'
@@ -105,7 +105,10 @@ export const columns: ColumnDef<PricingPlan>[] = [
         {String(cell.getValue() ?? '-')}
       </div>
     ),
-    enableColumnFilter: false
+    enableColumnFilter: false,
+    meta: {
+      viewLabel: 'Code'
+    }
   },
 
   // Name
@@ -129,7 +132,8 @@ export const columns: ColumnDef<PricingPlan>[] = [
     ),
     meta: {
       label: 'Search',
-      placeholder: 'Search code/plan name ...',
+      viewLabel: 'Plan Name',
+      placeholder: 'Tìm kiếm code, plan name ...',
       variant: 'text'
     },
     enableColumnFilter: true
@@ -153,7 +157,10 @@ export const columns: ColumnDef<PricingPlan>[] = [
         </div>
       );
     },
-    enableColumnFilter: false
+    enableColumnFilter: false,
+    meta: {
+      viewLabel: 'Price / Month'
+    }
   },
 
   // Price / Year
@@ -171,7 +178,10 @@ export const columns: ColumnDef<PricingPlan>[] = [
         </div>
       );
     },
-    enableColumnFilter: false
+    enableColumnFilter: false,
+    meta: {
+      viewLabel: 'Price / Year'
+    }
   },
 
   // Tier
@@ -193,7 +203,10 @@ export const columns: ColumnDef<PricingPlan>[] = [
         </Badge>
       );
     },
-    enableColumnFilter: false
+    enableColumnFilter: false,
+    meta: {
+      viewLabel: 'Tier'
+    }
   },
 
   // Status
@@ -223,7 +236,10 @@ export const columns: ColumnDef<PricingPlan>[] = [
         </Badge>
       );
     },
-    enableColumnFilter: false
+    enableColumnFilter: false,
+    meta: {
+      viewLabel: 'Status'
+    }
   },
 
   // Features count
@@ -268,6 +284,9 @@ export const columns: ColumnDef<PricingPlan>[] = [
       );
     },
     enableColumnFilter: false,
+    meta: {
+      viewLabel: 'Features'
+    },
     size: 90
   },
 
@@ -286,6 +305,9 @@ export const columns: ColumnDef<PricingPlan>[] = [
       </div>
     ),
     enableColumnFilter: false,
+    meta: {
+      viewLabel: 'Order'
+    },
     size: 70
   },
 

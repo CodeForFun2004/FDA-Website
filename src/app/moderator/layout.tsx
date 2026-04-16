@@ -5,8 +5,8 @@ import { RoleGuard } from '@/components/guards/RoleGuard';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Moderator Portal | FDA Management System',
-  description: 'Moderator management portal for FDA system'
+  title: 'Admin Dashboard',
+  description: 'Giao diện điều phối cho hệ thống FDA.'
 };
 
 export default function ModeratorLayout({

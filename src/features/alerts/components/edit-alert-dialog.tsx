@@ -133,7 +133,7 @@ export function EditStationDialog({
       const token = await getAccessToken();
 
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
 
       console.log('🔑 Token retrieved: Valid token obtained');
@@ -148,7 +148,7 @@ export function EditStationDialog({
         await queryClient.invalidateQueries({ queryKey: ['stations'] });
 
         // Show success toast after UI updates
-        toast.success('Station updated successfully!');
+        toast.success('Cập nhật trạm thành công!');
 
         // Close dialog
         onOpenChange(false);
@@ -156,13 +156,13 @@ export function EditStationDialog({
         // Call onSuccess callback
         onSuccess?.();
       } else {
-        toast.error('Failed to update station', {
+        toast.error('Cập nhật trạm thất bại', {
           description: response.message
         });
       }
     },
     onError: (error: Error) => {
-      toast.error('Error updating station', {
+      toast.error('Lỗi khi cập nhật trạm', {
         description: error.message
       });
     }
@@ -170,7 +170,7 @@ export function EditStationDialog({
 
   const onSubmit = async (values: StationFormValues) => {
     if (!station?.id) {
-      toast.error('Station ID is missing');
+      toast.error('Thiếu mã trạm');
       return;
     }
 

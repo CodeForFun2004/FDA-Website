@@ -34,16 +34,16 @@ export function DataTablePagination<TData>({
       <div className='text-muted-foreground flex-1 text-sm whitespace-nowrap'>
         {table.getFilteredSelectedRowModel().rows.length > 0 ? (
           <>
-            {table.getFilteredSelectedRowModel().rows.length} of{' '}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            Đã chọn {table.getFilteredSelectedRowModel().rows.length}/
+            {table.getFilteredRowModel().rows.length} dòng.
           </>
         ) : (
-          <>{table.getFilteredRowModel().rows.length} row(s) total.</>
+          <>Tổng {table.getFilteredRowModel().rows.length} dòng.</>
         )}
       </div>
       <div className='flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8'>
         <div className='flex items-center space-x-2'>
-          <p className='text-sm font-medium whitespace-nowrap'>Rows per page</p>
+          <p className='text-sm font-medium whitespace-nowrap'>Số dòng/trang</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
@@ -63,12 +63,12 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
         <div className='flex items-center justify-center text-sm font-medium'>
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
+          Trang {table.getState().pagination.pageIndex + 1} /{' '}
           {table.getPageCount()}
         </div>
         <div className='flex items-center space-x-2'>
           <Button
-            aria-label='Go to first page'
+            aria-label='Về trang đầu'
             variant='outline'
             size='icon'
             className='hidden size-8 lg:flex'
@@ -78,7 +78,7 @@ export function DataTablePagination<TData>({
             <ChevronsLeft />
           </Button>
           <Button
-            aria-label='Go to previous page'
+            aria-label='Trang trước'
             variant='outline'
             size='icon'
             className='size-8'
@@ -88,7 +88,7 @@ export function DataTablePagination<TData>({
             <ChevronLeftIcon />
           </Button>
           <Button
-            aria-label='Go to next page'
+            aria-label='Trang sau'
             variant='outline'
             size='icon'
             className='size-8'
@@ -98,7 +98,7 @@ export function DataTablePagination<TData>({
             <ChevronRightIcon />
           </Button>
           <Button
-            aria-label='Go to last page'
+            aria-label='Về trang cuối'
             variant='outline'
             size='icon'
             className='hidden size-8 lg:flex'

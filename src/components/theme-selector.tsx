@@ -15,37 +15,37 @@ import {
 
 const DEFAULT_THEMES = [
   {
-    name: 'Default',
+    name: 'Mặc định',
     value: 'blue'
   },
   {
-    name: 'Grey',
+    name: 'Xám',
     value: 'default'
   },
   {
-    name: 'Green',
+    name: 'Xanh lá',
     value: 'green'
   },
   {
-    name: 'Amber',
+    name: 'Hổ phách',
     value: 'amber'
   }
 ];
 
 const SCALED_THEMES = [
   {
-    name: 'Default',
+    name: 'Mặc định',
     value: 'default-scaled'
   },
   {
-    name: 'Blue',
+    name: 'Xanh dương',
     value: 'blue-scaled'
   }
 ];
 
 const MONO_THEMES = [
   {
-    name: 'Mono',
+    name: 'Đơn sắc',
     value: 'mono-scaled'
   }
 ];
@@ -56,7 +56,7 @@ export function ThemeSelector() {
   return (
     <div className='flex items-center gap-2'>
       <Label htmlFor='theme-selector' className='sr-only'>
-        Theme
+        Giao diện
       </Label>
       <Select value={activeTheme} onValueChange={setActiveTheme}>
         <SelectTrigger
@@ -64,14 +64,16 @@ export function ThemeSelector() {
           className='justify-start *:data-[slot=select-value]:w-12'
         >
           <span className='text-muted-foreground hidden sm:block'>
-            Select a theme:
+            Chọn giao diện:
           </span>
-          <span className='text-muted-foreground block sm:hidden'>Theme</span>
-          <SelectValue placeholder='Select a theme' />
+          <span className='text-muted-foreground block sm:hidden'>
+            Giao diện
+          </span>
+          <SelectValue placeholder='Chọn giao diện' />
         </SelectTrigger>
         <SelectContent align='end'>
           <SelectGroup>
-            <SelectLabel>Default</SelectLabel>
+            <SelectLabel>Mặc định</SelectLabel>
             {DEFAULT_THEMES.map((theme) => (
               <SelectItem key={theme.name} value={theme.value}>
                 {theme.name}
@@ -80,7 +82,7 @@ export function ThemeSelector() {
           </SelectGroup>
           <SelectSeparator />
           <SelectGroup>
-            <SelectLabel>Scaled</SelectLabel>
+            <SelectLabel>Phóng to</SelectLabel>
             {SCALED_THEMES.map((theme) => (
               <SelectItem key={theme.name} value={theme.value}>
                 {theme.name}
@@ -88,7 +90,7 @@ export function ThemeSelector() {
             ))}
           </SelectGroup>
           <SelectGroup>
-            <SelectLabel>Monospaced</SelectLabel>
+            <SelectLabel>Đơn cách</SelectLabel>
             {MONO_THEMES.map((theme) => (
               <SelectItem key={theme.name} value={theme.value}>
                 {theme.name}

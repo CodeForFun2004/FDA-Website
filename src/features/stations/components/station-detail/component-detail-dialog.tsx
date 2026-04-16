@@ -147,14 +147,14 @@ export function ComponentDetailDialog({
 
         {/* Details list */}
         <div className='space-y-0'>
-          <DetailRow label='Model' value={component.model} />
-          <DetailRow label='Serial Number' value={component.serialNumber} />
+          <DetailRow label='Mẫu' value={component.model} />
+          <DetailRow label='Số serial' value={component.serialNumber} />
           <DetailRow
-            label='Firmware Version'
+            label='Phiên bản firmware'
             value={component.firmwareVersion}
           />
           <DetailRow
-            label='Installed At'
+            label='Thời điểm lắp đặt'
             value={
               component.installedAt
                 ? new Date(component.installedAt).toLocaleString()
@@ -162,16 +162,16 @@ export function ComponentDetailDialog({
             }
           />
           <DetailRow
-            label='Last Maintenance'
+            label='Bảo trì gần nhất'
             value={
               component.lastMaintenanceAt
                 ? new Date(component.lastMaintenanceAt).toLocaleString()
                 : null
             }
           />
-          <DetailRow label='Notes' value={component.notes} />
+          <DetailRow label='Ghi chú' value={component.notes} />
           <DetailRow
-            label='Created At'
+            label='Tạo lúc'
             value={
               component.createdAt
                 ? new Date(component.createdAt).toLocaleString()
@@ -179,7 +179,7 @@ export function ComponentDetailDialog({
             }
           />
           <DetailRow
-            label='Updated At'
+            label='Cập nhật lúc'
             value={
               component.updatedAt
                 ? new Date(component.updatedAt).toLocaleString()
@@ -200,7 +200,7 @@ export function ComponentDetailDialog({
               }}
             >
               <Trash2 className='h-4 w-4' />
-              Delete
+              Xóa
             </Button>
           ) : null}
           {onEdit ? (
@@ -213,7 +213,7 @@ export function ComponentDetailDialog({
               }}
             >
               <Edit className='h-4 w-4' />
-              Edit
+              Sửa
             </Button>
           ) : null}
         </DialogFooter>

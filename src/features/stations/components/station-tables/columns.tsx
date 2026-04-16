@@ -131,7 +131,7 @@ export const columns: ColumnDef<Station>[] = [
     ),
     meta: {
       label: 'Name',
-      placeholder: "Search station's name ...",
+      placeholder: 'Tìm kiếm tên trạm ...',
       variant: 'text'
     },
     enableColumnFilter: true

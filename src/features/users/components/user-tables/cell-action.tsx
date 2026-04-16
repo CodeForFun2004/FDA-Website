@@ -26,8 +26,8 @@ export function UserCellAction({ data }: UserCellActionProps) {
 
   const handleEdit = () => {
     if (!data.isAdminCreated) {
-      toast.error('User update error', {
-        description: 'You can only edit users created by admin.'
+      toast.error('Không thể cập nhật người dùng', {
+        description: 'Chỉ có thể sửa các tài khoản do admin tạo.'
       });
       return;
     }
@@ -57,22 +57,22 @@ export function UserCellAction({ data }: UserCellActionProps) {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
+            <span className='sr-only'>Mở menu</span>
             <IconDotsVertical className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={handleEdit}
             disabled={!data.isAdminCreated}
           >
-            <Pencil className='mr-2 h-4 w-4' /> Edit
+            <Pencil className='mr-2 h-4 w-4' /> Sửa
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpenBan(true)}>
             <Lock className='mr-2 h-4 w-4' />
-            {data.status === 'Banned' ? 'Unban' : 'Ban'}
+            {data.status === 'Banned' ? 'Mở khóa' : 'Khóa'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

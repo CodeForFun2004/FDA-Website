@@ -29,7 +29,7 @@ export default function GoogleFinishPage() {
       const { accessToken, refreshToken, expiresAt, userRaw } = parseHash();
 
       if (!accessToken || !refreshToken || !expiresAt || !userRaw) {
-        toast.error('Missing session data from Google login.');
+        toast.error('Thiếu dữ liệu phiên đăng nhập từ Google.');
         router.push('/auth/login');
         return;
       }
@@ -47,7 +47,7 @@ export default function GoogleFinishPage() {
       });
 
       setSessionCookie();
-      toast.success('Google sign-in successful!');
+      toast.success('Đăng nhập Google thành công!');
 
       // xoá hash khỏi url (đỡ lộ token)
       window.history.replaceState(null, '', '/auth/google/finish');
@@ -63,14 +63,16 @@ export default function GoogleFinishPage() {
         router.push('/auth/forbidden');
       } else router.push('/');
     } catch (e: any) {
-      toast.error(e?.message ?? 'Google finish failed.');
+      toast.error(e?.message ?? 'Hoàn tất đăng nhập Google thất bại.');
       router.push('/auth/login');
     }
   }, [router]);
 
   return (
     <div className='flex min-h-[60vh] items-center justify-center'>
-      <div className='rounded-2xl border p-6'>Finishing Google sign-in…</div>
+      <div className='rounded-2xl border p-6'>
+        Đang hoàn tất đăng nhập Google…
+      </div>
     </div>
   );
 }

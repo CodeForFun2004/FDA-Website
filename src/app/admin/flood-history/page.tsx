@@ -301,7 +301,7 @@ export default function FloodHistoryPage() {
       <div className='flex flex-col justify-between gap-4 md:flex-row md:items-center'>
         <div>
           <h1 className='text-3xl font-bold tracking-tight'>
-            Lịch sử ngập & xu hướng
+            Lịch Sử Ngập & Xu Hướng
           </h1>
           <p className='text-muted-foreground mt-1'>
             Xem mực nước và xu hướng theo trạm và khoảng thời gian đã chọn.

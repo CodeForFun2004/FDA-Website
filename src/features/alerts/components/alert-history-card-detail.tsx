@@ -263,7 +263,7 @@ export function AlertHistoryCardDetail({
             />
             <DetailRow
               icon={IconMapPin}
-              label='Trạm quan trắc'
+              label='Trạm Quan Trắc'
               value={
                 <span>
                   {alert.stationName}

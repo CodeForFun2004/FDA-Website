@@ -94,7 +94,10 @@ export function getSubscriptionDisputesColumns(params: {
         </div>
       ),
       enableSorting: false,
-      enableColumnFilter: false
+      enableColumnFilter: false,
+      meta: {
+        viewLabel: 'User'
+      }
     },
     {
       id: 'subject',
@@ -115,7 +118,8 @@ export function getSubscriptionDisputesColumns(params: {
       enableColumnFilter: true,
       meta: {
         label: 'Search',
-        placeholder: 'Search subject...',
+        viewLabel: 'Subject',
+        placeholder: 'Tìm kiếm subject...',
         variant: 'text' as const
       }
     },
@@ -130,6 +134,7 @@ export function getSubscriptionDisputesColumns(params: {
       enableColumnFilter: true,
       meta: {
         label: 'Status',
+        viewLabel: 'Status',
         variant: 'select' as const,
         options: [
           { label: 'Open', value: 'open' },
@@ -150,7 +155,10 @@ export function getSubscriptionDisputesColumns(params: {
         </div>
       ),
       enableSorting: false,
-      enableColumnFilter: false
+      enableColumnFilter: false,
+      meta: {
+        viewLabel: 'Created'
+      }
     },
     {
       id: 'actions',

@@ -76,9 +76,9 @@ export default function GoogleCallbackPage() {
     );
 
     if (!accessToken || !refreshToken) {
-      const msg = 'Missing access_token/refresh_token from callback.';
+      const msg = 'Thiếu access_token/refresh_token từ callback.';
       setError(msg);
-      toast.error('Google login failed.');
+      toast.error('Đăng nhập Google thất bại.');
       router.replace('/auth/login?error=oauth_failed');
       return;
     }
@@ -113,12 +113,12 @@ export default function GoogleCallbackPage() {
         window.location.pathname + window.location.search
       );
 
-      toast.success('Google sign-in successful!');
+      toast.success('Đăng nhập Google thành công!');
       window.location.replace(returnUrl);
     } catch (e: any) {
-      const msg = e?.message ?? 'Failed to persist tokens.';
+      const msg = e?.message ?? 'Không thể lưu token.';
       setError(msg);
-      toast.error('Google login failed.');
+      toast.error('Đăng nhập Google thất bại.');
       router.replace('/auth/login?error=oauth_failed');
     }
   }, [router]);
@@ -126,9 +126,9 @@ export default function GoogleCallbackPage() {
   return (
     <div className='flex min-h-[60vh] items-center justify-center px-4'>
       <div className='bg-background w-full max-w-md rounded-2xl border p-6'>
-        <h1 className='text-lg font-semibold'>Signing you in…</h1>
+        <h1 className='text-lg font-semibold'>Đang đăng nhập…</h1>
         <p className='text-muted-foreground mt-2 text-sm'>
-          Please wait while we complete Google authentication.
+          Vui lòng chờ trong khi hoàn tất xác thực Google.
         </p>
 
         {error && (

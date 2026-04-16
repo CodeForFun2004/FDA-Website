@@ -114,7 +114,7 @@ export function ProfileMenu({
       const res = await getUserProfileApi();
       setProfile(res.profile);
     } catch (e: any) {
-      toast.error(e?.message ?? 'Unable to load profile.');
+      toast.error(e?.message ?? 'Không thể tải hồ sơ.');
       // giữ fallback tối thiểu để modal vẫn mở được
       setProfile(
         (prev) =>
@@ -155,7 +155,7 @@ export function ProfileMenu({
           <div className='text-muted-foreground text-xs leading-4'>
             {user.roles && user.roles.length > 0
               ? user.roles.join(', ')
-              : 'Member'}
+              : 'Thành viên'}
           </div>
         </div>
         <ChevronDown
@@ -186,7 +186,7 @@ export function ProfileMenu({
               onClick={openProfileModal}
             >
               <User className='h-4 w-4' />
-              Profile
+              Hồ sơ
               {loadingProfile ? (
                 <span className='text-muted-foreground ml-auto text-xs'>
                   ...
@@ -200,21 +200,21 @@ export function ProfileMenu({
               onClick={() => setOpen(false)}
             >
               <Settings className='h-4 w-4' />
-              Settings
+              Cài đặt
             </button>
 
             <div className='bg-border my-2 h-px' />
 
             <Button
               variant='outline'
-              className='h-11 w-full justify-start gap-2 rounded-xl'
+              className='h-11 w-full justify-start gap-2 rounded-xl border-slate-200 bg-slate-50 text-slate-900 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600'
               onClick={() => {
                 setOpen(false);
                 onLogout?.();
               }}
             >
               <LogOut className='h-4 w-4' />
-              Sign out
+              Đăng xuất
             </Button>
           </div>
         </div>

@@ -83,12 +83,12 @@ export function PlanTable({ data, totalItems }: PlanTableProps) {
               {showInactive ? (
                 <>
                   <EyeOff className='h-3.5 w-3.5' />
-                  Hide Inactive
+                  Ẩn Inactive
                 </>
               ) : (
                 <>
                   <Eye className='h-3.5 w-3.5' />
-                  Show Inactive
+                  Hiện Inactive
                 </>
               )}
             </Button>
@@ -100,7 +100,7 @@ export function PlanTable({ data, totalItems }: PlanTableProps) {
               size='sm'
             >
               <Plus className='h-4 w-4' />
-              New Plan
+              Tạo Gói
             </Button>
           </div>
         </DataTableToolbar>

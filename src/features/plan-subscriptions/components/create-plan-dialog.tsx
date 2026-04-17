@@ -209,7 +209,7 @@ export function CreatePlanDialog({
               {/* Code */}
               <div className='space-y-1.5'>
                 <Label htmlFor='create-code'>
-                  Mã gói <span className='text-destructive'>*</span>
+                  Code <span className='text-destructive'>*</span>
                 </Label>
                 <Input
                   id='create-code'
@@ -229,7 +229,7 @@ export function CreatePlanDialog({
               {/* Name */}
               <div className='space-y-1.5'>
                 <Label htmlFor='create-name'>
-                  Tên gói <span className='text-destructive'>*</span>
+                  Plan Name <span className='text-destructive'>*</span>
                 </Label>
                 <Input
                   id='create-name'
@@ -362,7 +362,7 @@ export function CreatePlanDialog({
                 className='gap-1.5 text-xs'
               >
                 <Plus className='h-3.5 w-3.5' />
-                Add Feature
+                Thêm Feature
               </Button>
             </div>
 
@@ -468,7 +468,7 @@ export function CreatePlanDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type='submit' disabled={isLoading} className='gap-2'>
               {isLoading ? (
@@ -479,7 +479,7 @@ export function CreatePlanDialog({
               ) : (
                 <>
                   <Plus className='h-4 w-4' />
-                  Create Plan
+                  Tạo Gói
                 </>
               )}
             </Button>

@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiFetch } from '@/libs/api/client';
+import { Modal } from '@/components/ui/modal';
 import {
   fetchCommunityFloodReportsPaged,
   type CommunityFloodReportMedia,
@@ -136,6 +137,9 @@ export default function ModeratorCommunityPage() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = React.useState<Filters>(DEFAULT_FILTERS);
   const [pageNumber, setPageNumber] = React.useState(1);
+  const [hideConfirmOpen, setHideConfirmOpen] = React.useState(false);
+  const [pendingHideReport, setPendingHideReport] =
+    React.useState<CommunityFloodReport | null>(null);
 
   const queryParams = React.useMemo(
     () => buildQuery(filters, pageNumber),
@@ -223,16 +227,59 @@ export default function ModeratorCommunityPage() {
     setFilters(DEFAULT_FILTERS);
   };
 
-  const handleHide = async (report: CommunityFloodReport) => {
+  const handleHide = (report: CommunityFloodReport) => {
     const statusRaw = String(report.status ?? '').toLowerCase();
     if (statusRaw === 'hidden' || String(report.status ?? '') === '2') return;
-    const ok = window.confirm('Bạn có chắc muốn ẩn bài phản ánh này không?');
-    if (!ok) return;
-    await hideMutation.mutateAsync(report.id);
+    setPendingHideReport(report);
+    setHideConfirmOpen(true);
   };
 
   return (
     <div className='space-y-4'>
+      <Modal
+        title='Ẩn bài phản ánh'
+        description={
+          pendingHideReport
+            ? `Bài phản ánh sẽ bị chuyển sang trạng thái "Đã ẩn" và không còn hiển thị cho người dùng.`
+            : 'Bài phản ánh sẽ bị chuyển sang trạng thái "Đã ẩn".'
+        }
+        isOpen={hideConfirmOpen}
+        onClose={() => {
+          if (hideMutation.isPending) return;
+          setHideConfirmOpen(false);
+          setPendingHideReport(null);
+        }}
+      >
+        <div className='flex w-full items-center justify-end gap-2 pt-4'>
+          <Button
+            variant='outline'
+            onClick={() => {
+              if (hideMutation.isPending) return;
+              setHideConfirmOpen(false);
+              setPendingHideReport(null);
+            }}
+            disabled={hideMutation.isPending}
+          >
+            Hủy
+          </Button>
+          <Button
+            variant='destructive'
+            onClick={async () => {
+              if (!pendingHideReport) return;
+              try {
+                await hideMutation.mutateAsync(pendingHideReport.id);
+              } finally {
+                setHideConfirmOpen(false);
+                setPendingHideReport(null);
+              }
+            }}
+            disabled={hideMutation.isPending || !pendingHideReport}
+          >
+            {hideMutation.isPending ? 'Đang ẩn...' : 'Ẩn bài'}
+          </Button>
+        </div>
+      </Modal>
+
       <Card>
         <CardContent className='flex flex-wrap items-center justify-between gap-3 p-4'>
           <div>
@@ -413,7 +460,7 @@ export default function ModeratorCommunityPage() {
               hiding={
                 hideMutation.isPending && hideMutation.variables === report.id
               }
-              onHide={() => void handleHide(report)}
+              onHide={() => handleHide(report)}
               reporterUsersMap={reporterUsersQuery.data}
             />
           ))}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -17,9 +17,13 @@ import {
   Newspaper,
   ChevronDown,
   Wallet,
-  ServerCog
+  Activity,
+  ScrollText,
+  ListTodo,
+  MessagesSquare
 } from 'lucide-react';
 
+import { useHasAnyRole, useHasRole } from '@/components/guards/RoleGuard';
 import { useAppStore } from '@/libs/store';
 import { cn } from '@/libs/utils';
 
@@ -40,86 +44,53 @@ type NavGroup = {
 
 type NavItem = NavLink | NavGroup;
 
-const navItemsAdmin: NavItem[] = [
-  {
-    type: 'link',
-    label: 'Bảng Điều Khiển',
-    href: '/admin',
-    icon: LayoutDashboard,
-    exact: true
-  },
-  {
-    type: 'link',
-    label: 'Lịch Sử Ngập',
-    href: '/admin/flood-history',
-    icon: History
-  },
-  {
-    type: 'link',
-    label: 'Người Dùng & Vai Trò',
-    href: '/admin/users',
-    icon: Users
-  },
-  {
-    type: 'group',
-    label: 'Thanh Toán & Gói',
-    icon: Wallet,
-    children: [
-      {
-        label: 'Gói Đăng Ký',
-        href: '/admin/plan-subscriptions',
-        icon: CreditCard
-      },
-      {
-        label: 'Khiếu Nại Gói',
-        href: '/admin/subscription-disputes',
-        icon: MessageSquareWarning
-      },
-      {
-        label: 'Giao Dịch Thanh Toán',
-        href: '/admin/billing-payment',
-        icon: Receipt
-      }
-    ]
-  },
-  {
-    type: 'link',
-    label: 'Trạm Quan Trắc',
-    href: '/admin/stations',
-    icon: SmartphoneNfc
-  },
-  //              Tạm thời cmt code về role của Admin
-  // {
-  //   type: 'group',
-  //   label: 'Cảnh báo & tin',
-  //   icon: BellRing,
-  //   children: [
-  //     {
-  //       label: 'Mẫu Cảnh Báo',
-  //       href: '/admin/alerts',
-  //       icon: BellRing
-  //     },
-  //     {
-  //       label: 'Tin Tức',
-  //       href: '/admin/news',
-  //       icon: Newspaper
-  //     }
-  //   ]
-  // },
-  { type: 'link', label: 'Bản Đồ & Vùng', href: '/admin/zones', icon: MapIcon },
-  {
-    type: 'link',
-    label: 'Logs Hệ Thống',
-    href: '/admin/operational-logs',
-    icon: ServerCog
-  },
-  {
-    type: 'link',
-    label: 'Tác Vụ',
-    href: '/admin/tasks',
-    icon: ServerCog
-  }
-];
+const adminNavUsersLink: NavLink = {
+  type: 'link',
+  label: 'Người Dùng & Vai Trò',
+  href: '/admin/users',
+  icon: Users
+};
+
+const adminNavPaymentGroup: NavGroup = {
+  type: 'group',
+  label: 'Thanh Toán & Gói',
+  icon: Wallet,
+  children: [
+    {
+      label: 'Gói Đăng Ký',
+      href: '/admin/plan-subscriptions',
+      icon: CreditCard
+    },
+    {
+      label: 'Khiếu Nại Gói',
+      href: '/admin/subscription-disputes',
+      icon: MessageSquareWarning
+    },
+    {
+      label: 'Giao Dịch Thanh Toán',
+      href: '/admin/billing-payment',
+      icon: Receipt
+    }
+  ]
+};
+
+const adminNavLogsTasksGroup: NavGroup = {
+  type: 'group',
+  label: 'Logs & Tác Vụ',
+  icon: Activity,
+  children: [
+    {
+      label: 'Logs Hệ Thống',
+      href: '/admin/operational-logs',
+      icon: ScrollText
+    },
+    {
+      label: 'Tác Vụ',
+      href: '/admin/tasks',
+      icon: ListTodo
+    }
+  ]
+};
 
 const navItemsModerator: NavItem[] = [
   {
@@ -145,7 +116,7 @@ const navItemsModerator: NavItem[] = [
     type: 'link',
     label: 'Cộng Đồng',
     href: '/moderator/community',
-    icon: SmartphoneNfc
+    icon: MessagesSquare
   },
   {
     type: 'group',
@@ -169,12 +140,6 @@ const navItemsModerator: NavItem[] = [
     label: 'Bản Đồ & Vùng',
     href: '/moderator/zones',
     icon: MapIcon
-  },
-  {
-    type: 'link',
-    label: 'Tác Vụ',
-    href: '/moderator/tasks',
-    icon: ServerCog
   }
 ];
 
@@ -182,20 +147,69 @@ function isGroupActive(group: NavGroup, pathname: string) {
   return group.children.some((c) => pathname.startsWith(c.href));
 }
 
+function buildAdminNavItems(
+  showUsersLink: boolean,
+  showLogsTasksGroup: boolean
+): NavItem[] {
+  const items: NavItem[] = [
+    {
+      type: 'link',
+      label: 'Bảng Điều Khiển',
+      href: '/admin',
+      icon: LayoutDashboard,
+      exact: true
+    },
+    {
+      type: 'link',
+      label: 'Lịch Sử Ngập',
+      href: '/admin/flood-history',
+      icon: History
+    }
+  ];
+
+  if (showUsersLink) {
+    items.push(adminNavUsersLink);
+  }
+
+  items.push(
+    adminNavPaymentGroup,
+    {
+      type: 'link',
+      label: 'Trạm Quan Trắc',
+      href: '/admin/stations',
+      icon: SmartphoneNfc
+    },
+    {
+      type: 'link',
+      label: 'Bản Đồ & Vùng',
+      href: '/admin/zones',
+      icon: MapIcon
+    }
+  );
+
+  if (showLogsTasksGroup) {
+    items.push(adminNavLogsTasksGroup);
+  }
+
+  return items;
+}
+
 export const Sidebar = () => {
   const { isSidebarOpen, toggleSidebar } = useAppStore();
   const pathname = usePathname();
   const isModeratorPortal = pathname.startsWith('/moderator');
-  const navItems = isModeratorPortal ? navItemsModerator : navItemsAdmin;
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
-    const initial = new Set<string>();
-    for (const item of navItems) {
-      if (item.type === 'group' && isGroupActive(item, pathname)) {
-        initial.add(item.label);
-      }
+
+  const isSuperAdmin = useHasRole('SUPERADMIN');
+  const showAdminOpsNav = useHasAnyRole(['ADMIN', 'SUPERADMIN']);
+
+  const navItems = useMemo(() => {
+    if (isModeratorPortal) {
+      return navItemsModerator;
     }
-    return initial;
-  });
+    return buildAdminNavItems(isSuperAdmin, showAdminOpsNav);
+  }, [isModeratorPortal, isSuperAdmin, showAdminOpsNav]);
+
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
 
   const toggleGroup = (label: string) => {
     setOpenGroups((prev) => {
@@ -230,7 +244,7 @@ export const Sidebar = () => {
         });
       }
     }
-  }, [pathname]);
+  }, [pathname, navItems]);
 
   const renderLink = (item: Omit<NavLink, 'type'>, indent = false) => {
     const isActive = item.exact

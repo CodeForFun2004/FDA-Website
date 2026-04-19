@@ -16,7 +16,9 @@ import { generateMockStations } from '@/features/stations/mocks/stations-mock';
 
 import {
   StationSummaryCards,
-  StationLocationSection
+  StationLocationSection,
+  StationRealtimeStatus,
+  StationComponentsReadonly
 } from '@/features/stations/components/station-detail';
 
 interface StationDetailViewProps {
@@ -152,13 +154,22 @@ export default function StationDetailView({
         </div>
       </div>
 
-      <StationSummaryCards
-        station={station}
-        stationStatus={stationStatus}
-        onRefreshStatus={() => void refreshStationStatus()}
-      />
+      <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+        <div className='space-y-6 lg:col-span-2'>
+          <StationSummaryCards
+            station={station}
+            stationStatus={stationStatus}
+            onRefreshStatus={() => void refreshStationStatus()}
+          />
 
-      <StationLocationSection station={station} />
+          <StationLocationSection station={station} />
+        </div>
+
+        <aside className='space-y-6 lg:sticky lg:top-6 lg:col-span-1 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto'>
+          <StationRealtimeStatus station={station} />
+          <StationComponentsReadonly stationId={station.id} />
+        </aside>
+      </div>
     </div>
   );
 }

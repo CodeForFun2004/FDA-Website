@@ -30,9 +30,9 @@ import { toast } from 'sonner';
 
 // --------------- schema ---------------
 const schema = z.object({
-  administrativeAreaId: z.string().min(1, 'Area is required'),
-  startTime: z.string().min(1, 'Start time is required'),
-  endTime: z.string().min(1, 'End time is required'),
+  administrativeAreaId: z.string().min(1, 'Khu vực là bắt buộc.'),
+  startTime: z.string().min(1, 'Thời điểm bắt đầu là bắt buộc.'),
+  endTime: z.string().min(1, 'Thời điểm kết thúc là bắt buộc.'),
   peakLevel: z.preprocess(
     (v) => (v === '' || v === null || v === undefined ? undefined : Number(v)),
     z.number().min(0).optional()
@@ -270,18 +270,18 @@ export function FloodEventDialog({
               onClick={() => handleClose(false)}
               disabled={loading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type='submit' disabled={loading} className='gap-2'>
               {loading ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  {isEdit ? 'Saving…' : 'Creating…'}
+                  {isEdit ? 'Đang lưu…' : 'Đang tạo…'}
                 </>
               ) : isEdit ? (
                 <>
                   <IconEdit className='h-4 w-4' />
-                  Save changes
+                  Lưu thay đổi
                 </>
               ) : (
                 <>

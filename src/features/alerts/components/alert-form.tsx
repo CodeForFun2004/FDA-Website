@@ -22,8 +22,8 @@ const toNumberOrUndefined = (v: unknown) => {
 };
 
 const formSchema = z.object({
-  code: z.string().min(2, { message: 'Code must be at least 2 characters.' }),
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  code: z.string().min(2, { message: 'Mã phải có ít nhất 2 ký tự.' }),
+  name: z.string().min(2, { message: 'Tên phải có ít nhất 2 ký tự.' }),
   locationDesc: z.string().optional().nullable(),
   roadName: z.string().optional().nullable(),
   direction: z.string().optional().nullable(),
@@ -202,7 +202,7 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='thresholdWarning'
-              label='Threshold Warning'
+              label='Ngưỡng cảnh báo'
               placeholder='0.5'
               type='number'
               step='0.0001'
@@ -212,7 +212,7 @@ export default function StationForm({
             <FormInput
               control={formControl}
               name='thresholdCritical'
-              label='Threshold Critical'
+              label='Ngưỡng nghiêm trọng'
               placeholder='1.2'
               type='number'
               step='0.0001'
@@ -221,7 +221,7 @@ export default function StationForm({
           </div>
 
           <Button type='submit'>
-            {initialData?.id ? 'Update Station' : 'Create Station'}
+            {initialData?.id ? 'Cập nhật trạm' : 'Tạo trạm'}
           </Button>
         </Form>
       </CardContent>

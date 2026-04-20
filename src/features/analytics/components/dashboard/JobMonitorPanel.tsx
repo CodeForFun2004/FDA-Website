@@ -32,7 +32,7 @@ function fmtMs(ms?: number | null) {
 
 function fmtNum(n?: number | null) {
   if (n === null || n === undefined) return '—';
-  return Intl.NumberFormat('en-US').format(n);
+  return Intl.NumberFormat('vi-VN').format(n);
 }
 
 async function copy(text: string) {

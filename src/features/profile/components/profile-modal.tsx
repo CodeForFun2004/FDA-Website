@@ -381,7 +381,7 @@ export function ProfileModal({
               type='button'
               onClick={() => onOpenChange(false)}
               className='hover:bg-muted flex h-10 w-10 items-center justify-center rounded-xl transition'
-              aria-label='Close'
+              aria-label='Đóng'
             >
               <X className='h-5 w-5' />
             </button>

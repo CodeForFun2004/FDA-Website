@@ -98,7 +98,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     id: 'code',
     accessorKey: 'code',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Code' />
+      <DataTableColumnHeader column={column} title='Mã' />
     ),
     cell: ({ cell }) => (
       <div className='text-primary font-mono font-semibold tracking-wide'>
@@ -107,7 +107,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     ),
     enableColumnFilter: false,
     meta: {
-      viewLabel: 'Code'
+      viewLabel: 'Mã'
     }
   },
 
@@ -116,7 +116,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     id: 'name',
     accessorKey: 'name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Plan Name' />
+      <DataTableColumnHeader column={column} title='Tên gói' />
     ),
     cell: ({ row }) => (
       <div className='flex flex-col gap-0.5'>
@@ -131,9 +131,9 @@ export const columns: ColumnDef<PricingPlan>[] = [
       </div>
     ),
     meta: {
-      label: 'Search',
-      viewLabel: 'Plan Name',
-      placeholder: 'Tìm kiếm code, plan name ...',
+      label: 'Tìm kiếm',
+      viewLabel: 'Tên gói',
+      placeholder: 'Tìm theo mã, tên gói…',
       variant: 'text'
     },
     enableColumnFilter: true
@@ -144,7 +144,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     id: 'priceMonth',
     accessorKey: 'priceMonth',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Price / Month' />
+      <DataTableColumnHeader column={column} title='Giá / tháng' />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
@@ -159,7 +159,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     },
     enableColumnFilter: false,
     meta: {
-      viewLabel: 'Price / Month'
+      viewLabel: 'Giá / tháng'
     }
   },
 
@@ -168,7 +168,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     id: 'priceYear',
     accessorKey: 'priceYear',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Price / Year' />
+      <DataTableColumnHeader column={column} title='Giá / năm' />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
@@ -180,7 +180,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     },
     enableColumnFilter: false,
     meta: {
-      viewLabel: 'Price / Year'
+      viewLabel: 'Giá / năm'
     }
   },
 
@@ -189,7 +189,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     id: 'tier',
     accessorKey: 'tier',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Tier' />
+      <DataTableColumnHeader column={column} title='Hạng' />
     ),
     cell: ({ cell }) => {
       const config = getTierConfig(cell.getValue());
@@ -205,7 +205,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     },
     enableColumnFilter: false,
     meta: {
-      viewLabel: 'Tier'
+      viewLabel: 'Hạng'
     }
   },
 
@@ -214,31 +214,31 @@ export const columns: ColumnDef<PricingPlan>[] = [
     id: 'isActive',
     accessorKey: 'isActive',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Status' />
+      <DataTableColumnHeader column={column} title='Trạng thái' />
     ),
     cell: ({ cell }) => {
       const isActive = cell.getValue() as boolean;
       return isActive ? (
         <Badge
           variant='outline'
-          className='gap-1.5 border-emerald-500/20 bg-emerald-500/10 font-medium text-emerald-700 dark:text-emerald-400'
+          className='gap-1.5 border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium whitespace-nowrap text-emerald-700 dark:text-emerald-400'
         >
           <CheckCircle2 className='h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400' />
-          Active
+          Hoạt động
         </Badge>
       ) : (
         <Badge
           variant='outline'
-          className='gap-1.5 border-slate-300/50 bg-slate-100 font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+          className='gap-1.5 border-slate-300/60 bg-slate-100 px-2.5 py-1 text-xs font-medium whitespace-nowrap text-slate-600 dark:bg-slate-800 dark:text-slate-300'
         >
           <XCircle className='h-3.5 w-3.5' />
-          Inactive
+          Không hoạt động
         </Badge>
       );
     },
     enableColumnFilter: false,
     meta: {
-      viewLabel: 'Status'
+      viewLabel: 'Trạng thái'
     }
   },
 
@@ -248,7 +248,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     accessorKey: 'features',
     header: () => (
       <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase'>
-        Features
+        Tính năng
       </div>
     ),
     cell: ({ row }) => {
@@ -267,7 +267,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
             </TooltipTrigger>
             <TooltipContent className='max-w-xs' align='center'>
               {count === 0 ? (
-                <p className='text-xs'>No features defined</p>
+                <p className='text-xs'>Chưa có tính năng</p>
               ) : (
                 <ul className='space-y-1'>
                   {features.map((f) => (
@@ -285,30 +285,9 @@ export const columns: ColumnDef<PricingPlan>[] = [
     },
     enableColumnFilter: false,
     meta: {
-      viewLabel: 'Features'
+      viewLabel: 'Tính năng'
     },
     size: 90
-  },
-
-  // Sort Order
-  {
-    id: 'sortOrder',
-    accessorKey: 'sortOrder',
-    header: () => (
-      <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase'>
-        Order
-      </div>
-    ),
-    cell: ({ cell }) => (
-      <div className='text-muted-foreground text-center text-sm tabular-nums'>
-        {cell.getValue() as number}
-      </div>
-    ),
-    enableColumnFilter: false,
-    meta: {
-      viewLabel: 'Order'
-    },
-    size: 70
   },
 
   // Actions

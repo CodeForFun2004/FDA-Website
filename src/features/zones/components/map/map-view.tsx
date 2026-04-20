@@ -31,6 +31,9 @@ import { AreaDetailCard } from '../area-detail-card';
 import { CommunityReportCard } from '../community-report-card';
 import LegendFlood from './legend-flood';
 import type { CommunityFloodReport } from '../../api/flood-reports-community.api';
+import { StationHoverCard } from './station-hover-card';
+import { useStationRealtimeFromMap } from '@/features/stations/hooks/useStationRealtimeFromMap';
+import type { FloodFeatureProperties } from '../../api/flood-severity.api';
 
 // ✅ Flood roads overlay (new)
 import {
@@ -67,7 +70,35 @@ export default function MapView({ prefs }: Props) {
   }, [prefs]);
 
   // Interaction state
-  const [selectedFeature, setSelectedFeature] = React.useState<any>(null);
+  const [selectedFeature, setSelectedFeature] = React.useState<{
+    properties: any;
+    stationLike: {
+      id: string;
+      code: string;
+      latitude: number;
+      longitude: number;
+    } | null;
+  } | null>(null);
+  const selectedStationIdRef = React.useRef<string | null>(null);
+  const hoveredStationIdRef = React.useRef<string | null>(null);
+  const hoverRafRef = React.useRef<number | null>(null);
+  const hoverPointRef = React.useRef<{ x: number; y: number } | null>(null);
+  const [hoverUi, setHoverUi] = React.useState<{
+    point: { x: number; y: number };
+    properties: FloodFeatureProperties;
+    stationLike: {
+      id: string;
+      code: string;
+      latitude: number;
+      longitude: number;
+    } | null;
+  } | null>(null);
+  const [hoverStationStable, setHoverStationStable] = React.useState<{
+    id: string;
+    code: string;
+    latitude: number;
+    longitude: number;
+  } | null>(null);
   const [selectedAreaFeature, setSelectedAreaFeature] =
     React.useState<any>(null);
   const [satelliteOverlayFc, setSatelliteOverlayFc] =
@@ -334,6 +365,26 @@ export default function MapView({ prefs }: Props) {
     data: floodGeojson
   });
 
+  // Debounce hover realtime fetch to avoid spamming network while mouse moves across markers.
+  React.useEffect(() => {
+    if (!hoverUi?.stationLike) {
+      setHoverStationStable(null);
+      return;
+    }
+    const t = setTimeout(() => {
+      setHoverStationStable(hoverUi.stationLike);
+    }, 220);
+    return () => clearTimeout(t);
+  }, [hoverUi?.stationLike]);
+
+  const stationRealtime = useStationRealtimeFromMap({
+    station: hoverStationStable,
+    enabled: !!hoverStationStable,
+    zoom: 14,
+    radiusKm: 2,
+    pollMs: 30000
+  });
+
   useAdministrativeAreasLayer({
     mapRef,
     enabled: prefs.overlays.adminAreas,
@@ -370,6 +421,18 @@ export default function MapView({ prefs }: Props) {
           map.getLayer(AREA_FILL_LAYER_ID)
         ) {
           map.moveLayer(COMMUNITY_REPORTS_LAYER_ID, AREA_FILL_LAYER_ID);
+        }
+        if (
+          map.getLayer('flood-zone-fill') &&
+          map.getLayer(COMMUNITY_REPORTS_LAYER_ID)
+        ) {
+          map.moveLayer('flood-zone-fill', COMMUNITY_REPORTS_LAYER_ID);
+        }
+        if (
+          map.getLayer('flood-zone-outline') &&
+          map.getLayer(COMMUNITY_REPORTS_LAYER_ID)
+        ) {
+          map.moveLayer('flood-zone-outline', COMMUNITY_REPORTS_LAYER_ID);
         }
         if (
           map.getLayer(FLOOD_LAYER_ID) &&
@@ -414,7 +477,52 @@ export default function MapView({ prefs }: Props) {
       if (features && features.length > 0) {
         setSelectedAreaFeature(null);
         setSelectedCommunityReport(null);
-        setSelectedFeature(features[0].properties);
+        const f = features[0];
+        const props = f.properties;
+        const nextId =
+          String(props?.stationId ?? props?.id ?? '').trim() || null;
+        const nextCode =
+          String(props?.stationCode ?? props?.code ?? '').trim() || '';
+        const coords = (f as any)?.geometry?.coordinates as
+          | [number, number]
+          | undefined;
+        const longitude = Array.isArray(coords) ? Number(coords[0]) : NaN;
+        const latitude = Array.isArray(coords) ? Number(coords[1]) : NaN;
+
+        // Clear previous selected feature-state
+        const prevId = selectedStationIdRef.current;
+        if (prevId) {
+          try {
+            map.setFeatureState(
+              { source: 'flood-severity', id: prevId },
+              { selected: false }
+            );
+          } catch {
+            /* ignore */
+          }
+        }
+        selectedStationIdRef.current = nextId;
+        if (nextId) {
+          try {
+            map.setFeatureState(
+              { source: 'flood-severity', id: nextId },
+              { selected: true }
+            );
+          } catch {
+            /* ignore */
+          }
+        }
+
+        setSelectedFeature({
+          properties: props,
+          stationLike:
+            nextId &&
+            nextCode &&
+            Number.isFinite(latitude) &&
+            Number.isFinite(longitude)
+              ? { id: nextId, code: nextCode, latitude, longitude }
+              : null
+        });
       }
     };
 
@@ -476,6 +584,160 @@ export default function MapView({ prefs }: Props) {
     communityReportsQuery.data
   ]);
 
+  // Hover preview for station markers (desktop only behavior)
+  React.useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const clearHover = () => {
+      const prevId = hoveredStationIdRef.current;
+      if (prevId) {
+        try {
+          map.setFeatureState(
+            { source: 'flood-severity', id: prevId },
+            { hover: false }
+          );
+        } catch {
+          /* ignore */
+        }
+      }
+      hoveredStationIdRef.current = null;
+      setHoverUi(null);
+    };
+
+    if (!prefs.overlays.stations) {
+      clearHover();
+      return;
+    }
+
+    const scheduleHoverUiCommit = () => {
+      if (hoverRafRef.current != null) return;
+      hoverRafRef.current = requestAnimationFrame(() => {
+        hoverRafRef.current = null;
+        const p = hoverPointRef.current;
+        if (!p) return;
+        setHoverUi((prev) => (prev ? { ...prev, point: p } : prev));
+      });
+    };
+
+    const onMove = (e: any) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: [FLOOD_LAYER_ID]
+      });
+      if (!features?.length) {
+        clearHover();
+        return;
+      }
+
+      const f = features[0] as any;
+      const props = (f.properties ?? {}) as FloodFeatureProperties;
+      const stationId = String(props.stationId ?? props.id ?? '').trim();
+      const stationCode = String(props.stationCode ?? props.code ?? '').trim();
+      const coords = f.geometry?.coordinates as [number, number] | undefined;
+      const longitude = Array.isArray(coords) ? Number(coords[0]) : NaN;
+      const latitude = Array.isArray(coords) ? Number(coords[1]) : NaN;
+
+      // Update hover feature-state only when station changes
+      if (stationId && stationId !== hoveredStationIdRef.current) {
+        const prevId = hoveredStationIdRef.current;
+        if (prevId) {
+          try {
+            map.setFeatureState(
+              { source: 'flood-severity', id: prevId },
+              { hover: false }
+            );
+          } catch {
+            /* ignore */
+          }
+        }
+        hoveredStationIdRef.current = stationId;
+        try {
+          map.setFeatureState(
+            { source: 'flood-severity', id: stationId },
+            { hover: true }
+          );
+        } catch {
+          /* ignore */
+        }
+
+        if (
+          Number.isFinite(latitude) &&
+          Number.isFinite(longitude) &&
+          stationId &&
+          stationCode
+        ) {
+          setHoverUi({
+            point: { x: e.point.x, y: e.point.y },
+            properties: props,
+            stationLike: {
+              id: stationId,
+              code: stationCode,
+              latitude,
+              longitude
+            }
+          });
+        } else {
+          setHoverUi({
+            point: { x: e.point.x, y: e.point.y },
+            properties: props,
+            stationLike: null
+          });
+        }
+      }
+
+      hoverPointRef.current = { x: e.point.x, y: e.point.y };
+      scheduleHoverUiCommit();
+    };
+
+    const onLeave = () => clearHover();
+
+    map.on('mousemove', FLOOD_LAYER_ID, onMove);
+    map.on('mouseleave', FLOOD_LAYER_ID, onLeave);
+
+    return () => {
+      map.off('mousemove', FLOOD_LAYER_ID, onMove);
+      map.off('mouseleave', FLOOD_LAYER_ID, onLeave);
+      if (hoverRafRef.current != null)
+        cancelAnimationFrame(hoverRafRef.current);
+      hoverRafRef.current = null;
+    };
+  }, [prefs.overlays.stations]);
+
+  // When turning off stations overlay, clear selection + feature-states.
+  React.useEffect(() => {
+    if (prefs.overlays.stations) return;
+    const map = mapRef.current;
+    if (map) {
+      const selectedId = selectedStationIdRef.current;
+      if (selectedId) {
+        try {
+          map.setFeatureState(
+            { source: 'flood-severity', id: selectedId },
+            { selected: false }
+          );
+        } catch {
+          /* ignore */
+        }
+      }
+      const hoverId = hoveredStationIdRef.current;
+      if (hoverId) {
+        try {
+          map.setFeatureState(
+            { source: 'flood-severity', id: hoverId },
+            { hover: false }
+          );
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    selectedStationIdRef.current = null;
+    hoveredStationIdRef.current = null;
+    setSelectedFeature(null);
+    setHoverUi(null);
+    setHoverStationStable(null);
+  }, [prefs.overlays.stations]);
+
   React.useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -505,10 +767,55 @@ export default function MapView({ prefs }: Props) {
       {selectedFeature && prefs.overlays.stations && (
         <div className='animate-in slide-in-from-left-4 fade-in absolute top-5 left-4 z-50 duration-300'>
           <FloodDetailCard
-            properties={selectedFeature}
-            onClose={() => setSelectedFeature(null)}
+            properties={selectedFeature.properties}
+            stationLike={selectedFeature.stationLike}
+            onClose={() => {
+              const map = mapRef.current;
+              const prevId = selectedStationIdRef.current;
+              if (map && prevId) {
+                try {
+                  map.setFeatureState(
+                    { source: 'flood-severity', id: prevId },
+                    { selected: false }
+                  );
+                } catch {
+                  /* ignore */
+                }
+              }
+              selectedStationIdRef.current = null;
+              setSelectedFeature(null);
+            }}
           />
         </div>
+      )}
+
+      {hoverUi && prefs.overlays.stations && (
+        <StationHoverCard
+          x={hoverUi.point.x}
+          y={hoverUi.point.y}
+          properties={hoverUi.properties}
+          realtime={{
+            isLoading: stationRealtime.isLoading,
+            error: stationRealtime.error,
+            refreshedAt: stationRealtime.refreshedAt,
+            waterLevel:
+              stationRealtime.properties?.waterLevel ??
+              hoverUi.properties.waterLevel,
+            unit: stationRealtime.properties?.unit ?? hoverUi.properties.unit,
+            measuredAt:
+              stationRealtime.properties?.measuredAt ??
+              hoverUi.properties.measuredAt,
+            stationStatus:
+              stationRealtime.properties?.stationStatus ??
+              hoverUi.properties.stationStatus,
+            severity:
+              stationRealtime.properties?.severity ??
+              (hoverUi.properties as any).severity,
+            alertLevel:
+              stationRealtime.properties?.alertLevel ??
+              hoverUi.properties.alertLevel
+          }}
+        />
       )}
       {selectedAreaFeature && prefs.overlays.adminAreas && (
         <div className='animate-in slide-in-from-left-4 fade-in absolute top-5 left-4 z-50 duration-300'>

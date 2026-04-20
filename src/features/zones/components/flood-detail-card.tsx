@@ -6,21 +6,42 @@ import { Card, Button } from '@/components/ui/common';
 import { AlertTriangle, Droplets, Clock, Activity, MapPin } from 'lucide-react';
 import type { FloodStationProperties } from '@/features/zones/api/flood-severity.api';
 import { usePathname } from 'next/navigation';
+import { useStationRealtimeFromMap } from '@/features/stations/hooks/useStationRealtimeFromMap';
+import { t } from '@/locales/t';
 
 export type FloodFeatureProps = {
   properties: FloodStationProperties;
   onClose: () => void;
+  stationLike?: {
+    id: string;
+    code: string;
+    latitude: number;
+    longitude: number;
+  } | null;
 };
 
-export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
+export function FloodDetailCard({
+  properties,
+  onClose,
+  stationLike = null
+}: FloodFeatureProps) {
   const pathname = usePathname();
+  const realtime = useStationRealtimeFromMap({
+    station: stationLike,
+    enabled: !!stationLike,
+    zoom: 14,
+    radiusKm: 2,
+    pollMs: 15000
+  });
+
+  const live = realtime.properties ?? properties;
   const severityKey =
-    properties.severity ??
-    (properties.severityLevel === 3
+    live.severity ??
+    (live.severityLevel === 3
       ? 'critical'
-      : properties.severityLevel === 2
+      : live.severityLevel === 2
         ? 'warning'
-        : properties.severityLevel === 1
+        : live.severityLevel === 1
           ? 'caution'
           : 'safe');
 
@@ -35,35 +56,35 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
     }
   > = {
     critical: {
-      label: properties.alertLevel ?? 'CRITICAL',
+      label: live.alertLevel ?? 'CRITICAL',
       color: 'text-red-600',
       bg: 'bg-red-500',
       softBg: 'bg-red-50',
       icon: null
     },
     warning: {
-      label: properties.alertLevel ?? 'WARNING',
+      label: live.alertLevel ?? 'WARNING',
       color: 'text-orange-600',
       bg: 'bg-orange-500',
       softBg: 'bg-orange-50',
       icon: <AlertTriangle className='mr-1 h-3 w-3' />
     },
     caution: {
-      label: properties.alertLevel ?? 'CAUTION',
+      label: live.alertLevel ?? 'CAUTION',
       color: 'text-yellow-600',
       bg: 'bg-yellow-500',
       softBg: 'bg-yellow-50',
       icon: <Activity className='mr-1 h-3 w-3' />
     },
     safe: {
-      label: properties.alertLevel ?? 'SAFE',
+      label: live.alertLevel ?? 'SAFE',
       color: 'text-emerald-600',
       bg: 'bg-emerald-500',
       softBg: 'bg-emerald-50',
       icon: <Droplets className='mr-1 h-3 w-3' />
     },
     unknown: {
-      label: properties.alertLevel ?? 'NO DATA',
+      label: live.alertLevel ?? 'NO DATA',
       color: 'text-slate-600',
       bg: 'bg-slate-400',
       softBg: 'bg-slate-50',
@@ -72,8 +93,8 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
   };
 
   const config = severityConfig[severityKey] ?? severityConfig.unknown;
-  const displayStationCode = properties.stationCode ?? properties.code ?? 'N/A';
-  const unit = properties.unit ?? 'cm';
+  const displayStationCode = live.stationCode ?? live.code ?? 'N/A';
+  const unit = live.unit ?? 'cm';
 
   const formatNumber = (value: number | null | undefined, digits = 1) => {
     if (value === null || value === undefined || !Number.isFinite(value))
@@ -83,8 +104,8 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
   };
 
   // Format date
-  const formattedDate = properties.measuredAt
-    ? new Date(properties.measuredAt).toLocaleString('vi-VN', {
+  const formattedDate = live.measuredAt
+    ? new Date(live.measuredAt).toLocaleString('vi-VN', {
         hour: '2-digit',
         minute: '2-digit',
         day: '2-digit',
@@ -92,7 +113,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
       })
     : 'N/A';
 
-  const stationDetailId = properties.stationId ?? properties.id ?? null;
+  const stationDetailId = live.stationId ?? live.id ?? null;
   const isModeratorPortal = pathname.startsWith('/moderator');
   const stationDetailBasePath = isModeratorPortal ? '/moderator' : '/admin';
 
@@ -104,7 +125,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
           <div className='flex items-start justify-between'>
             <div className='min-w-0 flex-1'>
               <h2 className='text-lg leading-tight font-bold text-slate-800'>
-                {properties.stationName || `Trạm ${displayStationCode}`}
+                {live.stationName || `Trạm ${displayStationCode}`}
               </h2>
               <div className='mt-1.5 flex items-center gap-2 text-[10px]'>
                 <span className='font-semibold text-slate-500'>
@@ -112,7 +133,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
                 </span>
                 <span className='text-slate-300'>•</span>
                 <span className='font-medium text-slate-500 uppercase'>
-                  {properties.stationStatus ?? 'unknown'}
+                  {live.stationStatus ?? 'unknown'}
                 </span>
               </div>
             </div>
@@ -129,14 +150,39 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
 
         {/* Content Body */}
         <div className='px-4 pb-4'>
+          {stationLike ? (
+            <div className='mb-2 flex items-center justify-between text-[10px] text-slate-500'>
+              <span>
+                Realtime:{' '}
+                {realtime.isLoading
+                  ? 'Đang cập nhật…'
+                  : realtime.error
+                    ? 'Không lấy được'
+                    : realtime.refreshedAt
+                      ? new Date(realtime.refreshedAt).toLocaleTimeString(
+                          'vi-VN',
+                          { hour: '2-digit', minute: '2-digit' }
+                        )
+                      : '—'}
+              </span>
+              <button
+                type='button'
+                className='rounded-md bg-slate-100 px-2 py-1 font-medium text-slate-600 hover:bg-slate-200'
+                onClick={realtime.refresh}
+                disabled={realtime.isLoading}
+              >
+                {t('common.refresh')}
+              </button>
+            </div>
+          ) : null}
           <div className='mb-3 flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-xs text-slate-600'>
             <MapPin className='mt-0.5 h-4 w-4 text-slate-500' />
             <div className='min-w-0'>
               <div className='font-semibold text-slate-700'>
-                {properties.roadName ?? 'Không có thông tin đường'}
+                {live.roadName ?? 'Không có thông tin đường'}
               </div>
               <div className='text-slate-500'>
-                {properties.locationDesc ?? 'Không có mô tả vị trí'}
+                {live.locationDesc ?? 'Không có mô tả vị trí'}
               </div>
             </div>
           </div>
@@ -148,7 +194,7 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
               <p className='text-[10px] text-slate-500'>Mực nước</p>
               <div className='flex items-baseline gap-1'>
                 <span className={`text-3xl font-bold ${config.color}`}>
-                  {formatNumber(properties.waterLevel, 1)}
+                  {formatNumber(live.waterLevel, 1)}
                 </span>
                 <span className='text-xs font-semibold text-slate-500'>
                   {unit}
@@ -172,13 +218,13 @@ export function FloodDetailCard({ properties, onClose }: FloodFeatureProps) {
                 Chiều cao cảm biến
               </div>
               <div className='mt-1 text-lg font-semibold text-slate-800'>
-                {formatNumber(properties.sensorHeight, 0)} {unit}
+                {formatNumber(live.sensorHeight, 0)} {unit}
               </div>
             </div>
             <div className='rounded-xl bg-slate-50 p-3'>
               <div className='text-[10px] text-slate-500'>Khoảng cách</div>
               <div className='mt-1 text-lg font-semibold text-slate-800'>
-                {formatNumber(properties.distance, 1)} {unit}
+                {formatNumber(live.distance, 1)} {unit}
               </div>
             </div>
           </div>

@@ -307,13 +307,14 @@ export function FloodHistoryGraph({
                   key={index}
                   className='text-[10px] text-orange-600 dark:text-orange-400'
                 >
-                  {interval.start.toLocaleString()} →{' '}
-                  {interval.end.toLocaleString()} ({interval.durationMinutes}m)
+                  {interval.start.toLocaleString('vi-VN')} →{' '}
+                  {interval.end.toLocaleString('vi-VN')} (
+                  {interval.durationMinutes} phút)
                 </div>
               ))}
               {missingIntervals.length > 3 && (
                 <div className='text-[10px] text-orange-500'>
-                  +{missingIntervals.length - 3} more
+                  +{missingIntervals.length - 3} mục nữa
                 </div>
               )}
             </div>

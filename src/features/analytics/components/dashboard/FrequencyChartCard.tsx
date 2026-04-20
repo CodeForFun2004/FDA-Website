@@ -32,20 +32,20 @@ export function FrequencyChartCard(props: {
           <div className='rounded-md border p-3'>
             <div className='text-muted-foreground'>Tổng sự kiện</div>
             <div className='text-foreground mt-1 text-base font-semibold'>
-              {Intl.NumberFormat('en-US').format(totalEvents)}
+              {Intl.NumberFormat('vi-VN').format(totalEvents)}
             </div>
           </div>
           <div className='rounded-md border p-3'>
             <div className='text-muted-foreground'>Tổng vượt ngưỡng</div>
             <div className='text-foreground mt-1 text-base font-semibold'>
-              {Intl.NumberFormat('en-US').format(totalExceed)}
+              {Intl.NumberFormat('vi-VN').format(totalExceed)}
             </div>
           </div>
           <div className='rounded-md border p-3'>
             <div className='text-muted-foreground'>Trung bình / bước</div>
             <div className='text-foreground mt-1 text-base font-semibold'>
               {props.data.length
-                ? Intl.NumberFormat('en-US').format(
+                ? Intl.NumberFormat('vi-VN').format(
                     Math.round(totalEvents / props.data.length)
                   )
                 : '—'}
@@ -72,7 +72,7 @@ export function FrequencyChartCard(props: {
               <Recharts.CartesianGrid strokeDasharray='3 3' />
               <Recharts.XAxis
                 dataKey='timeBucket'
-                tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                tickFormatter={(v) => new Date(v).toLocaleDateString('vi-VN')}
                 minTickGap={24}
               />
               <Recharts.YAxis />

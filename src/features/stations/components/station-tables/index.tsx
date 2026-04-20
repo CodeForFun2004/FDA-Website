@@ -43,13 +43,6 @@ export function StationTable<TData, TValue>({
     debounceMs: 500
   });
 
-  console.log(
-    '[StationTable] data length',
-    data?.length,
-    'totalItems',
-    totalItems
-  );
-
   return (
     <>
       {canManageStations ? (
@@ -71,7 +64,7 @@ export function StationTable<TData, TValue>({
               size='sm'
             >
               <Plus className='h-4 w-4' />
-              Tạo Trạm
+              Tạo trạm
             </Button>
           ) : null}
         </DataTableToolbar>

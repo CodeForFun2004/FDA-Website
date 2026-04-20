@@ -130,7 +130,7 @@ export function PieGraph() {
                           y={viewBox.cy}
                           className='fill-foreground text-3xl font-bold'
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalVisitors.toLocaleString('vi-VN')}
                         </tspan>
                         <tspan
                           x={viewBox.cx}

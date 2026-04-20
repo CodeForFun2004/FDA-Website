@@ -114,10 +114,10 @@ export default function StationDetailView({
           <div className='flex items-center'>
             <AlertTriangle className='text-destructive mr-3 h-5 w-5 flex-shrink-0' />
             <p className='text-destructive text-sm font-medium'>
-              Station is currently offline. Last seen:{' '}
+              Trạm đang mất kết nối. Lần thấy gần nhất:{' '}
               {station.lastSeenAt
-                ? new Date(station.lastSeenAt).toLocaleString()
-                : 'unknown'}
+                ? new Date(station.lastSeenAt).toLocaleString('vi-VN')
+                : 'không xác định'}
             </p>
           </div>
         </div>
@@ -149,7 +149,9 @@ export default function StationDetailView({
           </div>
           <p className='text-muted-foreground mt-1 flex items-center pl-11'>
             <MapPin className='mr-1 h-4 w-4' />
-            {station.roadName || station.locationDesc || 'Unknown location'}
+            {station.roadName ||
+              station.locationDesc ||
+              'Chưa có thông tin vị trí'}
           </p>
         </div>
       </div>

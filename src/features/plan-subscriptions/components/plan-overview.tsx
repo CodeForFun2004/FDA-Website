@@ -23,7 +23,7 @@ export function PlanOverview({ plans }: PlanOverviewProps) {
 
   const stats = [
     {
-      label: 'Total Plans',
+      label: 'Tổng gói',
       value: totalPlans,
       icon: CreditCard,
       iconBg: 'bg-blue-500/10',
@@ -31,7 +31,7 @@ export function PlanOverview({ plans }: PlanOverviewProps) {
       trend: null
     },
     {
-      label: 'Active Plans',
+      label: 'Gói đang hoạt động',
       value: activePlans,
       icon: CheckCircle2,
       iconBg: 'bg-emerald-500/10',
@@ -39,7 +39,7 @@ export function PlanOverview({ plans }: PlanOverviewProps) {
       trend: null
     },
     {
-      label: 'Inactive Plans',
+      label: 'Gói không hoạt động',
       value: inactivePlans,
       icon: XCircle,
       iconBg: 'bg-slate-500/10',
@@ -47,7 +47,7 @@ export function PlanOverview({ plans }: PlanOverviewProps) {
       trend: null
     },
     {
-      label: 'Total Features',
+      label: 'Tổng tính năng',
       value: totalFeatures,
       icon: Sparkles,
       iconBg: 'bg-violet-500/10',

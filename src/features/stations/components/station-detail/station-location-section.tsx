@@ -17,7 +17,7 @@ export function StationLocationSection({
     <Card className='border-border bg-card overflow-hidden'>
       <CardHeader className='border-border flex flex-row items-center justify-between border-b px-4 py-3'>
         <CardTitle className='text-foreground text-sm font-semibold'>
-          Station Location
+          Vị trí trạm
         </CardTitle>
         <span className='text-muted-foreground text-xs'>
           {station.latitude.toFixed(4)}° N, {station.longitude.toFixed(4)}° E
@@ -26,7 +26,7 @@ export function StationLocationSection({
       <CardContent className='p-0'>
         <div className='bg-muted relative h-[min(28rem,55vh)] min-h-[22rem] w-full'>
           <iframe
-            title='Station map'
+            title='Bản đồ trạm'
             src={mapSrc}
             className='h-full w-full border-0'
             loading='lazy'
@@ -34,7 +34,9 @@ export function StationLocationSection({
           <div className='bg-card border-border absolute bottom-4 left-4 flex items-center gap-1.5 rounded-lg border px-3 py-2 shadow-lg'>
             <MapPin className='text-primary h-3.5 w-3.5' />
             <span className='text-foreground text-xs font-medium'>
-              {station.roadName || station.locationDesc || 'Unknown location'}
+              {station.roadName ||
+                station.locationDesc ||
+                'Chưa có thông tin vị trí'}
             </span>
           </div>
         </div>

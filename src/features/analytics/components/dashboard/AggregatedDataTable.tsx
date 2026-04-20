@@ -18,15 +18,15 @@ import type {
 } from '@/features/analytics/types/analytics.dashboard.types';
 
 function fmtNum(n: number) {
-  return Intl.NumberFormat('en-US').format(n);
+  return Intl.NumberFormat('vi-VN').format(n);
 }
 
 function fmtFloat(n: number) {
-  return Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n);
+  return Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(n);
 }
 
 function dt(iso: string) {
-  return new Date(iso).toLocaleString();
+  return new Date(iso).toLocaleString('vi-VN');
 }
 
 function makeColumns(metric: AnalyticsMetricType): ColumnDef<any>[] {
@@ -35,7 +35,7 @@ function makeColumns(metric: AnalyticsMetricType): ColumnDef<any>[] {
       {
         accessorKey: 'timeBucket',
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title='Bucket' />
+          <DataTableColumnHeader column={column} title='Mốc thời gian' />
         ),
         cell: ({ row }) => dt(row.original.timeBucket)
       },

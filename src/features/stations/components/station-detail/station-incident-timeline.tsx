@@ -109,7 +109,7 @@ export function StationIncidentTimeline({
             variant='ghost'
             className='text-primary w-full text-center text-sm font-medium'
           >
-            View all history
+            Xem toàn bộ lịch sử
           </Button>
         </div>
       </CardContent>

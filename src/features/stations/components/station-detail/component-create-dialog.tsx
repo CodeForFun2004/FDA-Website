@@ -26,17 +26,17 @@ import { getAccessToken } from '@/features/stations/utils/auth';
 
 const COMPONENT_TYPE_OPTIONS = [
   { label: 'ESP32 (MCU)', value: 'esp32' },
-  { label: 'Ultrasonic Sensor (SRT04)', value: 'srt04' },
-  { label: 'Temperature Sensor', value: 'temperature_sensor' },
-  { label: 'Battery', value: 'battery' },
-  { label: 'Speaker', value: 'speaker' },
+  { label: 'Cảm biến siêu âm (SRT04)', value: 'srt04' },
+  { label: 'Cảm biến nhiệt độ', value: 'temperature_sensor' },
+  { label: 'Pin', value: 'battery' },
+  { label: 'Loa', value: 'speaker' },
   { label: 'GSM Module', value: 'gsm_module' },
-  { label: 'Solar Panel', value: 'solar_panel' },
-  { label: 'Rain Sensor', value: 'rain_sensor' }
+  { label: 'Tấm pin năng lượng mặt trời', value: 'solar_panel' },
+  { label: 'Cảm biến mưa', value: 'rain_sensor' }
 ];
 
 const formSchema = z.object({
-  componentType: z.string().min(1, { message: 'Component type is required.' }),
+  componentType: z.string().min(1, { message: 'Loại thiết bị là bắt buộc.' }),
   name: z.string().optional().nullable(),
   model: z.string().optional().nullable(),
   serialNumber: z.string().optional().nullable(),

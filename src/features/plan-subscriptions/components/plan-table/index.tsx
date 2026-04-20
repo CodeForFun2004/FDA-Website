@@ -83,12 +83,12 @@ export function PlanTable({ data, totalItems }: PlanTableProps) {
               {showInactive ? (
                 <>
                   <EyeOff className='h-3.5 w-3.5' />
-                  Ẩn Inactive
+                  Ẩn gói không hoạt động
                 </>
               ) : (
                 <>
                   <Eye className='h-3.5 w-3.5' />
-                  Hiện Inactive
+                  Hiện gói không hoạt động
                 </>
               )}
             </Button>

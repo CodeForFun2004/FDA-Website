@@ -39,7 +39,7 @@ export async function StationOverview() {
             </div>
             <div>
               <div className='text-3xl font-bold'>{onlineCount}</div>
-              <p className='text-muted-foreground text-sm'>Online Stations</p>
+              <p className='text-muted-foreground text-sm'>Đang trực tuyến</p>
             </div>
           </CardContent>
         </Card>
@@ -51,7 +51,7 @@ export async function StationOverview() {
             </div>
             <div>
               <div className='text-3xl font-bold'>{offlineCount}</div>
-              <p className='text-muted-foreground text-sm'>Offline Stations</p>
+              <p className='text-muted-foreground text-sm'>Ngoại tuyến</p>
             </div>
           </CardContent>
         </Card>
@@ -63,7 +63,7 @@ export async function StationOverview() {
             </div>
             <div>
               <div className='text-3xl font-bold'>{maintenanceCount}</div>
-              <p className='text-muted-foreground text-sm'>Maintenance</p>
+              <p className='text-muted-foreground text-sm'>Đang bảo trì</p>
             </div>
           </CardContent>
         </Card>

@@ -46,7 +46,7 @@ function getStatusBadge(status: string) {
           variant='outline'
           className='border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-400'
         >
-          Active
+          Hoạt động
         </Badge>
       );
     case 'faulty':
@@ -55,7 +55,7 @@ function getStatusBadge(status: string) {
           variant='outline'
           className='border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400'
         >
-          Faulty
+          Lỗi
         </Badge>
       );
     default:
@@ -64,7 +64,7 @@ function getStatusBadge(status: string) {
           variant='outline'
           className='border-yellow-500/20 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
         >
-          Inactive
+          Không hoạt động
         </Badge>
       );
   }
@@ -72,13 +72,13 @@ function getStatusBadge(status: string) {
 
 const COMPONENT_TYPE_LABELS: Record<string, string> = {
   esp32: 'ESP32 (MCU)',
-  srt04: 'Ultrasonic Sensor (SRT04)',
-  temperature_sensor: 'Temperature Sensor',
-  battery: 'Battery',
-  speaker: 'Speaker',
+  srt04: 'Cảm biến siêu âm (SRT04)',
+  temperature_sensor: 'Cảm biến nhiệt độ',
+  battery: 'Pin',
+  speaker: 'Loa',
   gsm_module: 'GSM Module',
-  solar_panel: 'Solar Panel',
-  rain_sensor: 'Rain Sensor'
+  solar_panel: 'Tấm pin năng lượng mặt trời',
+  rain_sensor: 'Cảm biến mưa'
 };
 
 function DetailRow({
@@ -157,7 +157,7 @@ export function ComponentDetailDialog({
             label='Thời điểm lắp đặt'
             value={
               component.installedAt
-                ? new Date(component.installedAt).toLocaleString()
+                ? new Date(component.installedAt).toLocaleString('vi-VN')
                 : null
             }
           />
@@ -165,7 +165,7 @@ export function ComponentDetailDialog({
             label='Bảo trì gần nhất'
             value={
               component.lastMaintenanceAt
-                ? new Date(component.lastMaintenanceAt).toLocaleString()
+                ? new Date(component.lastMaintenanceAt).toLocaleString('vi-VN')
                 : null
             }
           />
@@ -174,7 +174,7 @@ export function ComponentDetailDialog({
             label='Tạo lúc'
             value={
               component.createdAt
-                ? new Date(component.createdAt).toLocaleString()
+                ? new Date(component.createdAt).toLocaleString('vi-VN')
                 : null
             }
           />
@@ -182,7 +182,7 @@ export function ComponentDetailDialog({
             label='Cập nhật lúc'
             value={
               component.updatedAt
-                ? new Date(component.updatedAt).toLocaleString()
+                ? new Date(component.updatedAt).toLocaleString('vi-VN')
                 : null
             }
           />

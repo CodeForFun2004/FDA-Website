@@ -14,7 +14,7 @@ export const useAlertTemplates = () => {
     queryFn: async () => {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
       return alertTemplatesApi.getTemplates(token);
     }
@@ -27,7 +27,7 @@ export const useAlertTemplate = (id: string) => {
     queryFn: async () => {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
       return alertTemplatesApi.getTemplateById(id, token);
     },
@@ -41,7 +41,7 @@ export const useCreateAlertTemplate = () => {
     mutationFn: async ({ data }: { data: CreateAlertTemplatePayload }) => {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
       return alertTemplatesApi.createTemplate(data, token);
     },
@@ -63,7 +63,7 @@ export const useUpdateAlertTemplate = () => {
     }) => {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
       return alertTemplatesApi.updateTemplate(id, data, token);
     },
@@ -80,7 +80,7 @@ export const useDeleteAlertTemplate = () => {
     mutationFn: async ({ id }: { id: string }) => {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
       return alertTemplatesApi.deleteTemplate(id, token);
     },
@@ -104,7 +104,7 @@ export const usePreviewAlertTemplate = () => {
     }) => {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
       return alertTemplatesApi.previewTemplate(body, token);
     }

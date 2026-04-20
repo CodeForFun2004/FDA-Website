@@ -27,7 +27,7 @@ export function SubscriptionDisputeCellAction({
     mutationFn: async (payload: ResolveComplaintPayload) => {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error('Authentication required. Please log in again.');
+        throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
       }
       return subscriptionDisputeApi.resolveComplaint(
         complaint.id,
@@ -40,12 +40,12 @@ export function SubscriptionDisputeCellAction({
       await queryClient.invalidateQueries({
         queryKey: ['subscription-disputes']
       });
-      toast.success(res.message || 'Complaint updated successfully.');
+      toast.success(res.message || 'Đã cập nhật khiếu nại.');
       setOpenResolve(false);
     },
     onError: (error: Error) => {
-      setResolveError(error.message || 'Failed to resolve complaint.');
-      toast.error('Failed to resolve complaint', {
+      setResolveError(error.message || 'Không thể xử lý khiếu nại.');
+      toast.error('Không thể xử lý khiếu nại', {
         description: error.message
       });
     }

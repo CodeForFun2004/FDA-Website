@@ -28,9 +28,9 @@ export function CellAction({ data }: { data: Area }) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setOpen(true)}>
-            <IconEye className='mr-2 h-4 w-4' /> View detail
+            <IconEye className='mr-2 h-4 w-4' /> Xem chi tiết
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

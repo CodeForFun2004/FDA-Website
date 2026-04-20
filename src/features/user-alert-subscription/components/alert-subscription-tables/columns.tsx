@@ -9,9 +9,9 @@ import { CellAction } from './cell-action';
 
 // options cho filter giống product
 export const ALERT_SEVERITY_OPTIONS = [
-  { label: 'Caution', value: 'caution' },
-  { label: 'Warning', value: 'warning' },
-  { label: 'Critical', value: 'critical' }
+  { label: 'Cảnh giác', value: 'caution' },
+  { label: 'Cảnh báo', value: 'warning' },
+  { label: 'Nghiêm trọng', value: 'critical' }
 ];
 
 export const columns: ColumnDef<AlertSubscription>[] = [
@@ -19,14 +19,14 @@ export const columns: ColumnDef<AlertSubscription>[] = [
     id: 'userEmail',
     accessorKey: 'userEmail',
     header: ({ column }: { column: Column<AlertSubscription, unknown> }) => (
-      <DataTableColumnHeader column={column} title='User Email' />
+      <DataTableColumnHeader column={column} title='Email người dùng' />
     ),
     cell: ({ cell }) => (
       <div className='min-w-[200px] font-medium'>{String(cell.getValue())}</div>
     ),
     meta: {
-      label: 'User Email',
-      placeholder: 'Search by user email...',
+      label: 'Email người dùng',
+      placeholder: 'Tìm theo email…',
       variant: 'text',
       icon: Text
     },
@@ -34,11 +34,11 @@ export const columns: ColumnDef<AlertSubscription>[] = [
   },
   {
     id: 'location',
-    header: 'Location',
+    header: 'Vị trí',
     cell: ({ row }) => {
       const { areaName, stationName } = row.original;
-      const locationName = areaName || stationName || 'N/A';
-      const locationType = areaName ? 'Area' : stationName ? 'Station' : '';
+      const locationName = areaName || stationName || '—';
+      const locationType = areaName ? 'Khu vực' : stationName ? 'Trạm' : '';
 
       return (
         <div className='min-w-[180px]'>
@@ -61,7 +61,7 @@ export const columns: ColumnDef<AlertSubscription>[] = [
     id: 'minSeverity',
     accessorKey: 'minSeverity',
     header: ({ column }: { column: Column<AlertSubscription, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Min Severity' />
+      <DataTableColumnHeader column={column} title='Mức cảnh báo tối thiểu' />
     ),
     cell: ({ cell }) => {
       const severity = String(cell.getValue() ?? '').toLowerCase();
@@ -127,13 +127,13 @@ export const columns: ColumnDef<AlertSubscription>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: ({ column }: { column: Column<AlertSubscription, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Created At' />
+      <DataTableColumnHeader column={column} title='Tạo lúc' />
     ),
     cell: ({ cell }) => {
       const date = new Date(cell.getValue() as string);
       return (
         <div className='text-muted-foreground min-w-[140px] text-sm'>
-          {date.toLocaleDateString()}
+          {date.toLocaleDateString('vi-VN')}
         </div>
       );
     }

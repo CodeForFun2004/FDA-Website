@@ -5,6 +5,7 @@ import * as React from 'react';
 import MapView from './map-view';
 import LayerPanel from './layer-panel';
 import { useMapPreferences } from '../../hooks/useMapPreferences';
+import { t } from '@/locales/t';
 
 const queryClient = new QueryClient();
 
@@ -49,7 +50,7 @@ function Inner() {
         <button
           onClick={() => setIsLayerPanelOpen(!isLayerPanelOpen)}
           className='flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md transition-transform hover:scale-105 active:scale-95'
-          title='Map Layers'
+          title={t('map.layers')}
         >
           {/* Simple Layers Icon */}
           <svg

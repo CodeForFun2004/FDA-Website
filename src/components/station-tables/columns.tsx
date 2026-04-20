@@ -103,29 +103,29 @@ export const columns: ColumnDef<Station>[] = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant='ghost' className='h-8 w-8 p-0'>
-              <span className='sr-only'>Open menu</span>
+              <span className='sr-only'>Mở menu</span>
               <MoreHorizontal className='h-4 w-4' />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
 
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(String(station.id))}
             >
-              Copy ID
+              Sao chép ID
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
             <DropdownMenuItem onClick={() => meta?.onEdit?.(station)}>
-              Edit
+              Chỉnh sửa
             </DropdownMenuItem>
             <DropdownMenuItem
               className='text-destructive focus:text-destructive'
               onClick={() => meta?.onDelete?.(station)}
             >
-              Delete
+              Xóa
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

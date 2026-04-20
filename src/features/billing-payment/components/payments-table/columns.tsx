@@ -25,19 +25,19 @@ function getStatusConfig(status: PaymentStatus) {
   switch (status) {
     case 'paid':
       return {
-        label: 'Paid',
+        label: 'Đã thanh toán',
         className:
           'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20 hover:bg-green-500/20'
       };
     case 'pending':
       return {
-        label: 'Pending',
+        label: 'Chờ xử lý',
         className:
           'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20 hover:bg-amber-500/20'
       };
     case 'cancelled':
       return {
-        label: 'Cancelled',
+        label: 'Đã hủy',
         className:
           'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20 hover:bg-red-500/20'
       };
@@ -47,9 +47,9 @@ function getStatusConfig(status: PaymentStatus) {
 }
 
 export const PAYMENT_STATUS_OPTIONS = [
-  { label: 'Paid', value: 'paid' },
-  { label: 'Pending', value: 'pending' },
-  { label: 'Cancelled', value: 'cancelled' }
+  { label: 'Đã thanh toán', value: 'paid' },
+  { label: 'Chờ xử lý', value: 'pending' },
+  { label: 'Đã hủy', value: 'cancelled' }
 ];
 
 export function getPaymentColumns(params: {
@@ -78,7 +78,7 @@ export function getPaymentColumns(params: {
       id: 'orderCode',
       accessorKey: 'orderCode',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Order Code' />
+        <DataTableColumnHeader column={column} title='Mã đơn' />
       ),
       cell: ({ row }) => (
         <button
@@ -92,16 +92,16 @@ export function getPaymentColumns(params: {
       enableSorting: false,
       enableColumnFilter: true,
       meta: {
-        label: 'Search',
-        viewLabel: 'Order Code',
-        placeholder: 'Tìm kiếm order code, user, plan...',
+        label: 'Tìm kiếm',
+        viewLabel: 'Mã đơn',
+        placeholder: 'Tìm theo mã đơn, người dùng, gói…',
         variant: 'text' as const
       }
     },
     {
       id: 'user',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='User' />
+        <DataTableColumnHeader column={column} title='Người dùng' />
       ),
       cell: ({ row }) => (
         <div className='flex min-w-[220px] flex-col'>
@@ -116,13 +116,13 @@ export function getPaymentColumns(params: {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        viewLabel: 'User'
+        viewLabel: 'Người dùng'
       }
     },
     {
       id: 'plan',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Plan' />
+        <DataTableColumnHeader column={column} title='Gói' />
       ),
       cell: ({ row }) => (
         <div className='flex flex-col'>
@@ -137,14 +137,14 @@ export function getPaymentColumns(params: {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        viewLabel: 'Plan'
+        viewLabel: 'Gói'
       }
     },
     {
       id: 'amount',
       accessorKey: 'amount',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Amount' />
+        <DataTableColumnHeader column={column} title='Số tiền' />
       ),
       cell: ({ row }) => (
         <div className='font-medium tabular-nums'>
@@ -154,32 +154,31 @@ export function getPaymentColumns(params: {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        viewLabel: 'Amount'
+        viewLabel: 'Số tiền'
       }
     },
     {
       id: 'durationMonths',
       accessorKey: 'durationMonths',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Duration' />
+        <DataTableColumnHeader column={column} title='Thời hạn' />
       ),
       cell: ({ row }) => (
         <div className='text-muted-foreground'>
-          {row.original.durationMonths} month
-          {row.original.durationMonths === 1 ? '' : 's'}
+          {row.original.durationMonths} tháng
         </div>
       ),
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        viewLabel: 'Duration'
+        viewLabel: 'Thời hạn'
       }
     },
     {
       id: 'status',
       accessorKey: 'status',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Status' />
+        <DataTableColumnHeader column={column} title='Trạng thái' />
       ),
       cell: ({ row }) => {
         const config = getStatusConfig(row.original.status);
@@ -195,8 +194,8 @@ export function getPaymentColumns(params: {
       enableSorting: false,
       enableColumnFilter: true,
       meta: {
-        label: 'Status',
-        viewLabel: 'Status',
+        label: 'Trạng thái',
+        viewLabel: 'Trạng thái',
         variant: 'select' as const,
         options: PAYMENT_STATUS_OPTIONS
       }
@@ -204,7 +203,11 @@ export function getPaymentColumns(params: {
     {
       id: 'paymentDate',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Payment Date' />
+        <DataTableColumnHeader
+          column={column}
+          title='Ngày thanh toán'
+          className='whitespace-nowrap'
+        />
       ),
       cell: ({ row }) => (
         <div className='text-muted-foreground text-sm'>
@@ -214,8 +217,9 @@ export function getPaymentColumns(params: {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        viewLabel: 'Payment Date'
-      }
+        viewLabel: 'Ngày thanh toán'
+      },
+      size: 160
     }
   ];
 }

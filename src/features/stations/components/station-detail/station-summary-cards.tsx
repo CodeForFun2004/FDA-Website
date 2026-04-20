@@ -158,7 +158,7 @@ export function StationSummaryCards({
           <div className='text-muted-foreground mt-1 text-xs'>
             Cập nhật:{' '}
             {station.updatedAt
-              ? new Date(station.updatedAt).toLocaleDateString()
+              ? new Date(station.updatedAt).toLocaleDateString('vi-VN')
               : '-'}
           </div>
         </CardContent>
@@ -193,11 +193,11 @@ export function StationSummaryCards({
             {batteryLevel}%
           </div>
           <div className='text-muted-foreground mt-1 text-xs'>
-            Battery · Signal {signalLabel}
+            Pin · Tín hiệu {signalLabel}
             {rssi !== 0 && rssi !== null ? ` (${rssi} dBm)` : ''}
           </div>
           <div className='text-muted-foreground mt-1 text-xs'>
-            Last sync: {formatLastSeenShort(station.lastSeenAt)}
+            Đồng bộ gần nhất: {formatLastSeenShort(station.lastSeenAt)}
           </div>
         </CardContent>
       </Card>

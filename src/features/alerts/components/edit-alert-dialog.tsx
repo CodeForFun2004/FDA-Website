@@ -36,8 +36,8 @@ const toNumberOrUndefined = (v: unknown) => {
 };
 
 const formSchema = z.object({
-  code: z.string().min(2, { message: 'Code must be at least 2 characters.' }),
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  code: z.string().min(2, { message: 'Mã phải có ít nhất 2 ký tự.' }),
+  name: z.string().min(2, { message: 'Tên phải có ít nhất 2 ký tự.' }),
   locationDesc: z.string().optional().nullable(),
   roadName: z.string().optional().nullable(),
   direction: z.string().optional().nullable(),
@@ -207,10 +207,10 @@ export function EditStationDialog({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Edit className='text-primary h-5 w-5' />
-            Edit Station
+            Chỉnh sửa trạm
           </DialogTitle>
           <DialogDescription>
-            Update the station information. Fields marked with * are required.
+            Cập nhật thông tin trạm. Các trường có dấu * là bắt buộc.
           </DialogDescription>
         </DialogHeader>
 
@@ -345,18 +345,18 @@ export function EditStationDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type='submit' disabled={isLoading} className='gap-2'>
               {isLoading ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Updating...
+                  Đang cập nhật…
                 </>
               ) : (
                 <>
                   <Edit className='h-4 w-4' />
-                  Update Station
+                  Cập nhật trạm
                 </>
               )}
             </Button>

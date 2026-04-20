@@ -2,7 +2,10 @@
 
 import { create } from 'zustand';
 import { getFloodSeverityGeoJSON } from '../api/flood-severity.api';
-import type { FloodStationProperties } from '../api/flood-severity.api';
+import type {
+  FloodGeoJsonFeature,
+  FloodStationProperties
+} from '../api/flood-severity.api';
 
 export type FloodStationSummary = {
   stationId: string;
@@ -69,9 +72,10 @@ export const useFloodStationsStore = create<FloodStationsState>()((set) => ({
   error: null,
 
   setStationsFromGeojson: (geojson) => {
-    const features = geojson?.features ?? [];
+    const features = (geojson?.features ?? []) as FloodGeoJsonFeature[];
     const mapped = features
       .map((feature: any) => {
+        if (feature?.geometry?.type !== 'Point') return null;
         const coordinates = feature?.geometry?.coordinates;
         const properties = feature?.properties as FloodStationProperties;
         if (
@@ -103,9 +107,10 @@ export const useFloodStationsStore = create<FloodStationsState>()((set) => ({
         zoom: args?.zoom ?? DEFAULT_ZOOM
       });
 
-      const features = geojson?.features ?? [];
+      const features = (geojson?.features ?? []) as FloodGeoJsonFeature[];
       const mapped = features
         .map((feature: any) => {
+          if (feature?.geometry?.type !== 'Point') return null;
           const coordinates = feature?.geometry?.coordinates;
           const properties = feature?.properties as FloodStationProperties;
           if (

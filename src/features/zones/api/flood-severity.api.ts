@@ -25,26 +25,53 @@ export type FloodStationProperties = {
   alertLevel: string;
 };
 
+// Backend `/map/current-status` có thể trả cả Point (station) và Polygon (coverage)
+export type FloodZoneProperties = {
+  featureType?: 'floodZone' | string;
+  stationId?: string | null;
+  stationCode?: string | null;
+  stationName?: string | null;
+  severity?: 'warning' | 'critical' | string;
+  severityLevel?: number | null;
+  waterLevel?: number | null;
+  fillColor?: string | null;
+  fillOpacity?: number | null;
+};
+
+export type FloodFeatureProperties = FloodStationProperties &
+  FloodZoneProperties & {
+    [key: string]: unknown;
+  };
+
+export type FloodGeoJsonFeature = {
+  type: 'Feature';
+  geometry:
+    | { type: 'Point'; coordinates: [number, number] }
+    | { type: 'Polygon'; coordinates: [number, number][][] }
+    | { type: 'MultiPolygon'; coordinates: [number, number][][][] };
+  properties: FloodFeatureProperties;
+};
+
+export type FloodGeoJson = {
+  type: 'FeatureCollection';
+  features: FloodGeoJsonFeature[];
+  metadata?: {
+    totalStations?: number;
+    stationsWithData?: number;
+    stationsNoData?: number;
+    generatedAt?: string;
+    bounds?: unknown;
+    [key: string]: unknown;
+  };
+};
+
 export type FloodSeverityResponse = {
   success: boolean;
   message: string;
   data: {
     type: 'FeatureCollection';
-    features: {
-      type: 'Feature';
-      geometry: {
-        type: 'Point';
-        coordinates: [number, number];
-      };
-      properties: FloodStationProperties;
-    }[];
-    metadata: {
-      totalStations: number;
-      stationsWithData: number;
-      stationsNoData: number;
-      generatedAt: string;
-      bounds: any;
-    };
+    features: FloodGeoJsonFeature[];
+    metadata?: FloodGeoJson['metadata'];
   };
 };
 
@@ -52,11 +79,9 @@ export async function getFloodSeverityGeoJSON(args: {
   bounds: string;
   zoom: number;
   signal?: AbortSignal;
-}) {
+}): Promise<FloodGeoJson> {
   const { bounds, zoom, signal } = args;
   const url = new URL(`${API_BASE}/map/current-status`);
-  // Check api
-  console.log('API URL:', url.toString());
   url.searchParams.set('bounds', bounds);
   url.searchParams.set('zoom', String(zoom));
 
@@ -71,7 +96,7 @@ export async function getFloodSeverityGeoJSON(args: {
 
   // Normalize properties so stationId/stationCode are always available
   const features = (geojson?.features ?? []).map((feature) => {
-    const properties = feature?.properties ?? ({} as FloodStationProperties);
+    const properties = feature?.properties ?? ({} as FloodFeatureProperties);
     return {
       ...feature,
       properties: {

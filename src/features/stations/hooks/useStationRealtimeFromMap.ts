@@ -5,6 +5,8 @@ import {
   type FloodStationProperties
 } from '@/features/zones/api/flood-severity.api';
 
+type StationLike = Pick<Station, 'id' | 'code' | 'latitude' | 'longitude'>;
+
 export type StationRealtimeFromMap = {
   properties: FloodStationProperties | null;
   isLoading: boolean;
@@ -37,7 +39,7 @@ function toBoundsAroundStation(args: {
 
 function matchStation(
   props: FloodStationProperties | null | undefined,
-  station: Station
+  station: StationLike
 ) {
   const stationId = station.id?.trim();
   const stationCode = station.code?.trim();
@@ -51,7 +53,7 @@ function matchStation(
 }
 
 export function useStationRealtimeFromMap(args: {
-  station: Station | null;
+  station: StationLike | null;
   zoom?: number;
   radiusKm?: number;
   enabled?: boolean;

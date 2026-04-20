@@ -4,6 +4,7 @@ import * as React from 'react';
 import type maplibregl from 'maplibre-gl';
 import type { FeatureCollection } from 'geojson';
 import { getFloodSeverityGeoJSON } from '../api/flood-severity.api';
+import type { FloodGeoJsonFeature } from '../api/flood-severity.api';
 import { useMapStationsList } from './useMapStationsList';
 import type { StationExtended } from '@/features/stations/types/station.type';
 import {
@@ -41,6 +42,9 @@ const isMapReady = (map: maplibregl.Map) => {
 
 function enrichFloodGeojsonWithRadius(geojson: any, zoom: number) {
   const features = (geojson?.features ?? []).map((feature: any) => {
+    // Only Point features have a simple [lng,lat] coordinate tuple.
+    if (feature?.geometry?.type !== 'Point') return feature;
+
     const properties = feature?.properties ?? {};
     const coordinates = feature?.geometry?.coordinates;
     const latitude = Array.isArray(coordinates)
@@ -92,12 +96,37 @@ export function useStationsMapLayerData({
   const stationList = stations ?? EMPTY_STATIONS;
 
   const merged = React.useMemo(() => {
-    if (!enabled || !stationsReady) return EMPTY;
-    return mergeStationsWithFloodGeojson(
-      stationList,
-      floodGeojson,
-      zoomRef.current
-    );
+    if (!enabled) return EMPTY;
+
+    // Fast-path: when `/stations/stations` is still loading, render Point features
+    // directly from `/map/current-status` so hover/click works immediately.
+    const points =
+      stationsReady && stationList.length > 0
+        ? mergeStationsWithFloodGeojson(
+            stationList,
+            floodGeojson,
+            zoomRef.current
+          )
+        : ({
+            type: 'FeatureCollection',
+            features: (
+              (floodGeojson?.features ?? []) as FloodGeoJsonFeature[]
+            ).filter((f) => (f as any)?.geometry?.type === 'Point')
+          } as FeatureCollection);
+
+    // Keep polygon coverage features from `/map/current-status` (mobile already uses these).
+    const polygonFeatures = (
+      (floodGeojson?.features ?? []) as FloodGeoJsonFeature[]
+    ).filter((f) => {
+      const t = (f as any)?.geometry?.type;
+      return t === 'Polygon' || t === 'MultiPolygon';
+    });
+
+    if (!polygonFeatures.length) return points;
+    return {
+      ...points,
+      features: [...(points.features ?? []), ...polygonFeatures]
+    } as FeatureCollection;
   }, [enabled, stationsReady, stationList, floodGeojson]);
 
   React.useEffect(() => {
@@ -107,11 +136,6 @@ export function useStationsMapLayerData({
   const fetchFloodForViewport = React.useCallback(async () => {
     const map = mapRef.current;
     if (!map || !enabled || !isMapReady(map)) return;
-    if (!stationsReady || stationList.length === 0) {
-      setFloodGeojson(null);
-      lastKeyRef.current = '';
-      return;
-    }
 
     const b = map.getBounds();
     const bounds = `${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()}`;
@@ -146,7 +170,7 @@ export function useStationsMapLayerData({
       setError((e as any)?.message ?? 'Failed to fetch flood severity');
       setFloodGeojson(null);
     }
-  }, [enabled, mapRef, stationList.length, stationsReady]);
+  }, [enabled, mapRef]);
 
   React.useEffect(() => {
     const map = mapRef.current;
@@ -157,12 +181,6 @@ export function useStationsMapLayerData({
       lastKeyRef.current = '';
       setFloodGeojson(null);
       setStatus('idle');
-      return;
-    }
-
-    if (!stationsReady || stationList.length === 0) {
-      setFloodGeojson(null);
-      lastKeyRef.current = '';
       return;
     }
 
@@ -193,14 +211,7 @@ export function useStationsMapLayerData({
       map.off('style.load', handleLoad);
       map.off('load', handleLoad);
     };
-  }, [
-    enabled,
-    fetchFloodForViewport,
-    mapRef,
-    stationList.length,
-    stationsReady,
-    throttleMs
-  ]);
+  }, [enabled, fetchFloodForViewport, mapRef, throttleMs]);
 
   return {
     data: merged,

@@ -31,9 +31,9 @@ import { toast } from 'sonner';
 
 // --------------- schema ---------------
 const schema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+  name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự.'),
   level: z.enum(['province', 'district', 'street']),
-  code: z.string().min(1, 'Code is required'),
+  code: z.string().min(1, 'Mã là bắt buộc.'),
   parentId: z.string().optional().nullable(),
   geometry: z.string().optional().nullable()
 });
@@ -268,7 +268,7 @@ export function AdminAreaDialog({
               onClick={() => handleClose(false)}
               disabled={loading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type='submit' disabled={loading} className='gap-2'>
               {loading ? (
@@ -279,7 +279,7 @@ export function AdminAreaDialog({
               ) : isEdit ? (
                 <>
                   <IconEdit className='h-4 w-4' />
-                  Save changes
+                  Lưu thay đổi
                 </>
               ) : (
                 <>

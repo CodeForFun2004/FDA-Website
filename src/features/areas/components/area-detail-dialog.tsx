@@ -42,7 +42,7 @@ export function AreaDetailDialog({ open, onOpenChange, areaId }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-lg'>
         <DialogHeader>
-          <DialogTitle>Area detail</DialogTitle>
+          <DialogTitle>Chi tiết khu vực</DialogTitle>
         </DialogHeader>
 
         {loading || !data ? (
@@ -54,25 +54,26 @@ export function AreaDetailDialog({ open, onOpenChange, areaId }: Props) {
         ) : (
           <div className='space-y-2 text-sm'>
             <div>
-              <b>Name:</b> {data.name}
+              <b>Tên:</b> {data.name}
             </div>
             <div>
-              <b>Address:</b> {data.addressText}
+              <b>Địa chỉ:</b> {data.addressText}
             </div>
             <div>
-              <b>Latitude:</b> {data.latitude}
+              <b>Vĩ độ:</b> {data.latitude}
             </div>
             <div>
-              <b>Longitude:</b> {data.longitude}
+              <b>Kinh độ:</b> {data.longitude}
             </div>
             <div>
-              <b>Radius:</b> {data.radiusMeters} m
+              <b>Bán kính:</b> {data.radiusMeters} m
             </div>
             <div>
-              <b>Created:</b> {new Date(data.createdAt).toLocaleString()}
+              <b>Tạo lúc:</b> {new Date(data.createdAt).toLocaleString('vi-VN')}
             </div>
             <div>
-              <b>Updated:</b> {new Date(data.updatedAt).toLocaleString()}
+              <b>Cập nhật lúc:</b>{' '}
+              {new Date(data.updatedAt).toLocaleString('vi-VN')}
             </div>
           </div>
         )}

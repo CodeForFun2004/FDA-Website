@@ -101,7 +101,7 @@ export async function initGoogleOAuthApi(params: {
   callbackUrl?: string;
 }) {
   const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-  if (!base) throw new Error('Missing NEXT_PUBLIC_API_BASE_URL');
+  if (!base) throw new Error('Thiếu cấu hình NEXT_PUBLIC_API_BASE_URL');
 
   const url = new URL(`${base}/auth/google`);
 

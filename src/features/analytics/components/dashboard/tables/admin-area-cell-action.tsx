@@ -61,22 +61,22 @@ export function AdminAreaCellAction({ area }: Props) {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
+            <span className='sr-only'>Mở menu</span>
             <IconDotsVertical className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
 
           <DropdownMenuItem
             onClick={() => {
               void navigator.clipboard.writeText(area.id);
-              toast.success('ID copied to clipboard');
+              toast.success('Đã sao chép ID');
             }}
           >
             <IconCopy className='mr-2 h-4 w-4' />
-            Copy ID
+            Sao chép ID
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />

@@ -62,9 +62,9 @@ export function ResolveDisputeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[720px]'>
         <DialogHeader>
-          <DialogTitle>Resolve Subscription Complaint</DialogTitle>
+          <DialogTitle>Xử lý khiếu nại gói</DialogTitle>
           <DialogDescription>
-            Provide admin response and choose the new status.
+            Nhập phản hồi và chọn trạng thái mới.
           </DialogDescription>
         </DialogHeader>
 
@@ -72,17 +72,17 @@ export function ResolveDisputeDialog({
           <div className='space-y-4'>
             <div className='rounded-lg border p-3'>
               <div className='space-y-1'>
-                <p className='text-muted-foreground text-xs'>Subject</p>
+                <p className='text-muted-foreground text-xs'>Tiêu đề</p>
                 <p className='font-semibold'>{complaint.subject}</p>
               </div>
               <div className='mt-3 space-y-1'>
-                <p className='text-muted-foreground text-xs'>Description</p>
+                <p className='text-muted-foreground text-xs'>Nội dung</p>
                 <pre className='text-sm leading-relaxed whitespace-pre-wrap'>
                   {complaint.description}
                 </pre>
               </div>
               <div className='mt-3 space-y-1'>
-                <p className='text-muted-foreground text-xs'>User</p>
+                <p className='text-muted-foreground text-xs'>Người dùng</p>
                 <p className='font-semibold'>
                   {complaint.userFullName} ({complaint.userEmail})
                 </p>
@@ -90,12 +90,12 @@ export function ResolveDisputeDialog({
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='admin-response'>Admin Response</Label>
+              <Label htmlFor='admin-response'>Phản hồi quản trị</Label>
               <Textarea
                 id='admin-response'
                 value={adminResponse}
                 onChange={(e) => setAdminResponse(e.target.value)}
-                placeholder='Write a clear response for the user...'
+                placeholder='Viết phản hồi rõ ràng để gửi cho người dùng…'
                 rows={5}
                 disabled={isSubmitting}
               />
@@ -105,7 +105,7 @@ export function ResolveDisputeDialog({
             </div>
 
             <div className='space-y-2'>
-              <Label>New Status</Label>
+              <Label>Trạng thái mới</Label>
               <RadioGroup
                 value={newStatus}
                 onValueChange={(v) => setNewStatus(v as ResolveNewStatus)}
@@ -114,13 +114,13 @@ export function ResolveDisputeDialog({
                 <div className='flex items-center gap-2'>
                   <RadioGroupItem value='resolved' id='status-resolved' />
                   <Label htmlFor='status-resolved' className='font-normal'>
-                    Resolve
+                    Đã xử lý
                   </Label>
                 </div>
                 <div className='flex items-center gap-2'>
                   <RadioGroupItem value='rejected' id='status-rejected' />
                   <Label htmlFor='status-rejected' className='font-normal'>
-                    Reject
+                    Từ chối
                   </Label>
                 </div>
               </RadioGroup>
@@ -128,7 +128,7 @@ export function ResolveDisputeDialog({
           </div>
         ) : (
           <div className='text-muted-foreground text-sm'>
-            No complaint selected.
+            Chưa chọn khiếu nại.
           </div>
         )}
 
@@ -138,13 +138,13 @@ export function ResolveDisputeDialog({
             disabled={isSubmitting}
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            Hủy
           </Button>
           <Button
             disabled={isSubmitting || !adminResponse.trim()}
             onClick={() => void handleSubmit()}
           >
-            {isSubmitting ? 'Submitting...' : 'Submit'}
+            {isSubmitting ? 'Đang gửi…' : 'Gửi'}
           </Button>
         </DialogFooter>
       </DialogContent>

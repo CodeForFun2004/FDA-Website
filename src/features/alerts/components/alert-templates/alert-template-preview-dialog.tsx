@@ -24,6 +24,7 @@ import {
   IconAlertCircle
 } from '@tabler/icons-react';
 import { cn } from '@/libs/utils';
+import { stripHtmlToText } from '@/libs/strip-html';
 
 import { PushPreview } from './previews/push-preview';
 import { EmailPreview } from './previews/email-preview';
@@ -101,6 +102,14 @@ export function AlertTemplatePreviewDialog({
     const combined = `${previewResult.title} ${previewResult.body}`;
     const matches = combined.match(/\{\{([^}]+)\}\}/g);
     return matches ? Array.from(new Set(matches)) : [];
+  }, [previewResult]);
+
+  const previewText = useMemo(() => {
+    if (!previewResult) return null;
+    return {
+      title: stripHtmlToText(previewResult.title),
+      body: stripHtmlToText(previewResult.body)
+    };
   }, [previewResult]);
 
   return (
@@ -207,8 +216,8 @@ export function AlertTemplatePreviewDialog({
 
               <TabsContent value='Push'>
                 <PushPreview
-                  title={previewResult?.title ?? null}
-                  body={previewResult?.body ?? null}
+                  title={previewText?.title ?? null}
+                  body={previewText?.body ?? null}
                 />
               </TabsContent>
 
@@ -221,15 +230,15 @@ export function AlertTemplatePreviewDialog({
 
               <TabsContent value='SMS'>
                 <SmsPreview
-                  title={previewResult?.title ?? null}
-                  body={previewResult?.body ?? null}
+                  title={previewText?.title ?? null}
+                  body={previewText?.body ?? null}
                 />
               </TabsContent>
 
               <TabsContent value='InApp'>
                 <InAppPreview
-                  title={previewResult?.title ?? null}
-                  body={previewResult?.body ?? null}
+                  title={previewText?.title ?? null}
+                  body={previewText?.body ?? null}
                 />
               </TabsContent>
             </Tabs>

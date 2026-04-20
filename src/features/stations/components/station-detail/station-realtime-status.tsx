@@ -7,6 +7,7 @@ import type { Station } from '@/features/stations/types/station.type';
 import { useStationRealtimeFromMap } from '@/features/stations/hooks/useStationRealtimeFromMap';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, Waves, Clock, Radio } from 'lucide-react';
+import { t } from '@/locales/t';
 
 function formatDateTime(iso: string | null | undefined) {
   if (!iso) return '—';
@@ -86,7 +87,7 @@ export function StationRealtimeStatus({ station }: { station: Station }) {
           <RefreshCw
             className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`}
           />
-          Refresh
+          {t('common.refresh')}
         </Button>
       </CardHeader>
 
@@ -124,7 +125,7 @@ export function StationRealtimeStatus({ station }: { station: Station }) {
             <div className='rounded-lg border p-5'>
               <div className='text-muted-foreground mb-2 flex items-center gap-2 text-[11px] font-medium'>
                 <Radio className='h-3.5 w-3.5' />
-                Station status
+                {t('station.status')}
               </div>
               <div className='flex flex-wrap items-center gap-2'>
                 <Badge variant='outline' className='capitalize'>

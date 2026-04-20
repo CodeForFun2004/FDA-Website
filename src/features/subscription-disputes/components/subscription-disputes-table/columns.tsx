@@ -23,7 +23,7 @@ function StatusBadge({ status }: { status: SubscriptionDisputeStatus }) {
           variant='outline'
           className='border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300'
         >
-          Open
+          Đang mở
         </Badge>
       );
     case 'resolved':
@@ -32,7 +32,7 @@ function StatusBadge({ status }: { status: SubscriptionDisputeStatus }) {
           variant='outline'
           className='border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300'
         >
-          Resolved
+          Đã xử lý
         </Badge>
       );
     case 'rejected':
@@ -41,7 +41,7 @@ function StatusBadge({ status }: { status: SubscriptionDisputeStatus }) {
           variant='outline'
           className='border-red-200 bg-red-50 text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300'
         >
-          Rejected
+          Từ chối
         </Badge>
       );
     default:
@@ -81,7 +81,7 @@ export function getSubscriptionDisputesColumns(params: {
     {
       id: 'user',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='User' />
+        <DataTableColumnHeader column={column} title='Người dùng' />
       ),
       cell: ({ row }) => (
         <div className='flex flex-col'>
@@ -96,14 +96,14 @@ export function getSubscriptionDisputesColumns(params: {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        viewLabel: 'User'
+        viewLabel: 'Người dùng'
       }
     },
     {
       id: 'subject',
       accessorKey: 'subject',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Subject' />
+        <DataTableColumnHeader column={column} title='Tiêu đề' />
       ),
       cell: ({ row }) => (
         <button
@@ -117,9 +117,9 @@ export function getSubscriptionDisputesColumns(params: {
       enableSorting: false,
       enableColumnFilter: true,
       meta: {
-        label: 'Search',
-        viewLabel: 'Subject',
-        placeholder: 'Tìm kiếm subject...',
+        label: 'Tìm kiếm',
+        viewLabel: 'Tiêu đề',
+        placeholder: 'Tìm theo tiêu đề…',
         variant: 'text' as const
       }
     },
@@ -127,19 +127,19 @@ export function getSubscriptionDisputesColumns(params: {
       id: 'status',
       accessorKey: 'status',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Status' />
+        <DataTableColumnHeader column={column} title='Trạng thái' />
       ),
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
       enableSorting: false,
       enableColumnFilter: true,
       meta: {
-        label: 'Status',
-        viewLabel: 'Status',
+        label: 'Trạng thái',
+        viewLabel: 'Trạng thái',
         variant: 'select' as const,
         options: [
-          { label: 'Open', value: 'open' },
-          { label: 'Resolved', value: 'resolved' },
-          { label: 'Rejected', value: 'rejected' }
+          { label: 'Đang mở', value: 'open' },
+          { label: 'Đã xử lý', value: 'resolved' },
+          { label: 'Từ chối', value: 'rejected' }
         ]
       }
     },
@@ -147,7 +147,7 @@ export function getSubscriptionDisputesColumns(params: {
       id: 'createdAt',
       accessorKey: 'createdAt',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Created' />
+        <DataTableColumnHeader column={column} title='Tạo lúc' />
       ),
       cell: ({ row }) => (
         <div className='text-muted-foreground text-sm'>
@@ -157,7 +157,7 @@ export function getSubscriptionDisputesColumns(params: {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        viewLabel: 'Created'
+        viewLabel: 'Tạo lúc'
       }
     },
     {

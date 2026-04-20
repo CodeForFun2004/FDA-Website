@@ -7,7 +7,7 @@ import { FloodEventCellAction } from './flood-event-cell-action';
 
 function dt(iso: string) {
   try {
-    return new Date(iso).toLocaleString();
+    return new Date(iso).toLocaleString('vi-VN');
   } catch {
     return iso;
   }
@@ -17,7 +17,7 @@ export const floodEventsColumns: ColumnDef<FloodEvent>[] = [
   {
     accessorKey: 'administrativeAreaName',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Area' />
+      <DataTableColumnHeader column={column} title='Khu vực' />
     ),
     cell: ({ row }) => (
       <div className='min-w-[220px] truncate font-medium'>
@@ -26,12 +26,12 @@ export const floodEventsColumns: ColumnDef<FloodEvent>[] = [
       </div>
     ),
     enableColumnFilter: true,
-    meta: { variant: 'text', label: 'Area', placeholder: 'Search area…' }
+    meta: { variant: 'text', label: 'Khu vực', placeholder: 'Tìm khu vực…' }
   },
   {
     accessorKey: 'startTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Start' />
+      <DataTableColumnHeader column={column} title='Bắt đầu' />
     ),
     cell: ({ row }) => (
       <div className='text-muted-foreground min-w-[180px]'>
@@ -39,12 +39,12 @@ export const floodEventsColumns: ColumnDef<FloodEvent>[] = [
       </div>
     ),
     enableColumnFilter: true,
-    meta: { variant: 'text', label: 'Start', placeholder: 'YYYY-MM-DD…' }
+    meta: { variant: 'text', label: 'Bắt đầu', placeholder: 'YYYY-MM-DD…' }
   },
   {
     accessorKey: 'endTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='End' />
+      <DataTableColumnHeader column={column} title='Kết thúc' />
     ),
     cell: ({ row }) => (
       <div className='text-muted-foreground min-w-[180px]'>
@@ -55,7 +55,7 @@ export const floodEventsColumns: ColumnDef<FloodEvent>[] = [
   {
     accessorKey: 'peakLevel',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Peak (m)' />
+      <DataTableColumnHeader column={column} title='Đỉnh (m)' />
     ),
     cell: ({ row }) => (
       <div className='text-muted-foreground text-right font-mono text-xs'>
@@ -66,7 +66,7 @@ export const floodEventsColumns: ColumnDef<FloodEvent>[] = [
   {
     accessorKey: 'durationHours',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Duration (h)' />
+      <DataTableColumnHeader column={column} title='Thời lượng (giờ)' />
     ),
     cell: ({ row }) => (
       <div className='text-muted-foreground text-right font-mono text-xs'>

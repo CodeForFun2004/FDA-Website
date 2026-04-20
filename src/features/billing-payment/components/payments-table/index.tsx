@@ -43,8 +43,7 @@ export function PaymentsTable() {
     queryKey,
     queryFn: async () => {
       const token = await getAccessToken();
-      if (!token)
-        throw new Error('Authentication required. Please log in again.');
+      if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
 
       return billingPaymentApi.getAdminPayments(
         { page: page ?? 1, pageSize: pageSize ?? 10, status: statusQuery },

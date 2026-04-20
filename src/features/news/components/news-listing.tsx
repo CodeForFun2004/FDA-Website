@@ -103,7 +103,7 @@ export default function NewsListingPage({
   if (loading) {
     return (
       <div className='flex items-center justify-center py-12'>
-        <div className='text-muted-foreground'>Loading announcements...</div>
+        <div className='text-muted-foreground'>Đang tải thông báo…</div>
       </div>
     );
   }
@@ -112,7 +112,7 @@ export default function NewsListingPage({
     return (
       <div className='flex items-center justify-center py-12'>
         <div className='text-destructive text-center'>
-          <div className='mb-1 font-medium'>Error</div>
+          <div className='mb-1 font-medium'>Lỗi</div>
           <div className='text-sm'>{error}</div>
         </div>
       </div>

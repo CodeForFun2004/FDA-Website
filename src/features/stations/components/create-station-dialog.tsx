@@ -33,8 +33,8 @@ const toNumberOrUndefined = (v: unknown) => {
 };
 
 const formSchema = z.object({
-  code: z.string().min(2, { message: 'Code must be at least 2 characters.' }),
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  code: z.string().min(2, { message: 'Mã phải có ít nhất 2 ký tự.' }),
+  name: z.string().min(2, { message: 'Tên phải có ít nhất 2 ký tự.' }),
   locationDesc: z.string().optional().nullable(),
   roadName: z.string().optional().nullable(),
   direction: z.string().optional().nullable(),

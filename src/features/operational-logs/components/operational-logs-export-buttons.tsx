@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/common';
 import type { OperationalLogsQueryParams } from '../types';
 import { exportOperationalLogs } from '../api';
 import { buildExportFilename, downloadStringAsFile } from '../utils';
+import { Download, Loader2 } from 'lucide-react';
 
 export type OperationalLogsExportButtonsProps = {
   params: OperationalLogsQueryParams;
@@ -41,16 +42,38 @@ export function OperationalLogsExportButtons({
         size='sm'
         disabled={loading !== null}
         onClick={() => run('csv')}
+        className='h-9 gap-2'
       >
-        {loading === 'csv' ? 'Đang xuất CSV…' : 'Xuất CSV'}
+        {loading === 'csv' ? (
+          <>
+            <Loader2 className='h-4 w-4 animate-spin' />
+            Đang xuất CSV…
+          </>
+        ) : (
+          <>
+            <Download className='h-4 w-4' />
+            Xuất CSV
+          </>
+        )}
       </Button>
       <Button
         variant='outline'
         size='sm'
         disabled={loading !== null}
         onClick={() => run('json')}
+        className='h-9 gap-2'
       >
-        {loading === 'json' ? 'Đang xuất JSON…' : 'Xuất JSON'}
+        {loading === 'json' ? (
+          <>
+            <Loader2 className='h-4 w-4 animate-spin' />
+            Đang xuất JSON…
+          </>
+        ) : (
+          <>
+            <Download className='h-4 w-4' />
+            Xuất JSON
+          </>
+        )}
       </Button>
     </div>
   );

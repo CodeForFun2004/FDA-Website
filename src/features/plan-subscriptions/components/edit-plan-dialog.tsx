@@ -54,12 +54,12 @@ interface FormErrors {
 
 function validate(form: EditFormState): FormErrors {
   const errors: FormErrors = {};
-  if (!form.name.trim()) errors.name = 'Name is required';
-  if (Number(form.priceMonth) < 0) errors.priceMonth = 'Must be ≥ 0';
-  if (Number(form.priceYear) < 0) errors.priceYear = 'Must be ≥ 0';
+  if (!form.name.trim()) errors.name = 'Tên là bắt buộc.';
+  if (Number(form.priceMonth) < 0) errors.priceMonth = 'Giá phải ≥ 0.';
+  if (Number(form.priceYear) < 0) errors.priceYear = 'Giá phải ≥ 0.';
 
   const featureErrors = form.features.map((f) =>
-    !f.featureKey.trim() ? 'Feature Key is required' : ''
+    !f.featureKey.trim() ? 'Mã tính năng là bắt buộc.' : ''
   );
   if (featureErrors.some(Boolean)) errors.features = featureErrors;
   return errors;
@@ -203,298 +203,334 @@ export function EditPlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-[640px]'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
-            <Edit className='text-primary h-5 w-5' />
-            Sửa gói
-          </DialogTitle>
-          <DialogDescription className='flex items-center gap-2'>
-            Đang sửa gói:
-            <Badge variant='secondary' className='font-mono text-xs'>
-              {plan.code}
-            </Badge>
-            <span className='text-muted-foreground text-xs'>
-              (mã gói chỉ đọc)
-            </span>
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className='max-h-[85vh] max-w-2xl overflow-hidden p-0 sm:max-w-2xl'>
+        <div className='flex max-h-[85vh] flex-col'>
+          <DialogHeader className='border-b px-6 py-4'>
+            <DialogTitle className='flex items-center gap-2'>
+              <Edit className='text-primary h-5 w-5' />
+              Sửa gói
+            </DialogTitle>
+            <DialogDescription className='flex items-center gap-2'>
+              Đang sửa gói:
+              <Badge variant='secondary' className='font-mono text-xs'>
+                {plan.code}
+              </Badge>
+              <span className='text-muted-foreground text-xs'>
+                (mã gói chỉ đọc)
+              </span>
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className='space-y-6'>
-          {/* Code (read-only) */}
-          <div className='space-y-1.5'>
-            <Label>Mã gói</Label>
-            <Input
-              value={plan.code}
-              disabled
-              className='bg-muted/50 text-muted-foreground cursor-not-allowed font-mono'
-            />
-          </div>
+          <form
+            onSubmit={handleSubmit}
+            className='flex min-h-0 flex-1 flex-col'
+          >
+            <div className='min-h-0 flex-1 overflow-y-auto px-6 py-4'>
+              <div className='space-y-6'>
+                {/* Code (read-only) */}
+                <div className='space-y-1.5'>
+                  <Label>Mã gói</Label>
+                  <Input
+                    value={plan.code}
+                    disabled
+                    className='bg-muted/50 text-muted-foreground cursor-not-allowed font-mono'
+                  />
+                </div>
 
-          {/* Name */}
-          <div className='space-y-1.5'>
-            <Label htmlFor='edit-name'>
-              Plan Name <span className='text-destructive'>*</span>
-            </Label>
-            <Input
-              id='edit-name'
-              value={form.name}
-              onChange={(e) => updateField('name', e.target.value)}
-              disabled={isLoading}
-              className={errors.name ? 'border-destructive' : ''}
-            />
-            {errors.name && (
-              <p className='text-destructive text-xs'>{errors.name}</p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className='space-y-1.5'>
-            <Label htmlFor='edit-desc'>Description</Label>
-            <Textarea
-              id='edit-desc'
-              value={form.description}
-              onChange={(e) => updateField('description', e.target.value)}
-              disabled={isLoading}
-              rows={2}
-              className='resize-none'
-            />
-          </div>
-
-          {/* Pricing */}
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='space-y-1.5'>
-              <Label htmlFor='edit-price-month'>Price / Month (VND)</Label>
-              <Input
-                id='edit-price-month'
-                type='number'
-                min={0}
-                value={form.priceMonth}
-                onChange={(e) => updateField('priceMonth', e.target.value)}
-                disabled={isLoading}
-                className={errors.priceMonth ? 'border-destructive' : ''}
-              />
-              {errors.priceMonth && (
-                <p className='text-destructive text-xs'>{errors.priceMonth}</p>
-              )}
-            </div>
-            <div className='space-y-1.5'>
-              <Label htmlFor='edit-price-year'>Price / Year (VND)</Label>
-              <Input
-                id='edit-price-year'
-                type='number'
-                min={0}
-                value={form.priceYear}
-                onChange={(e) => updateField('priceYear', e.target.value)}
-                disabled={isLoading}
-                className={errors.priceYear ? 'border-destructive' : ''}
-              />
-              {errors.priceYear && (
-                <p className='text-destructive text-xs'>{errors.priceYear}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Sort Order & Active Status */}
-          <div className='grid grid-cols-3 gap-4'>
-            <div className='space-y-1.5'>
-              <Label htmlFor='edit-tier'>Tier</Label>
-              <select
-                id='edit-tier'
-                value={form.tier}
-                onChange={(e) => updateField('tier', e.target.value)}
-                disabled={isLoading}
-                className='border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50'
-              >
-                <option value='Free'>Free</option>
-                <option value='Basic'>Basic</option>
-                <option value='Premium'>Premium</option>
-                <option value='Monitor'>Monitor</option>
-              </select>
-            </div>
-            <div className='space-y-1.5'>
-              <Label htmlFor='edit-sort'>Sort Order</Label>
-              <Input
-                id='edit-sort'
-                type='number'
-                min={0}
-                value={form.sortOrder}
-                onChange={(e) => updateField('sortOrder', e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div className='space-y-1.5'>
-              <Label>Status</Label>
-              <div className='flex h-10 items-center gap-3 rounded-md border px-3'>
-                <Switch
-                  id='edit-active'
-                  checked={form.isActive}
-                  onCheckedChange={(checked) =>
-                    setForm((prev) => ({ ...prev, isActive: checked }))
-                  }
-                  disabled={isLoading}
-                />
-                <Label htmlFor='edit-active' className='cursor-pointer text-sm'>
-                  {form.isActive ? (
-                    <span className='text-emerald-600 dark:text-emerald-400'>
-                      Active
-                    </span>
-                  ) : (
-                    <span className='text-muted-foreground'>Inactive</span>
+                {/* Name */}
+                <div className='space-y-1.5'>
+                  <Label htmlFor='edit-name'>
+                    Tên gói <span className='text-destructive'>*</span>
+                  </Label>
+                  <Input
+                    id='edit-name'
+                    value={form.name}
+                    onChange={(e) => updateField('name', e.target.value)}
+                    disabled={isLoading}
+                    className={errors.name ? 'border-destructive' : ''}
+                  />
+                  {errors.name && (
+                    <p className='text-destructive text-xs'>{errors.name}</p>
                   )}
-                </Label>
-              </div>
-            </div>
-          </div>
+                </div>
 
-          <Separator />
+                {/* Description */}
+                <div className='space-y-1.5'>
+                  <Label htmlFor='edit-desc'>Mô tả</Label>
+                  <Textarea
+                    id='edit-desc'
+                    value={form.description}
+                    onChange={(e) => updateField('description', e.target.value)}
+                    disabled={isLoading}
+                    rows={2}
+                    className='resize-none'
+                  />
+                </div>
 
-          {/* Features Section */}
-          <div className='space-y-3'>
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center gap-2'>
-                <Sparkles className='h-4 w-4 text-violet-500' />
-                <Label className='text-sm font-semibold'>
-                  Features{' '}
-                  {form.features.length > 0 && (
-                    <Badge variant='secondary' className='ml-1 text-xs'>
-                      {form.features.length}
-                    </Badge>
-                  )}
-                </Label>
-              </div>
-              <Button
-                type='button'
-                variant='outline'
-                size='sm'
-                onClick={addFeature}
-                disabled={isLoading}
-                className='gap-1.5 text-xs'
-              >
-                <Plus className='h-3.5 w-3.5' />
-                Add Feature
-              </Button>
-            </div>
-
-            {form.features.length === 0 && (
-              <div className='text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm'>
-                No features. Click "Add Feature" to define plan features.
-              </div>
-            )}
-
-            <div className='space-y-3'>
-              {form.features.map((feature, index) => (
-                <div
-                  key={index}
-                  className='bg-muted/30 space-y-2 rounded-lg border p-3'
-                >
-                  <div className='mb-1 flex items-center justify-between'>
-                    <span className='text-muted-foreground text-xs font-medium'>
-                      Feature #{index + 1}
-                    </span>
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => removeFeature(index)}
+                {/* Pricing */}
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='space-y-1.5'>
+                    <Label htmlFor='edit-price-month'>Giá / tháng (VND)</Label>
+                    <Input
+                      id='edit-price-month'
+                      type='number'
+                      min={0}
+                      value={form.priceMonth}
+                      onChange={(e) =>
+                        updateField('priceMonth', e.target.value)
+                      }
                       disabled={isLoading}
-                      className='text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0'
+                      className={errors.priceMonth ? 'border-destructive' : ''}
+                    />
+                    {errors.priceMonth && (
+                      <p className='text-destructive text-xs'>
+                        {errors.priceMonth}
+                      </p>
+                    )}
+                  </div>
+                  <div className='space-y-1.5'>
+                    <Label htmlFor='edit-price-year'>Giá / năm (VND)</Label>
+                    <Input
+                      id='edit-price-year'
+                      type='number'
+                      min={0}
+                      value={form.priceYear}
+                      onChange={(e) => updateField('priceYear', e.target.value)}
+                      disabled={isLoading}
+                      className={errors.priceYear ? 'border-destructive' : ''}
+                    />
+                    {errors.priceYear && (
+                      <p className='text-destructive text-xs'>
+                        {errors.priceYear}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sort Order & Active Status */}
+                <div className='grid grid-cols-3 gap-4'>
+                  <div className='space-y-1.5'>
+                    <Label htmlFor='edit-tier'>Hạng</Label>
+                    <select
+                      id='edit-tier'
+                      value={form.tier}
+                      onChange={(e) => updateField('tier', e.target.value)}
+                      disabled={isLoading}
+                      className='border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50'
                     >
-                      <Trash2 className='h-3.5 w-3.5' />
-                    </Button>
+                      <option value='1'>Miễn phí</option>
+                      <option value='2'>Cơ bản</option>
+                      <option value='3'>Cao cấp</option>
+                      <option value='4'>Giám sát</option>
+                    </select>
                   </div>
-                  <div className='grid grid-cols-2 gap-2'>
-                    <div className='space-y-1'>
-                      <Label className='text-xs'>
-                        Feature Key <span className='text-destructive'>*</span>
+                  <div className='space-y-1.5'>
+                    <Label htmlFor='edit-sort'>Thứ tự</Label>
+                    <Input
+                      id='edit-sort'
+                      type='number'
+                      min={0}
+                      value={form.sortOrder}
+                      onChange={(e) => updateField('sortOrder', e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className='space-y-1.5'>
+                    <Label>Trạng thái</Label>
+                    <div className='flex h-10 items-center gap-3 rounded-md border px-3'>
+                      <Switch
+                        id='edit-active'
+                        checked={form.isActive}
+                        onCheckedChange={(checked) =>
+                          setForm((prev) => ({ ...prev, isActive: checked }))
+                        }
+                        disabled={isLoading}
+                      />
+                      <Label
+                        htmlFor='edit-active'
+                        className='cursor-pointer text-sm'
+                      >
+                        {form.isActive ? (
+                          <span className='text-emerald-600 dark:text-emerald-400'>
+                            Đang hoạt động
+                          </span>
+                        ) : (
+                          <span className='text-muted-foreground'>
+                            Không hoạt động
+                          </span>
+                        )}
                       </Label>
-                      <Input
-                        placeholder='max_stations'
-                        value={feature.featureKey}
-                        onChange={(e) =>
-                          updateFeature(index, 'featureKey', e.target.value)
-                        }
-                        disabled={isLoading}
-                        className={`h-8 font-mono text-xs ${errors.features?.[index] ? 'border-destructive' : ''}`}
-                      />
-                      {errors.features?.[index] && (
-                        <p className='text-destructive text-xs'>
-                          {errors.features[index]}
-                        </p>
-                      )}
-                    </div>
-                    <div className='space-y-1'>
-                      <Label className='text-xs'>Feature Name</Label>
-                      <Input
-                        placeholder='Max Stations'
-                        value={feature.featureName}
-                        onChange={(e) =>
-                          updateFeature(index, 'featureName', e.target.value)
-                        }
-                        disabled={isLoading}
-                        className='h-8 text-xs'
-                      />
-                    </div>
-                  </div>
-                  <div className='grid grid-cols-2 gap-2'>
-                    <div className='space-y-1'>
-                      <Label className='text-xs'>Value</Label>
-                      <Input
-                        placeholder='Unlimited'
-                        value={feature.featureValue}
-                        onChange={(e) =>
-                          updateFeature(index, 'featureValue', e.target.value)
-                        }
-                        disabled={isLoading}
-                        className='h-8 text-xs'
-                      />
-                    </div>
-                    <div className='space-y-1'>
-                      <Label className='text-xs'>Description</Label>
-                      <Input
-                        placeholder='Optional'
-                        value={feature.description ?? ''}
-                        onChange={(e) =>
-                          updateFeature(
-                            index,
-                            'description',
-                            e.target.value || null
-                          )
-                        }
-                        disabled={isLoading}
-                        className='h-8 text-xs'
-                      />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <DialogFooter className='pt-2'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button type='submit' disabled={isLoading} className='gap-2'>
-              {isLoading ? (
-                <>
-                  <Loader2 className='h-4 w-4 animate-spin' />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className='h-4 w-4' />
-                  Save Changes
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
+                <Separator />
+
+                {/* Features Section */}
+                <div className='space-y-3'>
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center gap-2'>
+                      <Sparkles className='h-4 w-4 text-violet-500' />
+                      <Label className='text-sm font-semibold'>
+                        Tính năng{' '}
+                        {form.features.length > 0 && (
+                          <Badge variant='secondary' className='ml-1 text-xs'>
+                            {form.features.length}
+                          </Badge>
+                        )}
+                      </Label>
+                    </div>
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={addFeature}
+                      disabled={isLoading}
+                      className='gap-1.5 text-xs'
+                    >
+                      <Plus className='h-3.5 w-3.5' />
+                      Thêm tính năng
+                    </Button>
+                  </div>
+
+                  {form.features.length === 0 && (
+                    <div className='text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm'>
+                      Chưa có tính năng. Nhấn “Thêm tính năng” để khai báo quyền
+                      lợi cho gói.
+                    </div>
+                  )}
+
+                  <div className='space-y-3'>
+                    {form.features.map((feature, index) => (
+                      <div
+                        key={index}
+                        className='bg-muted/30 space-y-2 rounded-lg border p-3'
+                      >
+                        <div className='mb-1 flex items-center justify-between'>
+                          <span className='text-muted-foreground text-xs font-medium'>
+                            Tính năng #{index + 1}
+                          </span>
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            onClick={() => removeFeature(index)}
+                            disabled={isLoading}
+                            className='text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0'
+                          >
+                            <Trash2 className='h-3.5 w-3.5' />
+                          </Button>
+                        </div>
+                        <div className='grid grid-cols-2 gap-2'>
+                          <div className='space-y-1'>
+                            <Label className='text-xs'>
+                              Mã tính năng{' '}
+                              <span className='text-destructive'>*</span>
+                            </Label>
+                            <Input
+                              placeholder='max_stations'
+                              value={feature.featureKey}
+                              onChange={(e) =>
+                                updateFeature(
+                                  index,
+                                  'featureKey',
+                                  e.target.value
+                                )
+                              }
+                              disabled={isLoading}
+                              className={`h-8 font-mono text-xs ${errors.features?.[index] ? 'border-destructive' : ''}`}
+                            />
+                            {errors.features?.[index] && (
+                              <p className='text-destructive text-xs'>
+                                {errors.features[index]}
+                              </p>
+                            )}
+                          </div>
+                          <div className='space-y-1'>
+                            <Label className='text-xs'>Tên tính năng</Label>
+                            <Input
+                              placeholder='VD: Số trạm tối đa'
+                              value={feature.featureName}
+                              onChange={(e) =>
+                                updateFeature(
+                                  index,
+                                  'featureName',
+                                  e.target.value
+                                )
+                              }
+                              disabled={isLoading}
+                              className='h-8 text-xs'
+                            />
+                          </div>
+                        </div>
+                        <div className='grid grid-cols-2 gap-2'>
+                          <div className='space-y-1'>
+                            <Label className='text-xs'>Giá trị</Label>
+                            <Input
+                              placeholder='VD: Không giới hạn'
+                              value={feature.featureValue}
+                              onChange={(e) =>
+                                updateFeature(
+                                  index,
+                                  'featureValue',
+                                  e.target.value
+                                )
+                              }
+                              disabled={isLoading}
+                              className='h-8 text-xs'
+                            />
+                          </div>
+                          <div className='space-y-1'>
+                            <Label className='text-xs'>Mô tả</Label>
+                            <Input
+                              placeholder='Mô tả (không bắt buộc)'
+                              value={feature.description ?? ''}
+                              onChange={(e) =>
+                                updateFeature(
+                                  index,
+                                  'description',
+                                  e.target.value || null
+                                )
+                              }
+                              disabled={isLoading}
+                              className='h-8 text-xs'
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className='border-t px-6 py-4'>
+              <DialogFooter>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => onOpenChange(false)}
+                  disabled={isLoading}
+                >
+                  Hủy
+                </Button>
+                <Button type='submit' disabled={isLoading} className='gap-2'>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className='h-4 w-4 animate-spin' />
+                      Đang lưu…
+                    </>
+                  ) : (
+                    <>
+                      <Save className='h-4 w-4' />
+                      Lưu thay đổi
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

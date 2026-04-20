@@ -14,7 +14,7 @@ function formatVnd(value: number) {
 
 async function fetchCountByStatus(status?: string) {
   const token = await getAccessToken();
-  if (!token) throw new Error('Authentication required. Please log in again.');
+  if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
   const res = await billingPaymentApi.getAdminPayments(
     { page: 1, pageSize: 1, status },
     token
@@ -26,7 +26,7 @@ async function fetchPaidRevenueSample() {
   // Backend does not provide a summary endpoint in FE-41.
   // We sample paid revenue from page=1 with a larger pageSize as a best-effort approximation.
   const token = await getAccessToken();
-  if (!token) throw new Error('Authentication required. Please log in again.');
+  if (!token) throw new Error('Cần đăng nhập. Vui lòng đăng nhập lại.');
   const res = await billingPaymentApi.getAdminPayments(
     { page: 1, pageSize: 200, status: 'paid' },
     token
@@ -73,34 +73,34 @@ export function PaymentsOverview() {
     iconColor: string;
   }> = [
     {
-      label: 'Total Transactions',
+      label: 'Tổng giao dịch',
       value: totalQuery.data ?? '-',
       icon: Activity,
       iconBg: 'bg-slate-500/10',
       iconColor: 'text-slate-600 dark:text-slate-300'
     },
     {
-      label: 'Total Revenue',
+      label: 'Tổng doanh thu',
       value:
         revenueQuery.data != null ? formatVnd(revenueQuery.data.revenue) : '-',
       hint:
         revenueQuery.data != null &&
         revenueQuery.data.totalPaid > revenueQuery.data.sampled
-          ? `Sampled ${revenueQuery.data.sampled}/${revenueQuery.data.totalPaid} paid records (page 1).`
+          ? `Tạm tính từ ${revenueQuery.data.sampled}/${revenueQuery.data.totalPaid} giao dịch đã thanh toán (trang 1).`
           : undefined,
       icon: Wallet,
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-600 dark:text-emerald-300'
     },
     {
-      label: 'Pending',
+      label: 'Chờ xử lý',
       value: pendingQuery.data ?? '-',
       icon: Clock3,
       iconBg: 'bg-amber-500/10',
       iconColor: 'text-amber-600 dark:text-amber-300'
     },
     {
-      label: 'Cancelled',
+      label: 'Đã hủy',
       value: cancelledQuery.data ?? '-',
       icon: Ban,
       iconBg: 'bg-red-500/10',

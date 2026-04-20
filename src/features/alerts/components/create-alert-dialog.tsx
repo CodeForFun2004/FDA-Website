@@ -33,8 +33,8 @@ const toNumberOrUndefined = (v: unknown) => {
 };
 
 const formSchema = z.object({
-  code: z.string().min(2, { message: 'Code must be at least 2 characters.' }),
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  code: z.string().min(2, { message: 'Mã phải có ít nhất 2 ký tự.' }),
+  name: z.string().min(2, { message: 'Tên phải có ít nhất 2 ký tự.' }),
   locationDesc: z.string().optional().nullable(),
   roadName: z.string().optional().nullable(),
   direction: z.string().optional().nullable(),
@@ -211,14 +211,14 @@ export function CreateStationDialog({
             <FormSelect
               control={formControl}
               name='status'
-              label='Status'
-              placeholder='Select status'
+              label='Trạng thái'
+              placeholder='Chọn trạng thái'
               required
               disabled={isLoading}
               options={[
-                { label: 'Active', value: 'online' },
-                { label: 'Offline', value: 'offline' },
-                { label: 'Maintenance', value: 'maintenance' }
+                { label: 'Hoạt động', value: 'online' },
+                { label: 'Mất kết nối', value: 'offline' },
+                { label: 'Bảo trì', value: 'maintenance' }
               ]}
             />
 
@@ -315,18 +315,18 @@ export function CreateStationDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type='submit' disabled={isLoading} className='gap-2'>
               {isLoading ? (
                 <>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Creating...
+                  Đang tạo…
                 </>
               ) : (
                 <>
                   <Plus className='h-4 w-4' />
-                  Create Station
+                  Tạo trạm
                 </>
               )}
             </Button>

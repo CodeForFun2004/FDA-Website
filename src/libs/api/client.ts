@@ -99,7 +99,7 @@ export async function apiFetch<T>(
   path: string,
   options: ApiOptions = {}
 ): Promise<T> {
-  if (!BASE) throw new Error('Missing NEXT_PUBLIC_API_BASE_URL');
+  if (!BASE) throw new Error('Thiếu cấu hình NEXT_PUBLIC_API_BASE_URL');
 
   const url = `${BASE}${path.startsWith('/') ? '' : '/'}${path}`;
 

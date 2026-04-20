@@ -66,16 +66,16 @@ interface FormErrors {
 
 function validate(form: FormState): FormErrors {
   const errors: FormErrors = {};
-  if (!form.code.trim()) errors.code = 'Code is required';
+  if (!form.code.trim()) errors.code = 'Mã là bắt buộc.';
   else if (!/^[A-Z0-9_]+$/.test(form.code.trim()))
-    errors.code = 'Code must be uppercase letters, numbers and underscore only';
-  if (!form.name.trim()) errors.name = 'Name is required';
-  if (Number(form.priceMonth) < 0) errors.priceMonth = 'Must be ≥ 0';
-  if (Number(form.priceYear) < 0) errors.priceYear = 'Must be ≥ 0';
-  if (!form.tier.trim()) errors.tier = 'Tier is required';
+    errors.code = 'Mã chỉ gồm chữ in hoa, số và dấu gạch dưới (_).';
+  if (!form.name.trim()) errors.name = 'Tên là bắt buộc.';
+  if (Number(form.priceMonth) < 0) errors.priceMonth = 'Giá phải ≥ 0.';
+  if (Number(form.priceYear) < 0) errors.priceYear = 'Giá phải ≥ 0.';
+  if (!form.tier.trim()) errors.tier = 'Hạng là bắt buộc.';
 
   const featureErrors = form.features.map((f) =>
-    !f.featureKey.trim() ? 'Feature Key is required' : ''
+    !f.featureKey.trim() ? 'Mã tính năng là bắt buộc.' : ''
   );
   if (featureErrors.some(Boolean)) errors.features = featureErrors;
 
@@ -190,301 +190,345 @@ export function CreatePlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-[640px]'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
-            <CreditCard className='text-primary h-5 w-5' />
-            Tạo gói mới
-          </DialogTitle>
-          <DialogDescription>
-            Điền thông tin để tạo gói đăng ký mới. Các trường có dấu{' '}
-            <span className='text-destructive'>*</span> là bắt buộc.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className='max-h-[85vh] max-w-2xl overflow-hidden p-0 sm:max-w-2xl'>
+        <div className='flex max-h-[85vh] flex-col'>
+          <DialogHeader className='border-b px-6 py-4'>
+            <DialogTitle className='flex items-center gap-2'>
+              <CreditCard className='text-primary h-5 w-5' />
+              Tạo gói mới
+            </DialogTitle>
+            <DialogDescription>
+              Điền thông tin để tạo gói đăng ký mới. Các trường có dấu{' '}
+              <span className='text-destructive'>*</span> là bắt buộc.
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className='space-y-6'>
-          {/* Basic Info */}
-          <div className='space-y-4'>
-            <div className='grid grid-cols-2 gap-4'>
-              {/* Code */}
-              <div className='space-y-1.5'>
-                <Label htmlFor='create-code'>
-                  Code <span className='text-destructive'>*</span>
-                </Label>
-                <Input
-                  id='create-code'
-                  placeholder='FREE, PREMIUM...'
-                  value={form.code}
-                  onChange={(e) =>
-                    updateField('code', e.target.value.toUpperCase())
-                  }
-                  disabled={isLoading}
-                  className={`font-mono uppercase ${errors.code ? 'border-destructive' : ''}`}
-                />
-                {errors.code && (
-                  <p className='text-destructive text-xs'>{errors.code}</p>
-                )}
-              </div>
-
-              {/* Name */}
-              <div className='space-y-1.5'>
-                <Label htmlFor='create-name'>
-                  Plan Name <span className='text-destructive'>*</span>
-                </Label>
-                <Input
-                  id='create-name'
-                  placeholder='Premium Plan'
-                  value={form.name}
-                  onChange={(e) => updateField('name', e.target.value)}
-                  disabled={isLoading}
-                  className={errors.name ? 'border-destructive' : ''}
-                />
-                {errors.name && (
-                  <p className='text-destructive text-xs'>{errors.name}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className='space-y-1.5'>
-              <Label htmlFor='create-desc'>Description</Label>
-              <Textarea
-                id='create-desc'
-                placeholder='Describe what this plan offers...'
-                value={form.description}
-                onChange={(e) => updateField('description', e.target.value)}
-                disabled={isLoading}
-                rows={2}
-                className='resize-none'
-              />
-            </div>
-
-            {/* Pricing */}
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='space-y-1.5'>
-                <Label htmlFor='create-price-month'>
-                  Price / Month (VND){' '}
-                  <span className='text-destructive'>*</span>
-                </Label>
-                <Input
-                  id='create-price-month'
-                  type='number'
-                  min={0}
-                  placeholder='0'
-                  value={form.priceMonth}
-                  onChange={(e) => updateField('priceMonth', e.target.value)}
-                  disabled={isLoading}
-                  className={errors.priceMonth ? 'border-destructive' : ''}
-                />
-                {errors.priceMonth && (
-                  <p className='text-destructive text-xs'>
-                    {errors.priceMonth}
-                  </p>
-                )}
-              </div>
-              <div className='space-y-1.5'>
-                <Label htmlFor='create-price-year'>
-                  Price / Year (VND) <span className='text-destructive'>*</span>
-                </Label>
-                <Input
-                  id='create-price-year'
-                  type='number'
-                  min={0}
-                  placeholder='0'
-                  value={form.priceYear}
-                  onChange={(e) => updateField('priceYear', e.target.value)}
-                  disabled={isLoading}
-                  className={errors.priceYear ? 'border-destructive' : ''}
-                />
-                {errors.priceYear && (
-                  <p className='text-destructive text-xs'>{errors.priceYear}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Tier & Sort Order */}
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='space-y-1.5'>
-                <Label htmlFor='create-tier'>
-                  Tier <span className='text-destructive'>*</span>
-                </Label>
-                <Input
-                  id='create-tier'
-                  type='number'
-                  min={1}
-                  placeholder='1'
-                  value={form.tier}
-                  onChange={(e) => updateField('tier', e.target.value)}
-                  disabled={isLoading}
-                  className={errors.tier ? 'border-destructive' : ''}
-                />
-                {errors.tier && (
-                  <p className='text-destructive text-xs'>{errors.tier}</p>
-                )}
-              </div>
-              <div className='space-y-1.5'>
-                <Label htmlFor='create-sort'>Sort Order</Label>
-                <Input
-                  id='create-sort'
-                  type='number'
-                  min={0}
-                  placeholder='1'
-                  value={form.sortOrder}
-                  onChange={(e) => updateField('sortOrder', e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Features Section */}
-          <div className='space-y-3'>
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center gap-2'>
-                <Sparkles className='h-4 w-4 text-violet-500' />
-                <Label className='text-sm font-semibold'>
-                  Features{' '}
-                  {form.features.length > 0 && (
-                    <Badge variant='secondary' className='ml-1 text-xs'>
-                      {form.features.length}
-                    </Badge>
-                  )}
-                </Label>
-              </div>
-              <Button
-                type='button'
-                variant='outline'
-                size='sm'
-                onClick={addFeature}
-                disabled={isLoading}
-                className='gap-1.5 text-xs'
-              >
-                <Plus className='h-3.5 w-3.5' />
-                Thêm Feature
-              </Button>
-            </div>
-
-            {form.features.length === 0 && (
-              <div className='text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm'>
-                No features added. Click "Add Feature" to define plan features.
-              </div>
-            )}
-
-            <div className='space-y-3'>
-              {form.features.map((feature, index) => (
-                <div
-                  key={index}
-                  className='bg-muted/30 relative space-y-2 rounded-lg border p-3'
-                >
-                  <div className='mb-1 flex items-center justify-between'>
-                    <span className='text-muted-foreground text-xs font-medium'>
-                      Feature #{index + 1}
-                    </span>
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => removeFeature(index)}
-                      disabled={isLoading}
-                      className='text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0'
-                    >
-                      <Trash2 className='h-3.5 w-3.5' />
-                    </Button>
-                  </div>
-                  <div className='grid grid-cols-2 gap-2'>
-                    <div className='space-y-1'>
-                      <Label className='text-xs'>
-                        Feature Key <span className='text-destructive'>*</span>
+          <form
+            onSubmit={handleSubmit}
+            className='flex min-h-0 flex-1 flex-col'
+          >
+            <div className='min-h-0 flex-1 overflow-y-auto px-6 py-4'>
+              <div className='space-y-6'>
+                {/* Basic Info */}
+                <div className='space-y-4'>
+                  <div className='grid grid-cols-2 gap-4'>
+                    {/* Code */}
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='create-code'>
+                        Mã gói <span className='text-destructive'>*</span>
                       </Label>
                       <Input
-                        placeholder='max_stations'
-                        value={feature.featureKey}
+                        id='create-code'
+                        placeholder='VD: FREE, PREMIUM'
+                        value={form.code}
                         onChange={(e) =>
-                          updateFeature(index, 'featureKey', e.target.value)
+                          updateField('code', e.target.value.toUpperCase())
                         }
                         disabled={isLoading}
-                        className={`h-8 font-mono text-xs ${errors.features?.[index] ? 'border-destructive' : ''}`}
+                        className={`font-mono uppercase ${errors.code ? 'border-destructive' : ''}`}
                       />
-                      {errors.features?.[index] && (
+                      {errors.code && (
                         <p className='text-destructive text-xs'>
-                          {errors.features[index]}
+                          {errors.code}
                         </p>
                       )}
                     </div>
-                    <div className='space-y-1'>
-                      <Label className='text-xs'>Feature Name</Label>
+
+                    {/* Name */}
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='create-name'>
+                        Tên gói <span className='text-destructive'>*</span>
+                      </Label>
                       <Input
-                        placeholder='Max Stations'
-                        value={feature.featureName}
-                        onChange={(e) =>
-                          updateFeature(index, 'featureName', e.target.value)
-                        }
+                        id='create-name'
+                        placeholder='VD: Gói cao cấp'
+                        value={form.name}
+                        onChange={(e) => updateField('name', e.target.value)}
                         disabled={isLoading}
-                        className='h-8 text-xs'
+                        className={errors.name ? 'border-destructive' : ''}
                       />
+                      {errors.name && (
+                        <p className='text-destructive text-xs'>
+                          {errors.name}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <div className='grid grid-cols-2 gap-2'>
-                    <div className='space-y-1'>
-                      <Label className='text-xs'>Value</Label>
+
+                  {/* Description */}
+                  <div className='space-y-1.5'>
+                    <Label htmlFor='create-desc'>Mô tả</Label>
+                    <Textarea
+                      id='create-desc'
+                      placeholder='Mô tả ngắn về gói và các quyền lợi…'
+                      value={form.description}
+                      onChange={(e) =>
+                        updateField('description', e.target.value)
+                      }
+                      disabled={isLoading}
+                      rows={2}
+                      className='resize-none'
+                    />
+                  </div>
+
+                  {/* Pricing */}
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='create-price-month'>
+                        Giá / tháng (VND){' '}
+                        <span className='text-destructive'>*</span>
+                      </Label>
                       <Input
-                        placeholder='Unlimited'
-                        value={feature.featureValue}
+                        id='create-price-month'
+                        type='number'
+                        min={0}
+                        placeholder='0'
+                        value={form.priceMonth}
                         onChange={(e) =>
-                          updateFeature(index, 'featureValue', e.target.value)
+                          updateField('priceMonth', e.target.value)
                         }
                         disabled={isLoading}
-                        className='h-8 text-xs'
+                        className={
+                          errors.priceMonth ? 'border-destructive' : ''
+                        }
                       />
+                      {errors.priceMonth && (
+                        <p className='text-destructive text-xs'>
+                          {errors.priceMonth}
+                        </p>
+                      )}
                     </div>
-                    <div className='space-y-1'>
-                      <Label className='text-xs'>Description</Label>
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='create-price-year'>
+                        Giá / năm (VND){' '}
+                        <span className='text-destructive'>*</span>
+                      </Label>
                       <Input
-                        placeholder='Optional description'
-                        value={feature.description ?? ''}
+                        id='create-price-year'
+                        type='number'
+                        min={0}
+                        placeholder='0'
+                        value={form.priceYear}
                         onChange={(e) =>
-                          updateFeature(
-                            index,
-                            'description',
-                            e.target.value || null
-                          )
+                          updateField('priceYear', e.target.value)
                         }
                         disabled={isLoading}
-                        className='h-8 text-xs'
+                        className={errors.priceYear ? 'border-destructive' : ''}
+                      />
+                      {errors.priceYear && (
+                        <p className='text-destructive text-xs'>
+                          {errors.priceYear}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Tier & Sort Order */}
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='create-tier'>
+                        Hạng <span className='text-destructive'>*</span>
+                      </Label>
+                      <Input
+                        id='create-tier'
+                        type='number'
+                        min={1}
+                        placeholder='1'
+                        value={form.tier}
+                        onChange={(e) => updateField('tier', e.target.value)}
+                        disabled={isLoading}
+                        className={errors.tier ? 'border-destructive' : ''}
+                      />
+                      {errors.tier && (
+                        <p className='text-destructive text-xs'>
+                          {errors.tier}
+                        </p>
+                      )}
+                    </div>
+                    <div className='space-y-1.5'>
+                      <Label htmlFor='create-sort'>Thứ tự</Label>
+                      <Input
+                        id='create-sort'
+                        type='number'
+                        min={0}
+                        placeholder='1'
+                        value={form.sortOrder}
+                        onChange={(e) =>
+                          updateField('sortOrder', e.target.value)
+                        }
+                        disabled={isLoading}
                       />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <DialogFooter className='pt-2'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => handleOpenChange(false)}
-              disabled={isLoading}
-            >
-              Hủy
-            </Button>
-            <Button type='submit' disabled={isLoading} className='gap-2'>
-              {isLoading ? (
-                <>
-                  <Loader2 className='h-4 w-4 animate-spin' />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Plus className='h-4 w-4' />
-                  Tạo Gói
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
+                <Separator />
+
+                {/* Features Section */}
+                <div className='space-y-3'>
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center gap-2'>
+                      <Sparkles className='h-4 w-4 text-violet-500' />
+                      <Label className='text-sm font-semibold'>
+                        Tính năng{' '}
+                        {form.features.length > 0 && (
+                          <Badge variant='secondary' className='ml-1 text-xs'>
+                            {form.features.length}
+                          </Badge>
+                        )}
+                      </Label>
+                    </div>
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={addFeature}
+                      disabled={isLoading}
+                      className='gap-1.5 text-xs'
+                    >
+                      <Plus className='h-3.5 w-3.5' />
+                      Thêm tính năng
+                    </Button>
+                  </div>
+
+                  {form.features.length === 0 && (
+                    <div className='text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm'>
+                      Chưa có tính năng. Nhấn “Thêm tính năng” để khai báo quyền
+                      lợi cho gói.
+                    </div>
+                  )}
+
+                  <div className='space-y-3'>
+                    {form.features.map((feature, index) => (
+                      <div
+                        key={index}
+                        className='bg-muted/30 relative space-y-2 rounded-lg border p-3'
+                      >
+                        <div className='mb-1 flex items-center justify-between'>
+                          <span className='text-muted-foreground text-xs font-medium'>
+                            Tính năng #{index + 1}
+                          </span>
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            onClick={() => removeFeature(index)}
+                            disabled={isLoading}
+                            className='text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6 p-0'
+                          >
+                            <Trash2 className='h-3.5 w-3.5' />
+                          </Button>
+                        </div>
+                        <div className='grid grid-cols-2 gap-2'>
+                          <div className='space-y-1'>
+                            <Label className='text-xs'>
+                              Mã tính năng{' '}
+                              <span className='text-destructive'>*</span>
+                            </Label>
+                            <Input
+                              placeholder='max_stations'
+                              value={feature.featureKey}
+                              onChange={(e) =>
+                                updateFeature(
+                                  index,
+                                  'featureKey',
+                                  e.target.value
+                                )
+                              }
+                              disabled={isLoading}
+                              className={`h-8 font-mono text-xs ${errors.features?.[index] ? 'border-destructive' : ''}`}
+                            />
+                            {errors.features?.[index] && (
+                              <p className='text-destructive text-xs'>
+                                {errors.features[index]}
+                              </p>
+                            )}
+                          </div>
+                          <div className='space-y-1'>
+                            <Label className='text-xs'>Tên tính năng</Label>
+                            <Input
+                              placeholder='VD: Số trạm tối đa'
+                              value={feature.featureName}
+                              onChange={(e) =>
+                                updateFeature(
+                                  index,
+                                  'featureName',
+                                  e.target.value
+                                )
+                              }
+                              disabled={isLoading}
+                              className='h-8 text-xs'
+                            />
+                          </div>
+                        </div>
+                        <div className='grid grid-cols-2 gap-2'>
+                          <div className='space-y-1'>
+                            <Label className='text-xs'>Giá trị</Label>
+                            <Input
+                              placeholder='VD: Không giới hạn'
+                              value={feature.featureValue}
+                              onChange={(e) =>
+                                updateFeature(
+                                  index,
+                                  'featureValue',
+                                  e.target.value
+                                )
+                              }
+                              disabled={isLoading}
+                              className='h-8 text-xs'
+                            />
+                          </div>
+                          <div className='space-y-1'>
+                            <Label className='text-xs'>Mô tả</Label>
+                            <Input
+                              placeholder='Mô tả (không bắt buộc)'
+                              value={feature.description ?? ''}
+                              onChange={(e) =>
+                                updateFeature(
+                                  index,
+                                  'description',
+                                  e.target.value || null
+                                )
+                              }
+                              disabled={isLoading}
+                              className='h-8 text-xs'
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className='border-t px-6 py-4'>
+              <DialogFooter>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => handleOpenChange(false)}
+                  disabled={isLoading}
+                >
+                  Hủy
+                </Button>
+                <Button type='submit' disabled={isLoading} className='gap-2'>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className='h-4 w-4 animate-spin' />
+                      Đang tạo…
+                    </>
+                  ) : (
+                    <>
+                      <Plus className='h-4 w-4' />
+                      Tạo gói
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

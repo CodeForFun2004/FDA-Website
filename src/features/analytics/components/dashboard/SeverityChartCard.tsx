@@ -47,7 +47,7 @@ export function SeverityChartCard(props: {
           <div className='rounded-md border p-3'>
             <div className='text-muted-foreground'>Số lần đo TB</div>
             <div className='text-foreground mt-1 text-base font-semibold'>
-              {avgReading ? Intl.NumberFormat('en-US').format(avgReading) : '—'}
+              {avgReading ? Intl.NumberFormat('vi-VN').format(avgReading) : '—'}
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function SeverityChartCard(props: {
               <Recharts.CartesianGrid strokeDasharray='3 3' />
               <Recharts.XAxis
                 dataKey='timeBucket'
-                tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                tickFormatter={(v) => new Date(v).toLocaleDateString('vi-VN')}
                 minTickGap={24}
               />
               <Recharts.YAxis />

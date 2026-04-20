@@ -14,9 +14,9 @@ import { CheckCircle2, Wrench, XCircle } from 'lucide-react';
 import { CellAction } from './cell-action';
 
 export const STATION_STATUS_OPTIONS = [
-  { label: 'Online', value: 'online' },
-  { label: 'Offline', value: 'offline' },
-  { label: 'Maintenance', value: 'maintenance' }
+  { label: 'Trực tuyến', value: 'online' },
+  { label: 'Ngoại tuyến', value: 'offline' },
+  { label: 'Bảo trì', value: 'maintenance' }
 ];
 
 export const STATION_TYPE_OPTIONS = [
@@ -25,13 +25,6 @@ export const STATION_TYPE_OPTIONS = [
   { label: 'Drainage', value: 'drainage' },
   { label: 'Floodgate', value: 'floodgate' }
 ];
-
-// Format calibration offset: show +X or -X or 0
-function formatCalibration(value: number | null): string {
-  if (value == null) return '-';
-  if (value === 0) return '0.0';
-  return value > 0 ? `+${value.toFixed(1)}` : value.toFixed(1);
-}
 
 // Format last seen to time ago
 function formatLastSeen(lastSeenAt: string | null): string {
@@ -43,10 +36,10 @@ function formatLastSeen(lastSeenAt: string | null): string {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffDays > 0) return `${diffDays}d ago`;
-  if (diffHours > 0) return `${diffHours}h ago`;
-  if (diffMins > 0) return `${diffMins}m ago`;
-  return 'Just now';
+  if (diffDays > 0) return `${diffDays} ngày trước`;
+  if (diffHours > 0) return `${diffHours} giờ trước`;
+  if (diffMins > 0) return `${diffMins} phút trước`;
+  return 'Vừa xong';
 }
 
 function getStatusConfig(status: string) {
@@ -85,6 +78,12 @@ function getStatusConfig(status: string) {
   }
 }
 
+function statusLabel(status: string) {
+  const s = String(status ?? '').toLowerCase();
+  const found = STATION_STATUS_OPTIONS.find((o) => o.value === s);
+  return found?.label ?? (s ? s : 'Không xác định');
+}
+
 export const columns: ColumnDef<Station>[] = [
   // STT - row index
   {
@@ -108,21 +107,24 @@ export const columns: ColumnDef<Station>[] = [
     id: 'code',
     accessorKey: 'code',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Code' />
+      <DataTableColumnHeader column={column} title='Mã' />
     ),
     cell: ({ cell }) => (
       <div className='text-primary font-mono font-medium'>
         {String(cell.getValue() ?? '-')}
       </div>
     ),
-    enableColumnFilter: true
+    enableColumnFilter: true,
+    meta: {
+      viewLabel: 'Mã'
+    }
   },
   // Name
   {
     id: 'name',
     accessorKey: 'name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Name' />
+      <DataTableColumnHeader column={column} title='Tên' />
     ),
     cell: ({ cell }) => (
       <div className='text-foreground font-semibold'>
@@ -130,8 +132,9 @@ export const columns: ColumnDef<Station>[] = [
       </div>
     ),
     meta: {
-      label: 'Name',
-      placeholder: 'Tìm kiếm tên trạm ...',
+      label: 'Tên',
+      viewLabel: 'Tên',
+      placeholder: 'Tìm theo tên trạm…',
       variant: 'text'
     },
     enableColumnFilter: true
@@ -140,8 +143,11 @@ export const columns: ColumnDef<Station>[] = [
   {
     id: 'roadName',
     accessorKey: 'roadName',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Location / Road' />
+    header: () => (
+      <div className='text-muted-foreground w-full text-center text-xs leading-tight font-semibold tracking-wider whitespace-normal uppercase'>
+        Vị trí /<br />
+        Tuyến đường
+      </div>
     ),
     cell: ({ row }) => {
       const road = row.original.roadName;
@@ -157,14 +163,18 @@ export const columns: ColumnDef<Station>[] = [
         </div>
       );
     },
-    enableColumnFilter: false
+    enableColumnFilter: false,
+    enableSorting: false,
+    meta: {
+      viewLabel: 'Vị trí / Tuyến đường'
+    }
   },
   // Status
   {
     id: 'status',
     accessorKey: 'status',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Status' />
+      <DataTableColumnHeader column={column} title='Trạng thái' />
     ),
     cell: ({ cell }) => {
       const status = String(cell.getValue() ?? '').toLowerCase();
@@ -177,13 +187,14 @@ export const columns: ColumnDef<Station>[] = [
           className={`gap-1.5 font-medium capitalize ${config.className}`}
         >
           <Icon className={`h-3.5 w-3.5 ${config.iconClassName}`} />
-          {status || 'unknown'}
+          {statusLabel(status)}
         </Badge>
       );
     },
     enableColumnFilter: true,
     meta: {
-      label: 'Status',
+      label: 'Trạng thái',
+      viewLabel: 'Trạng thái',
       variant: 'multiSelect',
       options: STATION_STATUS_OPTIONS
     }
@@ -193,7 +204,7 @@ export const columns: ColumnDef<Station>[] = [
     id: 'threshold',
     header: ({}) => (
       <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase'>
-        Thresh (m)
+        Ngưỡng (m)
       </div>
     ),
     cell: ({ row }) => {
@@ -208,36 +219,17 @@ export const columns: ColumnDef<Station>[] = [
       );
     },
     enableColumnFilter: false,
-    size: 110
-  },
-  // Calibration Offset (±cm)
-  {
-    id: 'calibrationOffset',
-    accessorKey: 'calibrationOffset',
-    header: ({}) => (
-      <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase'>
-        Calib (±cm)
-      </div>
-    ),
-    cell: ({ row }) => {
-      const calib = row.original.calibrationOffset;
-      return (
-        <div
-          className={`text-center tabular-nums ${calib == null ? 'text-muted-foreground' : 'text-slate-500'}`}
-        >
-          {formatCalibration(calib)}
-        </div>
-      );
-    },
-    enableColumnFilter: false,
-    size: 90
+    size: 110,
+    meta: {
+      viewLabel: 'Ngưỡng (m)'
+    }
   },
   // Health (signal + battery) - placeholder, backend needs signal/battery data
   {
     id: 'health',
     header: ({}) => (
       <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase'>
-        Health
+        Tín hiệu
       </div>
     ),
     cell: ({ row }) => {
@@ -259,37 +251,46 @@ export const columns: ColumnDef<Station>[] = [
       );
     },
     enableColumnFilter: false,
-    size: 90
+    size: 90,
+    meta: {
+      viewLabel: 'Tín hiệu'
+    }
   },
   // Last Seen / Updated
   {
     id: 'lastSeenAt',
     accessorKey: 'lastSeenAt',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Last Seen' />
+    header: () => (
+      <div className='text-muted-foreground w-full text-left text-xs leading-tight font-semibold tracking-wider whitespace-normal uppercase'>
+        Lần thấy gần nhất
+      </div>
     ),
     cell: ({ row }) => {
       const lastSeen = row.original.lastSeenAt;
       if (!lastSeen)
-        return <div className='text-muted-foreground text-xs'>-</div>;
+        return <div className='text-muted-foreground text-left text-xs'>-</div>;
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className='text-muted-foreground cursor-default text-xs'>
+              <div className='text-muted-foreground cursor-default text-left text-xs'>
                 {formatLastSeen(lastSeen)}
               </div>
             </TooltipTrigger>
             <TooltipContent>
               <p className='font-medium'>
-                {new Date(lastSeen).toLocaleString()}
+                {new Date(lastSeen).toLocaleString('vi-VN')}
               </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       );
     },
-    enableColumnFilter: false
+    enableColumnFilter: false,
+    enableSorting: false,
+    meta: {
+      viewLabel: 'Lần thấy gần nhất'
+    }
   },
   // Actions
   {

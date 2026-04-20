@@ -64,21 +64,21 @@ export function PaymentDetailsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[760px]'>
         <DialogHeader>
-          <DialogTitle>Payment Details</DialogTitle>
-          <DialogDescription>Read-only billing record.</DialogDescription>
+          <DialogTitle>Chi tiết thanh toán</DialogTitle>
+          <DialogDescription>Bản ghi thanh toán (chỉ xem).</DialogDescription>
         </DialogHeader>
 
         {payment ? (
           <div className='space-y-5'>
             <div className='grid grid-cols-2 gap-4'>
               <div className='space-y-1'>
-                <p className='text-muted-foreground text-xs'>Order Code</p>
+                <p className='text-muted-foreground text-xs'>Mã đơn</p>
                 <p className='font-semibold tabular-nums'>
                   {payment.orderCode}
                 </p>
               </div>
               <div className='space-y-1'>
-                <p className='text-muted-foreground text-xs'>Status</p>
+                <p className='text-muted-foreground text-xs'>Trạng thái</p>
                 <div>
                   <StatusBadge status={payment.status} />
                 </div>
@@ -155,13 +155,13 @@ export function PaymentDetailsDialog({
           </div>
         ) : (
           <div className='text-muted-foreground text-sm'>
-            No payment selected.
+            Chưa chọn thanh toán.
           </div>
         )}
 
         <DialogFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Close
+            Đóng
           </Button>
         </DialogFooter>
       </DialogContent>

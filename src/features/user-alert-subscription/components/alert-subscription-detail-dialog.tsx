@@ -57,14 +57,14 @@ export function AlertSubscriptionDetailDialog({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
+    return new Date(dateString).toLocaleString('vi-VN');
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-lg'>
         <DialogHeader>
-          <DialogTitle>Alert Subscription Details</DialogTitle>
+          <DialogTitle>Chi tiết đăng ký cảnh báo</DialogTitle>
         </DialogHeader>
 
         {loading ? (

@@ -18,6 +18,13 @@ import {
   SelectValue
 } from '@/components/ui/common';
 import {
+  Select as PageSizeSelect,
+  SelectContent as PageSizeSelectContent,
+  SelectItem as PageSizeSelectItem,
+  SelectTrigger as PageSizeSelectTrigger,
+  SelectValue as PageSizeSelectValue
+} from '@/components/ui/select';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -36,16 +43,22 @@ import {
 } from '@/features/zones/api/flood-reports-community.api';
 import { toast } from 'sonner';
 import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Eye,
   EyeOff,
   Film,
   Image as ImageIcon,
   Loader2,
   MapPin,
-  RefreshCw
+  RefreshCw,
+  SlidersHorizontal,
+  ChevronDown
 } from 'lucide-react';
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
 
 type Filters = {
   status: '' | 'published' | 'hidden';
@@ -65,7 +78,8 @@ const DEFAULT_FILTERS: Filters = {
 
 function buildQuery(
   filters: Filters,
-  pageNumber: number
+  pageNumber: number,
+  pageSize: number
 ): CommunityFloodReportsQuery {
   // BE dùng dạng chuỗi: status=published|hidden, severity=low|medium|high
   const statusCode = filters.status === '' ? null : filters.status;
@@ -82,7 +96,7 @@ function buildQuery(
     from: filters.from || '',
     to: filters.to || '',
     pageNumber,
-    pageSize: PAGE_SIZE
+    pageSize
   };
 }
 
@@ -137,13 +151,15 @@ export default function ModeratorCommunityPage() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = React.useState<Filters>(DEFAULT_FILTERS);
   const [pageNumber, setPageNumber] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(DEFAULT_PAGE_SIZE);
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [hideConfirmOpen, setHideConfirmOpen] = React.useState(false);
   const [pendingHideReport, setPendingHideReport] =
     React.useState<CommunityFloodReport | null>(null);
 
   const queryParams = React.useMemo(
-    () => buildQuery(filters, pageNumber),
-    [filters, pageNumber]
+    () => buildQuery(filters, pageNumber, pageSize),
+    [filters, pageNumber, pageSize]
   );
 
   const reportsQuery = useQuery({
@@ -212,7 +228,20 @@ export default function ModeratorCommunityPage() {
   });
 
   const totalCount = reportsQuery.data?.totalCount ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const goToPage = (nextPage: number) => {
+    const p = Math.min(totalPages, Math.max(1, nextPage));
+    setPageNumber(p);
+  };
+
+  const appliedFiltersCount = React.useMemo(() => {
+    let count = 0;
+    if (filters.severity) count += 1;
+    if (filters.minTrustScore.trim()) count += 1;
+    if (filters.from) count += 1;
+    if (filters.to) count += 1;
+    return count;
+  }, [filters]);
 
   const updateFilters = <K extends keyof Filters>(
     key: K,
@@ -299,115 +328,142 @@ export default function ModeratorCommunityPage() {
               )
             }
           >
-            <TabsList className='h-auto flex-wrap'>
-              <TabsTrigger value='tat-ca'>Tất cả</TabsTrigger>
-              <TabsTrigger value='published'>Đang hiển thị</TabsTrigger>
-              <TabsTrigger value='hidden'>Đã ẩn</TabsTrigger>
+            <TabsList className='bg-muted/50 grid h-auto grid-cols-3 gap-1 rounded-lg p-1'>
+              <TabsTrigger
+                value='tat-ca'
+                className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-9 rounded-md px-2 text-xs font-semibold data-[state=active]:shadow-none'
+              >
+                Tất cả
+              </TabsTrigger>
+              <TabsTrigger
+                value='published'
+                className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-9 rounded-md px-2 text-xs font-semibold data-[state=active]:shadow-none'
+              >
+                Đang hiển thị
+              </TabsTrigger>
+              <TabsTrigger
+                value='hidden'
+                className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-9 rounded-md px-2 text-xs font-semibold data-[state=active]:shadow-none'
+              >
+                Đã ẩn
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader className='pb-4'>
-          <CardTitle className='text-lg'>Bộ lọc phản ánh cộng đồng</CardTitle>
-          <CardDescription>
-            Lọc theo trạng thái, mức độ, điểm tin cậy và khoảng ngày gửi bài.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='grid gap-3 md:grid-cols-2 xl:grid-cols-5'>
-          <div className='space-y-1.5'>
-            <div className='text-sm font-medium'>Trạng thái</div>
-            <Select
-              value={filters.status || 'tat-ca'}
-              onValueChange={(value) =>
-                updateFilters(
-                  'status',
-                  value === 'tat-ca' ? '' : (value as Filters['status'])
-                )
-              }
-            >
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Chọn trạng thái' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='tat-ca'>Tất cả</SelectItem>
-                <SelectItem value='published'>Đang hiển thị</SelectItem>
-                <SelectItem value='hidden'>Đã ẩn</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className='space-y-1.5'>
-            <div className='text-sm font-medium'>Mức độ</div>
-            <Select
-              value={filters.severity || 'tat-ca'}
-              onValueChange={(value) =>
-                updateFilters(
-                  'severity',
-                  value === 'tat-ca' ? '' : (value as Filters['severity'])
-                )
-              }
-            >
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Chọn mức độ' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='tat-ca'>Tất cả</SelectItem>
-                <SelectItem value='low'>Thấp</SelectItem>
-                <SelectItem value='medium'>Trung bình</SelectItem>
-                <SelectItem value='high'>Cao</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className='space-y-1.5'>
-            <div className='text-sm font-medium'>Điểm tin cậy tối thiểu</div>
-            <Input
-              type='number'
-              min='0'
-              step='1'
-              placeholder='Ví dụ: 1'
-              value={filters.minTrustScore}
-              onChange={(e) => updateFilters('minTrustScore', e.target.value)}
-            />
-          </div>
-
-          <div className='space-y-1.5'>
-            <div className='text-sm font-medium'>Từ ngày</div>
-            <Input
-              type='date'
-              value={filters.from}
-              onChange={(e) => updateFilters('from', e.target.value)}
-            />
-          </div>
-
-          <div className='space-y-1.5'>
-            <div className='text-sm font-medium'>Đến ngày</div>
-            <Input
-              type='date'
-              value={filters.to}
-              onChange={(e) => updateFilters('to', e.target.value)}
-            />
-          </div>
-
-          <div className='flex flex-wrap gap-2 pt-1 md:col-span-2 xl:col-span-5'>
+        <CardContent className='p-4'>
+          <div className='flex items-start justify-between gap-3'>
+            <div>
+              <div className='text-sm font-semibold text-slate-900'>Bộ lọc</div>
+              <div className='text-muted-foreground text-sm'>
+                Mức độ, điểm tin cậy và khoảng ngày gửi.
+              </div>
+            </div>
             <Button
               type='button'
-              variant='outline'
-              onClick={() => reportsQuery.refetch()}
-              disabled={reportsQuery.isFetching}
-              className='gap-2'
+              variant={filtersOpen ? 'default' : 'outline'}
+              size='sm'
+              onClick={() => setFiltersOpen((v) => !v)}
+              className='h-9 gap-2 whitespace-nowrap'
+              aria-expanded={filtersOpen}
+              aria-controls='community-filters'
             >
-              <RefreshCw
-                className={`h-4 w-4 ${reportsQuery.isFetching ? 'animate-spin' : ''}`}
+              <SlidersHorizontal className='h-4 w-4' />
+              Bộ lọc
+              {appliedFiltersCount > 0 && (
+                <span className='bg-background/20 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold'>
+                  {appliedFiltersCount}
+                </span>
+              )}
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`}
               />
-              Tải lại
-            </Button>
-            <Button type='button' variant='ghost' onClick={resetFilters}>
-              Xóa bộ lọc
             </Button>
           </div>
+
+          {filtersOpen && (
+            <div
+              id='community-filters'
+              className='mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4'
+            >
+              <div className='space-y-1.5'>
+                <div className='text-sm font-medium'>Mức độ</div>
+                <Select
+                  value={filters.severity || 'tat-ca'}
+                  onValueChange={(value) =>
+                    updateFilters(
+                      'severity',
+                      value === 'tat-ca' ? '' : (value as Filters['severity'])
+                    )
+                  }
+                >
+                  <SelectTrigger className='w-full'>
+                    <SelectValue placeholder='Chọn mức độ' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='tat-ca'>Tất cả</SelectItem>
+                    <SelectItem value='low'>Thấp</SelectItem>
+                    <SelectItem value='medium'>Trung bình</SelectItem>
+                    <SelectItem value='high'>Cao</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className='space-y-1.5'>
+                <div className='text-sm font-medium'>
+                  Điểm tin cậy tối thiểu
+                </div>
+                <Input
+                  type='number'
+                  min='0'
+                  step='1'
+                  placeholder='Ví dụ: 1'
+                  value={filters.minTrustScore}
+                  onChange={(e) =>
+                    updateFilters('minTrustScore', e.target.value)
+                  }
+                />
+              </div>
+
+              <div className='space-y-1.5'>
+                <div className='text-sm font-medium'>Từ ngày</div>
+                <Input
+                  type='date'
+                  value={filters.from}
+                  onChange={(e) => updateFilters('from', e.target.value)}
+                />
+              </div>
+
+              <div className='space-y-1.5'>
+                <div className='text-sm font-medium'>Đến ngày</div>
+                <Input
+                  type='date'
+                  value={filters.to}
+                  onChange={(e) => updateFilters('to', e.target.value)}
+                />
+              </div>
+
+              <div className='flex flex-wrap gap-2 pt-1 md:col-span-2 xl:col-span-4'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => reportsQuery.refetch()}
+                  disabled={reportsQuery.isFetching}
+                  className='gap-2'
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${reportsQuery.isFetching ? 'animate-spin' : ''}`}
+                  />
+                  Tải lại
+                </Button>
+                <Button type='button' variant='ghost' onClick={resetFilters}>
+                  Xóa bộ lọc
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -469,28 +525,80 @@ export default function ModeratorCommunityPage() {
 
       <div className='flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-white p-4'>
         <div className='text-muted-foreground text-sm'>
-          Hiển thị {(pageNumber - 1) * PAGE_SIZE + (items.length ? 1 : 0)}-
-          {(pageNumber - 1) * PAGE_SIZE + items.length} / {totalCount} bài.
+          Tổng {totalCount} dòng.
         </div>
-        <div className='flex items-center gap-2'>
-          <Button
-            type='button'
-            variant='outline'
-            disabled={pageNumber <= 1 || reportsQuery.isFetching}
-            onClick={() => setPageNumber((prev) => Math.max(1, prev - 1))}
-          >
-            Trang trước
-          </Button>
-          <Button
-            type='button'
-            variant='outline'
-            disabled={pageNumber >= totalPages || reportsQuery.isFetching}
-            onClick={() =>
-              setPageNumber((prev) => Math.min(totalPages, prev + 1))
-            }
-          >
-            Trang sau
-          </Button>
+
+        <div className='flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8'>
+          <div className='flex items-center space-x-2'>
+            <p className='text-sm font-medium whitespace-nowrap'>
+              Số dòng/trang
+            </p>
+            <PageSizeSelect
+              value={`${pageSize}`}
+              onValueChange={(value) => {
+                setPageNumber(1);
+                setPageSize(Number(value));
+              }}
+            >
+              <PageSizeSelectTrigger className='h-8 w-[4.5rem] [&[data-size]]:h-8'>
+                <PageSizeSelectValue placeholder={pageSize} />
+              </PageSizeSelectTrigger>
+              <PageSizeSelectContent side='top'>
+                {[10, 20, 30, 40, 50].map((s) => (
+                  <PageSizeSelectItem key={s} value={`${s}`}>
+                    {s}
+                  </PageSizeSelectItem>
+                ))}
+              </PageSizeSelectContent>
+            </PageSizeSelect>
+          </div>
+
+          <div className='flex items-center justify-center text-sm font-medium'>
+            Trang {pageNumber} / {totalPages}
+          </div>
+
+          <div className='flex items-center space-x-2'>
+            <Button
+              aria-label='Về trang đầu'
+              variant='outline'
+              size='icon'
+              className='hidden size-8 lg:flex'
+              onClick={() => goToPage(1)}
+              disabled={pageNumber <= 1}
+            >
+              <ChevronsLeft className='h-4 w-4' />
+            </Button>
+            <Button
+              aria-label='Trang trước'
+              variant='outline'
+              size='icon'
+              className='size-8'
+              onClick={() => goToPage(pageNumber - 1)}
+              disabled={pageNumber <= 1}
+            >
+              <ChevronLeft className='h-4 w-4' />
+            </Button>
+            <Button
+              aria-label='Trang sau'
+              variant='outline'
+              size='icon'
+              className='size-8'
+              onClick={() => goToPage(pageNumber + 1)}
+              disabled={pageNumber >= totalPages}
+            >
+              <ChevronRight className='h-4 w-4' />
+            </Button>
+            <Button
+              aria-label='Về trang cuối'
+              variant='outline'
+              size='icon'
+              className='hidden size-8 lg:flex'
+              onClick={() => goToPage(totalPages)}
+              disabled={pageNumber >= totalPages}
+            >
+              <ChevronsRight className='h-4 w-4' />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

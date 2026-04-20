@@ -7,6 +7,7 @@ import { AlertTriangle, Droplets, Clock, Activity, MapPin } from 'lucide-react';
 import type { FloodStationProperties } from '@/features/zones/api/flood-severity.api';
 import { usePathname } from 'next/navigation';
 import { useStationRealtimeFromMap } from '@/features/stations/hooks/useStationRealtimeFromMap';
+import { t } from '@/locales/t';
 
 export type FloodFeatureProps = {
   properties: FloodStationProperties;
@@ -170,7 +171,7 @@ export function FloodDetailCard({
                 onClick={realtime.refresh}
                 disabled={realtime.isLoading}
               >
-                Refresh
+                {t('common.refresh')}
               </button>
             </div>
           ) : null}

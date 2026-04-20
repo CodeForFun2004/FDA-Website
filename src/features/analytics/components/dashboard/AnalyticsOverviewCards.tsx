@@ -18,7 +18,7 @@ function statusToVariant(status: JobStatus) {
 }
 
 function fmt(n: number) {
-  return Intl.NumberFormat('en-US').format(n);
+  return Intl.NumberFormat('vi-VN').format(n);
 }
 
 function getLastSuccessfulRun(runs: JobRun[]) {
@@ -32,11 +32,11 @@ function withinHours(iso: string, hours: number) {
 }
 
 function fmtDate(d: Date) {
-  return d.toLocaleDateString();
+  return d.toLocaleDateString('vi-VN');
 }
 
 function fmtTime(d: Date) {
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 }
 
 export function AnalyticsOverviewCards(props: {
@@ -73,50 +73,52 @@ export function AnalyticsOverviewCards(props: {
 
   const kpis: KpiRow[] = [
     {
-      label: 'Total runs',
+      label: 'Tổng lượt chạy',
       value: fmt(totalRuns),
-      caption: 'All job types',
+      caption: 'Tất cả loại tác vụ',
       icon: Activity
     },
     {
-      label: 'Running',
+      label: 'Đang chạy',
       value: fmt(running),
-      caption: 'Active executions',
+      caption: 'Tác vụ đang thực thi',
       icon: Gauge,
       tone: running > 0 ? 'warning' : 'neutral'
     },
     {
-      label: 'Last successful',
+      label: 'Lần thành công gần nhất',
       value: lastOk
         ? fmtDate(new Date(lastOk.finishedAt ?? lastOk.startedAt))
         : '—',
       caption: lastOk
         ? `${fmtTime(new Date(lastOk.finishedAt ?? lastOk.startedAt))} • ${lastOk.jobType}`
-        : 'No successful run yet',
+        : 'Chưa có lượt chạy thành công',
       icon: Clock,
       badge: lastOk
         ? { text: lastOk.jobType, variant: statusToVariant(lastOk.status) }
         : null
     },
     {
-      label: 'Failed (24h)',
+      label: 'Thất bại (24h)',
       value: fmt(failed24h),
-      caption: failed24h > 0 ? 'Needs attention' : 'No recent failures',
+      caption: failed24h > 0 ? 'Cần theo dõi' : 'Không có lỗi gần đây',
       icon: ShieldAlert,
       tone: failed24h > 0 ? 'danger' : 'neutral'
     },
     {
-      label: 'Aggregated records',
+      label: 'Bản ghi tổng hợp',
       value: fmt(props.aggregatedRecordsTotal),
-      caption: 'Created across runs',
+      caption: 'Được tạo qua các lượt chạy',
       icon: Database
     },
     {
-      label: 'Data freshness',
+      label: 'Độ mới dữ liệu',
       value: freshnessMinutes === null ? '—' : `${freshnessMinutes}m`,
       caption: props.latestCalculatedAt
-        ? `calculatedAt ${new Date(props.latestCalculatedAt).toLocaleString()}`
-        : 'Unknown',
+        ? `Tính toán lúc ${new Date(props.latestCalculatedAt).toLocaleString(
+            'vi-VN'
+          )}`
+        : 'Không xác định',
       icon: Clock,
       tone:
         freshnessMinutes !== null && freshnessMinutes > 180

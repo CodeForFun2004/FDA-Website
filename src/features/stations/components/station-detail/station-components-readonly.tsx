@@ -14,19 +14,19 @@ function statusBadge(status: string) {
   if (s === 'active')
     return (
       <Badge className='border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'>
-        Active
+        Hoạt động
       </Badge>
     );
   if (s === 'faulty')
     return (
       <Badge className='border border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400'>
-        Faulty
+        Lỗi
       </Badge>
     );
   if (s === 'inactive')
     return (
       <Badge className='border border-slate-500/20 bg-slate-500/10 text-slate-600 dark:text-slate-300'>
-        Inactive
+        Không hoạt động
       </Badge>
     );
   return <Badge variant='outline'>{status}</Badge>;
@@ -35,13 +35,13 @@ function statusBadge(status: string) {
 function typeLabel(t: string) {
   const map: Record<string, string> = {
     esp32: 'ESP32 (MCU)',
-    srt04: 'Ultrasonic Sensor (SRT04)',
-    temperature_sensor: 'Temperature Sensor',
-    battery: 'Battery',
-    speaker: 'Speaker',
+    srt04: 'Cảm biến siêu âm (SRT04)',
+    temperature_sensor: 'Cảm biến nhiệt độ',
+    battery: 'Pin',
+    speaker: 'Loa',
     gsm_module: 'GSM Module',
-    solar_panel: 'Solar Panel',
-    rain_sensor: 'Rain Sensor'
+    solar_panel: 'Tấm pin năng lượng mặt trời',
+    rain_sensor: 'Cảm biến mưa'
   };
   const key = String(t ?? '');
   return map[key] ?? key ?? '—';

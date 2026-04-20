@@ -238,7 +238,7 @@ export function AnalyticsDashboard() {
       const token = await getAccessToken();
       if (!token) {
         toast.error('Cần đăng nhập.');
-        throw new Error('Unauthorized');
+        throw new Error('Không có quyền truy cập.');
       }
       const type = quickActionType;
       if (!type) throw new Error('Missing job type');

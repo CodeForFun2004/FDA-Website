@@ -16,16 +16,16 @@ import { CellAction } from './cell-action';
 import { formatDate } from '@/libs/utils';
 
 export const ALERT_STATUS_OPTIONS = [
-  { label: 'New', value: 'New' },
-  { label: 'Acknowledged', value: 'Acknowledged' },
-  { label: 'Resolved', value: 'Resolved' }
+  { label: 'Mới', value: 'New' },
+  { label: 'Đã ghi nhận', value: 'Acknowledged' },
+  { label: 'Đã xử lý', value: 'Resolved' }
 ];
 
 export const ALERT_SEVERITY_OPTIONS = [
-  { label: 'Low', value: 'Low' },
-  { label: 'Medium', value: 'Medium' },
-  { label: 'High', value: 'High' },
-  { label: 'Critical', value: 'Critical' }
+  { label: 'Thấp', value: 'Low' },
+  { label: 'Trung bình', value: 'Medium' },
+  { label: 'Cao', value: 'High' },
+  { label: 'Nghiêm trọng', value: 'Critical' }
 ];
 
 export const columns: ColumnDef<Alert>[] = [
@@ -33,7 +33,7 @@ export const columns: ColumnDef<Alert>[] = [
     id: 'severity',
     accessorKey: 'severity',
     header: ({ column }: { column: Column<Alert, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Severity' />
+      <DataTableColumnHeader column={column} title='Mức cảnh báo' />
     ),
     cell: ({ cell }) => {
       const severity = String(cell.getValue() ?? '');
@@ -47,7 +47,8 @@ export const columns: ColumnDef<Alert>[] = [
     },
     enableColumnFilter: true,
     meta: {
-      label: 'Severity',
+      label: 'Mức cảnh báo',
+      viewLabel: 'Mức cảnh báo',
       variant: 'multiSelect',
       options: ALERT_SEVERITY_OPTIONS
     }
@@ -56,7 +57,7 @@ export const columns: ColumnDef<Alert>[] = [
     id: 'message',
     accessorKey: 'message',
     header: ({ column }: { column: Column<Alert, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Message' />
+      <DataTableColumnHeader column={column} title='Nội dung' />
     ),
     cell: ({ row }) => (
       <div className='max-w-xs truncate font-medium'>
@@ -64,8 +65,9 @@ export const columns: ColumnDef<Alert>[] = [
       </div>
     ),
     meta: {
-      label: 'Message',
-      placeholder: 'Search message...',
+      label: 'Nội dung',
+      viewLabel: 'Nội dung',
+      placeholder: 'Tìm theo nội dung…',
       variant: 'text',
       icon: Text
     },
@@ -75,29 +77,31 @@ export const columns: ColumnDef<Alert>[] = [
     id: 'zone',
     accessorKey: 'zone',
     header: ({ column }: { column: Column<Alert, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Zone' />
+      <DataTableColumnHeader column={column} title='Khu vực' />
     ),
     cell: ({ cell }) => (
       <div className='min-w-[120px]'>{String(cell.getValue() ?? '-')}</div>
-    )
+    ),
+    meta: { viewLabel: 'Khu vực' }
   },
   {
     id: 'timestamp',
     accessorKey: 'timestamp',
     header: ({ column }: { column: Column<Alert, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Time' />
+      <DataTableColumnHeader column={column} title='Thời điểm' />
     ),
     cell: ({ cell }) => (
       <div className='min-w-[150px]'>
         {formatDate(String(cell.getValue() ?? ''))}
       </div>
-    )
+    ),
+    meta: { viewLabel: 'Thời điểm' }
   },
   {
     id: 'status',
     accessorKey: 'status',
     header: ({ column }: { column: Column<Alert, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Status' />
+      <DataTableColumnHeader column={column} title='Trạng thái' />
     ),
     cell: ({ cell }) => {
       const status = String(cell.getValue() ?? '');
@@ -150,7 +154,8 @@ export const columns: ColumnDef<Alert>[] = [
     },
     enableColumnFilter: true,
     meta: {
-      label: 'Status',
+      label: 'Trạng thái',
+      viewLabel: 'Trạng thái',
       variant: 'multiSelect',
       options: ALERT_STATUS_OPTIONS
     }

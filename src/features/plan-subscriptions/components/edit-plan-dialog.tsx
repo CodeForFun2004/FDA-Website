@@ -215,9 +215,6 @@ export function EditPlanDialog({
               <Badge variant='secondary' className='font-mono text-xs'>
                 {plan.code}
               </Badge>
-              <span className='text-muted-foreground text-xs'>
-                (mã gói chỉ đọc)
-              </span>
             </DialogDescription>
           </DialogHeader>
 

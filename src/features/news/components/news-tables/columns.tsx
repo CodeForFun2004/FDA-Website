@@ -134,7 +134,7 @@ export const getNewsColumns = (
       return (
         <Badge
           variant={config.variant}
-          className={`gap-1.5 font-medium ${config.className}`}
+          className={`gap-1.5 font-medium whitespace-nowrap ${config.className}`}
         >
           <Icon className='h-3.5 w-3.5' />
           {config.label}
@@ -207,7 +207,7 @@ export const getNewsColumns = (
       return (
         <Badge
           variant={config.variant}
-          className={`gap-1.5 font-medium ${config.className}`}
+          className={`gap-1.5 font-medium whitespace-nowrap ${config.className}`}
         >
           <Icon className='h-3.5 w-3.5' />
           {config.label}
@@ -264,7 +264,11 @@ export const getNewsColumns = (
     id: 'publishedAt',
     accessorKey: 'publishedAt',
     header: ({ column }: { column: Column<Announcement, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Thời điểm đăng' />
+      <DataTableColumnHeader
+        column={column}
+        title='Thời điểm đăng'
+        className='whitespace-nowrap'
+      />
     ),
     cell: ({ cell }) => (
       <div className='text-muted-foreground text-sm whitespace-nowrap'>

@@ -147,12 +147,40 @@ export default function StationDetailView({
               ±{station.calibrationOffset ?? 5}cm
             </Badge>
           </div>
-          <p className='text-muted-foreground mt-1 flex items-center pl-11'>
-            <MapPin className='mr-1 h-4 w-4' />
-            {station.roadName ||
-              station.locationDesc ||
-              'Chưa có thông tin vị trí'}
-          </p>
+          <div className='text-muted-foreground mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 pl-11 text-sm'>
+            <span className='flex items-center'>
+              <MapPin className='mr-1 h-4 w-4' />
+              {station.roadName || 'Chưa có đường'}
+            </span>
+            <span className='text-muted-foreground/60 hidden md:inline'>·</span>
+            <span>
+              Ngưỡng cảnh báo:{' '}
+              <span className='text-foreground font-medium tabular-nums'>
+                {station.thresholdWarning ?? '—'}
+              </span>
+            </span>
+            <span className='text-muted-foreground/60 hidden md:inline'>·</span>
+            <span>
+              Ngưỡng khẩn cấp:{' '}
+              <span className='text-foreground font-medium tabular-nums'>
+                {station.thresholdCritical ?? '—'}
+              </span>
+            </span>
+            <span className='text-muted-foreground/60 hidden md:inline'>·</span>
+            <span>
+              Hướng:{' '}
+              <span className='text-foreground font-medium'>
+                {station.direction ?? '—'}
+              </span>
+            </span>
+            <span className='text-muted-foreground/60 hidden md:inline'>·</span>
+            <span className='min-w-0'>
+              Mô tả vị trí:{' '}
+              <span className='text-foreground font-medium'>
+                {station.locationDesc ?? '—'}
+              </span>
+            </span>
+          </div>
         </div>
       </div>
 

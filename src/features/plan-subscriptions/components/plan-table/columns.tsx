@@ -246,10 +246,12 @@ export const columns: ColumnDef<PricingPlan>[] = [
   {
     id: 'features',
     accessorKey: 'features',
-    header: () => (
-      <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase'>
-        Tính năng
-      </div>
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title='Tính năng'
+        className='justify-center whitespace-nowrap'
+      />
     ),
     cell: ({ row }) => {
       const features = row.original.features;
@@ -284,6 +286,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
       );
     },
     enableColumnFilter: false,
+    enableSorting: false,
     meta: {
       viewLabel: 'Tính năng'
     },

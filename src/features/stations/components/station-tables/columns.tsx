@@ -143,11 +143,12 @@ export const columns: ColumnDef<Station>[] = [
   {
     id: 'roadName',
     accessorKey: 'roadName',
-    header: () => (
-      <div className='text-muted-foreground w-full text-center text-xs leading-tight font-semibold tracking-wider whitespace-normal uppercase'>
-        Vị trí /<br />
-        Tuyến đường
-      </div>
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title='Tuyến đường'
+        className='whitespace-nowrap'
+      />
     ),
     cell: ({ row }) => {
       const road = row.original.roadName;
@@ -166,7 +167,7 @@ export const columns: ColumnDef<Station>[] = [
     enableColumnFilter: false,
     enableSorting: false,
     meta: {
-      viewLabel: 'Vị trí / Tuyến đường'
+      viewLabel: 'Tuyến đường'
     }
   },
   // Status
@@ -203,8 +204,8 @@ export const columns: ColumnDef<Station>[] = [
   {
     id: 'threshold',
     header: ({}) => (
-      <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase'>
-        Ngưỡng (m)
+      <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider whitespace-nowrap'>
+        Ngưỡng (cm)
       </div>
     ),
     cell: ({ row }) => {
@@ -228,7 +229,7 @@ export const columns: ColumnDef<Station>[] = [
   {
     id: 'health',
     header: ({}) => (
-      <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase'>
+      <div className='text-muted-foreground text-center text-xs font-semibold tracking-wider'>
         Tín hiệu
       </div>
     ),
@@ -261,7 +262,7 @@ export const columns: ColumnDef<Station>[] = [
     id: 'lastSeenAt',
     accessorKey: 'lastSeenAt',
     header: () => (
-      <div className='text-muted-foreground w-full text-left text-xs leading-tight font-semibold tracking-wider whitespace-normal uppercase'>
+      <div className='text-muted-foreground w-full text-left text-xs leading-tight font-semibold tracking-wider whitespace-normal'>
         Lần thấy gần nhất
       </div>
     ),

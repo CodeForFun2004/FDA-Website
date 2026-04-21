@@ -303,6 +303,7 @@ export default function ModeratorCommunityPage() {
               }
             }}
             disabled={hideMutation.isPending || !pendingHideReport}
+            className='text-white'
           >
             {hideMutation.isPending ? 'Đang ẩn...' : 'Ẩn bài'}
           </Button>
@@ -448,7 +449,7 @@ export default function ModeratorCommunityPage() {
               <div className='flex flex-wrap gap-2 pt-1 md:col-span-2 xl:col-span-4'>
                 <Button
                   type='button'
-                  variant='outline'
+                  variant='default'
                   onClick={() => reportsQuery.refetch()}
                   disabled={reportsQuery.isFetching}
                   className='gap-2'
@@ -458,7 +459,7 @@ export default function ModeratorCommunityPage() {
                   />
                   Tải lại
                 </Button>
-                <Button type='button' variant='ghost' onClick={resetFilters}>
+                <Button type='button' variant='default' onClick={resetFilters}>
                   Xóa bộ lọc
                 </Button>
               </div>
@@ -759,7 +760,7 @@ function ReportCard({
                   type='button'
                   variant='destructive'
                   size='sm'
-                  className='gap-2'
+                  className='gap-2 text-white'
                   disabled={
                     hiding ||
                     String(report.status ?? '').toLowerCase() === 'hidden' ||

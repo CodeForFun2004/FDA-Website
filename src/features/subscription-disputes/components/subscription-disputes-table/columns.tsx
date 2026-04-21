@@ -80,6 +80,7 @@ export function getSubscriptionDisputesColumns(params: {
     },
     {
       id: 'user',
+      accessorKey: 'userFullName',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Người dùng' />
       ),

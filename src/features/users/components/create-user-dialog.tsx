@@ -43,16 +43,16 @@ export type CreateUserDialogProps = {
 
 // Available roles for selection
 const ROLE_OPTIONS = [
-  { value: 'USER', label: 'Người dùng' },
-  { value: 'ADMIN', label: 'Quản trị viên' },
-  { value: 'SUPERADMIN', label: 'Quản trị cấp cao' },
-  { value: 'MODERATOR', label: 'Điều phối viên' }
+  { value: 'USER', label: 'User' },
+  { value: 'MODERATOR', label: 'Moderator' },
+  { value: 'ADMIN', label: 'Admin' },
+  { value: 'SUPERADMIN', label: 'Super Admin' }
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'active', label: 'Hoạt động' },
-  { value: 'inactive', label: 'Không hoạt động' },
-  { value: 'banned', label: 'Bị khóa' }
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'banned', label: 'Banned' }
 ];
 
 // ===== Component =====
@@ -81,9 +81,7 @@ export function CreateUserDialog({
     mutationFn: (data: CreateUserRequest) => createAdminUserApi(data),
     onSuccess: (response) => {
       if (response.success) {
-        toast.success('Tạo người dùng thành công!', {
-          description: `Mã người dùng: ${response.userId}`
-        });
+        toast.success('Tạo người dùng thành công!');
         // Invalidate users query to refetch
         queryClient.invalidateQueries({ queryKey: ['users'] });
         // Reset form

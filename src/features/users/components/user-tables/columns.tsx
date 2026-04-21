@@ -9,16 +9,16 @@ import { formatDate } from '@/libs/utils';
 import { UserCellAction } from './cell-action';
 
 export const ROLE_OPTIONS = [
-  { label: 'Quản trị viên', value: 'ADMIN' },
-  { label: 'Người dùng', value: 'USER' },
-  { label: 'Quản trị cấp cao', value: 'SUPERADMIN' },
-  { label: 'Điều phối viên', value: 'MODERATOR' }
+  { label: 'User', value: 'USER' },
+  { label: 'Moderator', value: 'MODERATOR' },
+  { label: 'Admin', value: 'ADMIN' },
+  { label: 'Super Admin', value: 'SUPERADMIN' }
 ];
 
 export const STATUS_OPTIONS = [
-  { label: 'Hoạt động', value: 'active' },
-  { label: 'Không hoạt động', value: 'inactive' },
-  { label: 'Bị khóa', value: 'banned' }
+  { label: 'Active', value: 'active' },
+  { label: 'Inactive', value: 'inactive' },
+  { label: 'Banned', value: 'banned' }
 ];
 
 export const columns: ColumnDef<User>[] = [
@@ -41,6 +41,7 @@ export const columns: ColumnDef<User>[] = [
     ),
     meta: {
       label: 'Tìm kiếm',
+      viewLabel: 'Người dùng',
       placeholder: 'Tìm tên hoặc email...',
       variant: 'text',
       icon: Text
@@ -68,12 +69,12 @@ export const columns: ColumnDef<User>[] = [
 
       const getRoleLabel = (role: string) =>
         role === 'SUPERADMIN'
-          ? 'Quản trị cấp cao'
+          ? 'Super Admin'
           : role === 'MODERATOR'
-            ? 'Điều phối viên'
+            ? 'Moderator'
             : role === 'ADMIN'
-              ? 'Quản trị viên'
-              : 'Người dùng';
+              ? 'Admin'
+              : 'User';
 
       return (
         <div className='flex flex-wrap gap-1'>
@@ -89,7 +90,7 @@ export const columns: ColumnDef<User>[] = [
             ))
           ) : (
             <Badge variant='outline' className='border-gray-300 text-gray-600'>
-              Người dùng
+              User
             </Badge>
           )}
         </div>
@@ -97,6 +98,7 @@ export const columns: ColumnDef<User>[] = [
     },
     meta: {
       label: 'Vai trò',
+      viewLabel: 'Vai trò',
       variant: 'select',
       options: ROLE_OPTIONS
     },
@@ -109,14 +111,14 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title='Trạng thái' />
     ),
     cell: ({ row }) => {
-      const status = row.original.status.toLowerCase();
+      const status = String(row.original.status ?? '').toLowerCase();
       const statusLabel =
         status === 'active'
-          ? 'Hoạt động'
+          ? 'Active'
           : status === 'inactive'
-            ? 'Không hoạt động'
+            ? 'Inactive'
             : status === 'banned'
-              ? 'Bị khóa'
+              ? 'Banned'
               : row.original.status;
       const getBadgeConfig = (value: string) => {
         switch (value) {
@@ -159,6 +161,7 @@ export const columns: ColumnDef<User>[] = [
     },
     meta: {
       label: 'Trạng thái',
+      viewLabel: 'Trạng thái',
       variant: 'select',
       options: STATUS_OPTIONS
     },
@@ -168,13 +171,20 @@ export const columns: ColumnDef<User>[] = [
     id: 'lastLogin',
     accessorKey: 'lastLogin',
     header: ({ column }: { column: Column<User, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Lần đăng nhập gần nhất' />
+      <DataTableColumnHeader
+        column={column}
+        title='Lần đăng nhập gần nhất'
+        className='whitespace-nowrap'
+      />
     ),
     cell: ({ row }) => (
       <div className='text-muted-foreground'>
         {formatDate(row.original.lastLogin)}
       </div>
-    )
+    ),
+    meta: {
+      viewLabel: 'Lần đăng nhập gần nhất'
+    }
   },
   {
     id: 'actions',

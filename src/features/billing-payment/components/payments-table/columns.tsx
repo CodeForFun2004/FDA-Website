@@ -21,6 +21,26 @@ function formatDateTime(iso: string | null) {
   }
 }
 
+function formatDateTimeLines(iso: string | null): {
+  time: string;
+  date: string;
+} {
+  if (!iso) return { time: '—', date: '—' };
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return { time: '—', date: String(iso) };
+  const time = d.toLocaleTimeString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  const date = d.toLocaleDateString('vi-VN', {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric'
+  });
+  return { time, date };
+}
+
 function getStatusConfig(status: PaymentStatus) {
   switch (status) {
     case 'paid':
@@ -209,11 +229,16 @@ export function getPaymentColumns(params: {
           className='whitespace-nowrap'
         />
       ),
-      cell: ({ row }) => (
-        <div className='text-muted-foreground text-sm'>
-          {formatDateTime(row.original.paidAt ?? row.original.createdAt)}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const raw = row.original.paidAt ?? row.original.createdAt;
+        const lines = formatDateTimeLines(raw);
+        return (
+          <div className='text-muted-foreground text-sm leading-tight tabular-nums'>
+            <div>{lines.time}</div>
+            <div>{lines.date}</div>
+          </div>
+        );
+      },
       enableSorting: false,
       enableColumnFilter: false,
       meta: {

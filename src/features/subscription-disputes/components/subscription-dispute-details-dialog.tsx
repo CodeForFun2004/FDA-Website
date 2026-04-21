@@ -70,7 +70,7 @@ export function SubscriptionDisputeDetailsDialog({
             {complaint.adminResponse ? (
               <div className='space-y-1'>
                 <p className='text-muted-foreground text-xs'>
-                  Phản hồi quản trị
+                  Phản hồi của Admin
                 </p>
                 <pre className='text-sm leading-relaxed whitespace-pre-wrap'>
                   {complaint.adminResponse}

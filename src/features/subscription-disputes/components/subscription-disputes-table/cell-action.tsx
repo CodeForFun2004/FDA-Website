@@ -68,14 +68,14 @@ export function SubscriptionDisputeCellAction({
       {complaint.status === 'open' ? (
         <Button
           size='sm'
-          variant='outline'
+          variant='default'
           onClick={() => setOpenResolve(true)}
           disabled={resolveMutation.isPending}
         >
-          Resolve
+          Xử lí
         </Button>
       ) : (
-        <span className='text-muted-foreground text-sm'>Resolved</span>
+        <span className='text-muted-foreground text-sm'>Đã xử lí</span>
       )}
     </>
   );

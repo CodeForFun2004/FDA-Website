@@ -93,7 +93,8 @@ export function NewsDetailDialog({
     low: { label: 'Thấp', className: 'bg-gray-500/10 text-gray-600' },
     normal: {
       label: 'Bình thường',
-      className: 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
+      className:
+        'bg-blue-500/10 text-blue-700 dark:text-blue-400 whitespace-nowrap'
     },
     high: {
       label: 'Cao',

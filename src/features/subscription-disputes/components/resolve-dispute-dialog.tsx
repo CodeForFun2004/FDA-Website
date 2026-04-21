@@ -90,7 +90,7 @@ export function ResolveDisputeDialog({
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='admin-response'>Phản hồi quản trị</Label>
+              <Label htmlFor='admin-response'>Phản hồi của Admin</Label>
               <Textarea
                 id='admin-response'
                 value={adminResponse}

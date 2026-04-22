@@ -197,11 +197,20 @@ export function AreaDetailCard({
   }
 
   const pd = predictRoot?.data;
+  const hasAiResult = Boolean(pd);
 
   return (
-    <div className='pointer-events-auto w-full max-w-md'>
-      <Card className='overflow-hidden rounded-2xl border-none bg-white/95 shadow-xl backdrop-blur-md'>
-        <div className='p-4 pb-2'>
+    <div
+      className={`pointer-events-auto max-w-full ${
+        hasAiResult ? 'w-full' : 'w-fit'
+      }`}
+    >
+      <Card
+        className={`overflow-hidden rounded-2xl border-none bg-white/95 shadow-xl backdrop-blur-md ${
+          hasAiResult ? 'flex max-h-[calc(100dvh-96px)] flex-col' : ''
+        }`}
+      >
+        <div className={hasAiResult ? 'shrink-0 p-4 pb-2' : 'p-4 pb-2'}>
           <div className='flex items-start justify-between gap-2'>
             <div className='min-w-0 flex-1'>
               <h2 className='text-lg leading-tight font-bold text-slate-800'>
@@ -239,7 +248,13 @@ export function AreaDetailCard({
           </div>
         )}
 
-        <div className='space-y-3 border-t border-slate-100 px-3 pt-3 pb-4'>
+        <div
+          className={`border-t border-slate-100 px-3 pt-3 pb-4 ${
+            hasAiResult
+              ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain'
+              : ''
+          }`}
+        >
           <div className='flex flex-wrap gap-2'>
             <Button
               type='button'
@@ -339,10 +354,7 @@ export function AreaDetailCard({
               <p className='text-muted-foreground text-xs'>Đang tải…</p>
             )}
             {pd && (
-              <div
-                ref={aiPanelScrollRef}
-                className='max-h-[min(480px,65vh)] overflow-y-auto'
-              >
+              <div ref={aiPanelScrollRef} className='pr-1'>
                 <PredictFloodAiPanel data={pd} />
               </div>
             )}

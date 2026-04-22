@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/common';
-import type { CommunityFloodReport } from '../api/flood-reports-community.api';
+import type { CommunityFloodReport } from '@/features/community-report';
 
 type Props = {
   report: CommunityFloodReport;

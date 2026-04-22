@@ -4,7 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from '@/libs/router';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
-import { setSessionCookie } from '@/helpers/auth-session';
+import {
+  getPortalPathFromRoles,
+  setAuthSessionCookies
+} from '@/helpers/auth-session';
 
 function safeDecode(v: string) {
   try {
@@ -16,7 +19,7 @@ function safeDecode(v: string) {
 
 // Chặn open-redirect: chỉ cho phép path nội bộ dạng "/..."
 function getSafeReturnUrl(raw: string | null) {
-  const fallback = '/admin';
+  const fallback = '/';
   if (!raw) return fallback;
 
   const decoded = safeDecode(raw).trim();
@@ -103,8 +106,7 @@ export default function GoogleCallbackPage() {
         false
       );
 
-      // ✅ Set session cookie để layout có thể check
-      setSessionCookie();
+      setAuthSessionCookies(user?.roles ?? []);
 
       // Xoá hash khỏi URL để sạch (tránh lưu token trong history)
       window.history.replaceState(
@@ -114,7 +116,11 @@ export default function GoogleCallbackPage() {
       );
 
       toast.success('Đăng nhập Google thành công!');
-      window.location.replace(returnUrl);
+      const redirectUrl =
+        returnUrl === '/'
+          ? getPortalPathFromRoles(user?.roles ?? [])
+          : returnUrl;
+      window.location.replace(redirectUrl);
     } catch (e: any) {
       const msg = e?.message ?? 'Không thể lưu token.';
       setError(msg);

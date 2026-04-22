@@ -174,25 +174,28 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Lấy returnUrl từ state hoặc mặc định
-    // Lấy returnUrl từ BE hoặc mặc định (nhưng ưu tiên theo role)
-    let returnUrl = data.returnUrl || '/dashboard';
+    // Lấy returnUrl từ BE; nếu không có sẽ tính theo role để tránh ép sai portal.
+    let returnUrl = data.returnUrl || '/';
 
     const roles: string[] = data?.user?.roles ?? [];
 
-    // ✅ Check role-based access
-    // SUPERADMIN và ADMIN đều vào /admin
     if (roles.includes('SUPERADMIN') || roles.includes('ADMIN')) {
       returnUrl = '/admin';
-    } else if (roles.includes('MODERATOR')) returnUrl = '/moderator';
-    else if (roles.includes('USER') || roles.length === 0) {
-      // ❌ USER role không được phép truy cập hệ thống admin
+    } else if (roles.includes('MODERATOR')) {
+      returnUrl = '/moderator';
+    } else if (roles.includes('USER') || roles.length === 0) {
       returnUrl = '/auth/forbidden';
     }
 
     // (optional) chặn open-redirect: chỉ cho phép path nội bộ
-    if (!returnUrl.startsWith('/') || returnUrl.startsWith('//'))
-      returnUrl = '/admin';
+    if (!returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+      returnUrl =
+        roles.includes('SUPERADMIN') || roles.includes('ADMIN')
+          ? '/admin'
+          : roles.includes('MODERATOR')
+            ? '/moderator'
+            : '/auth/forbidden';
+    }
 
     console.log('Return URL:', returnUrl);
 

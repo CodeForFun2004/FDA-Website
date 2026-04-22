@@ -426,7 +426,7 @@ export function CreatePlanDialog({
                               <span className='text-destructive'>*</span>
                             </Label>
                             <Input
-                              placeholder='max_stations'
+                              placeholder='Mã dùng để phân biệt'
                               value={feature.featureKey}
                               onChange={(e) =>
                                 updateFeature(
@@ -436,7 +436,7 @@ export function CreatePlanDialog({
                                 )
                               }
                               disabled={isLoading}
-                              className={`h-8 font-mono text-xs ${errors.features?.[index] ? 'border-destructive' : ''}`}
+                              className={`placeholder:text-muted-foreground h-8 font-sans text-xs placeholder:font-normal ${errors.features?.[index] ? 'border-destructive' : ''}`}
                             />
                             {errors.features?.[index] && (
                               <p className='text-destructive text-xs'>

@@ -3,10 +3,12 @@
 
 import React, { useState } from 'react';
 import { useRouter } from '@/libs/router';
-import Link from 'next/link';
 import { Button } from '../../../components/ui/common';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
-import { setSessionCookie } from '@/helpers/auth-session';
+import {
+  getPortalPathFromRoles,
+  setAuthSessionCookies
+} from '@/helpers/auth-session';
 import { toast } from 'sonner';
 import { initGoogleOAuthApi } from '@/features/authenticate/api/auth.api';
 import LoginFlow from './login-flow';
@@ -22,24 +24,12 @@ export default function LoginViewPage() {
 
   const getRedirectPath = () => {
     const user = useAuthStore.getState().user;
-    const roles = user?.roles ?? [];
-
-    // SUPERADMIN và ADMIN đều vào /admin
-    if (roles.includes('SUPERADMIN') || roles.includes('ADMIN')) {
-      return '/admin';
-    }
-    if (roles.includes('MODERATOR')) return '/moderator';
-
-    // ❌ USER role is not allowed to access admin system
-    if (roles.includes('USER') || roles.length === 0) {
-      return '/auth/forbidden';
-    }
-
-    return '/';
+    return getPortalPathFromRoles(user?.roles ?? []);
   };
 
   const onLoggedIn = () => {
-    setSessionCookie(); // giữ nếu bạn đang dùng cookie marker
+    const roles = useAuthStore.getState().user?.roles ?? [];
+    setAuthSessionCookies(roles);
     router.push(getRedirectPath());
   };
 

@@ -14,28 +14,35 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import {
+  getPortalPathFromRoles,
+  SESSION_COOKIE_NAME,
+  USER_PORTAL_COOKIE_NAME,
+  USER_ROLES_COOKIE_NAME
+} from '@/helpers/auth-session';
+import RootSessionResolver from './root-session-resolver';
 
 export default async function Page() {
   const cookieStore = await cookies();
-  const session = cookieStore.get('fda_session')?.value;
+  const session = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
   if (!session) redirect('/auth/login');
 
-  // Best-effort redirect by role (if available via cookie).
-  // NOTE: App Router server components cannot read localStorage.
-  const rolesCookie = cookieStore.get('fda_user_roles')?.value;
+  const portalCookie = cookieStore.get(USER_PORTAL_COOKIE_NAME)?.value;
+  if (portalCookie === 'moderator') redirect('/moderator');
+  if (portalCookie === 'admin') redirect('/admin');
+
+  // Best-effort redirect by role when the cookie exists.
+  // If it is missing/invalid, let the hydrated client auth store resolve instead.
+  const rolesCookie = cookieStore.get(USER_ROLES_COOKIE_NAME)?.value;
   if (rolesCookie) {
     try {
       const roles = JSON.parse(rolesCookie) as string[] | string;
-      const list = Array.isArray(roles) ? roles : [roles];
-      if (list.includes('MODERATOR')) redirect('/moderator');
-      if (list.includes('ADMIN') || list.includes('SUPERADMIN'))
-        redirect('/admin');
+      redirect(getPortalPathFromRoles(roles));
     } catch {
       // ignore invalid cookie
     }
   }
 
-  // Fallback to admin portal (existing behavior)
-  redirect('/admin');
+  return <RootSessionResolver />;
 }

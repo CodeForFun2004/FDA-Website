@@ -4,7 +4,10 @@ import { useEffect } from 'react';
 import { useRouter } from '@/libs/router';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
-import { setSessionCookie } from '@/helpers/auth-session';
+import {
+  getPortalPathFromRoles,
+  setAuthSessionCookies
+} from '@/helpers/auth-session';
 
 function parseHash() {
   const hash = window.location.hash.startsWith('#')
@@ -46,22 +49,13 @@ export default function GoogleFinishPage() {
         expiresAt
       });
 
-      setSessionCookie();
+      setAuthSessionCookies(user?.roles ?? []);
       toast.success('Đăng nhập Google thành công!');
 
       // xoá hash khỏi url (đỡ lộ token)
       window.history.replaceState(null, '', '/auth/google/finish');
 
-      // redirect theo role
-      const roles = user?.roles ?? [];
-      // SUPERADMIN và ADMIN đều vào /admin
-      if (roles.includes('SUPERADMIN') || roles.includes('ADMIN')) {
-        router.push('/admin');
-      } else if (roles.includes('MODERATOR')) router.push('/moderator');
-      else if (roles.includes('USER') || roles.length === 0) {
-        // ❌ USER role không được phép truy cập hệ thống admin
-        router.push('/auth/forbidden');
-      } else router.push('/');
+      router.push(getPortalPathFromRoles(user?.roles ?? []));
     } catch (e: any) {
       toast.error(e?.message ?? 'Hoàn tất đăng nhập Google thất bại.');
       router.push('/auth/login');

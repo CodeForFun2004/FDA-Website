@@ -30,7 +30,7 @@ import { FloodDetailCard } from '../flood-detail-card';
 import { AreaDetailCard } from '../area-detail-card';
 import { CommunityReportCard } from '../community-report-card';
 import LegendFlood from './legend-flood';
-import type { CommunityFloodReport } from '../../api/flood-reports-community.api';
+import type { CommunityFloodReport } from '@/features/community-report';
 import { StationHoverCard } from './station-hover-card';
 import { useStationRealtimeFromMap } from '@/features/stations/hooks/useStationRealtimeFromMap';
 import type { FloodFeatureProperties } from '../../api/flood-severity.api';
@@ -756,7 +756,7 @@ export default function MapView({ prefs }: Props) {
   }, [prefs.overlays.communityReports]);
 
   return (
-    <div className='relative h-full w-full'>
+    <div className='relative h-full w-full overflow-x-hidden'>
       <div ref={containerRef} className='h-full w-full' />
       <div className='pointer-events-none absolute bottom-3 left-3 z-40'>
         <LegendFlood
@@ -818,13 +818,28 @@ export default function MapView({ prefs }: Props) {
         />
       )}
       {selectedAreaFeature && prefs.overlays.adminAreas && (
-        <div className='animate-in slide-in-from-left-4 fade-in absolute top-5 left-4 z-50 duration-300'>
-          <AreaDetailCard
-            feature={selectedAreaFeature}
-            onClose={() => setSelectedAreaFeature(null)}
-            onSatelliteGeoJson={onSatelliteGeoJson}
-            onPredictGeoJson={onPredictGeoJson}
-          />
+        <div className='animate-in slide-in-from-left-4 fade-in absolute top-5 left-4 z-50 w-[min(420px,calc(100%-24px))] max-w-[calc(100%-24px)] duration-300'>
+          <div
+            onMouseEnter={() => {
+              mapRef.current?.scrollZoom?.disable();
+            }}
+            onMouseLeave={() => {
+              mapRef.current?.scrollZoom?.enable();
+            }}
+            onTouchStart={() => {
+              mapRef.current?.scrollZoom?.disable();
+            }}
+            onTouchEnd={() => {
+              mapRef.current?.scrollZoom?.enable();
+            }}
+          >
+            <AreaDetailCard
+              feature={selectedAreaFeature}
+              onClose={() => setSelectedAreaFeature(null)}
+              onSatelliteGeoJson={onSatelliteGeoJson}
+              onPredictGeoJson={onPredictGeoJson}
+            />
+          </div>
         </div>
       )}
       {selectedCommunityReport && prefs.overlays.communityReports && (

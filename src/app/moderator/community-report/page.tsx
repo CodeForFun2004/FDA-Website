@@ -1,5 +1,5 @@
 import PageContainer from '@/components/layout/page-container';
-import ModeratorCommunityPage from '@/features/community-reports/components/moderator-community-page';
+import { ModeratorCommunityView } from '@/features/community-report';
 
 export const metadata = {
   title: 'Moderator: Phản ánh cộng đồng'
@@ -12,7 +12,7 @@ export default function Page() {
       pageTitle='Phản ánh cộng đồng'
       pageDescription='Xem bài phản ánh ngập từ người dân, lọc theo tiêu chí và ẩn bài không phù hợp.'
     >
-      <ModeratorCommunityPage />
+      <ModeratorCommunityView />
     </PageContainer>
   );
 }

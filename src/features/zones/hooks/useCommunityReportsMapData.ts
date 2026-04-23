@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { FeatureCollection } from 'geojson';
 import * as React from 'react';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
-import { fetchCommunityFloodReports } from '../api/flood-reports-community.api';
+import { fetchCommunityFloodReports } from '@/features/community-report';
 import {
   FLOOD_TIER_HEX,
   tierFromSeverityString

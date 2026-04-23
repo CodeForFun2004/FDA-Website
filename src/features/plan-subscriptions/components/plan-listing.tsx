@@ -7,15 +7,16 @@ import { PlanTable } from './plan-table';
 import { PlanOverview } from './plan-overview';
 import type { PricingPlan } from '../types/plan-subscription.type';
 import { getAccessToken } from '@/libs/auth-utils';
+import { devLog, devWarn } from '@/libs/env';
 
 function logPlanShape(plans: any[]) {
   if (!Array.isArray(plans) || plans.length === 0) {
-    console.log('[PlanListingPage] plans is empty or not array');
+    devLog('[PlanListingPage] plans is empty or not array');
     return;
   }
 
   const first = plans[0];
-  console.log('[PlanListingPage] first plan shape check:', {
+  devLog('[PlanListingPage] first plan shape check:', {
     id: typeof first?.id,
     code: typeof first?.code,
     name: typeof first?.name,
@@ -50,8 +51,7 @@ export default function PlanListingPage() {
       let resolvedSource: 'API' | 'MOCK' = 'MOCK';
 
       try {
-        console.log('\n================ PLAN LISTING DEBUG ================');
-        console.log('[PlanListingPage] calling getPlans...');
+        devLog('[PlanListingPage] calling getPlans...');
 
         const token = await getAccessToken();
         if (!token) {
@@ -60,11 +60,7 @@ export default function PlanListingPage() {
 
         const data = await planSubscriptionApi.getPlans(token);
 
-        console.log(
-          '[PlanListingPage] raw API response:',
-          JSON.stringify(data, null, 2)
-        );
-        console.log('[PlanListingPage] envelope check:', {
+        devLog('[PlanListingPage] envelope check:', {
           hasSuccessField: data && 'success' in data,
           success: data?.success,
           hasDataField: data && 'data' in data,
@@ -75,15 +71,15 @@ export default function PlanListingPage() {
         });
 
         if (data?.success && Array.isArray(data?.data)) {
-          console.log('[PlanListingPage] using REAL API data');
+          devLog('[PlanListingPage] using REAL API data');
           logPlanShape(data.data);
           resolvedPlans = data.data;
           resolvedSource = 'API';
         } else {
-          console.warn(
+          devWarn(
             '[PlanListingPage] API response shape mismatch -> fallback to MOCK_PLANS'
           );
-          console.warn('[PlanListingPage] mismatch detail:', {
+          devWarn('[PlanListingPage] mismatch detail:', {
             success: data?.success,
             isDataArray: Array.isArray(data?.data),
             actualDataType: typeof data?.data,
@@ -93,28 +89,25 @@ export default function PlanListingPage() {
           resolvedSource = 'MOCK';
         }
       } catch (error: any) {
-        console.error(
-          '[PlanListingPage] API CALL FAILED -> fallback to MOCK_PLANS'
-        );
-        console.error('[PlanListingPage] error name:', error?.name);
-        console.error('[PlanListingPage] error message:', error?.message);
-        console.error('[PlanListingPage] error status:', error?.status);
-        console.error('[PlanListingPage] error payload:', error?.payload);
+        devWarn('[PlanListingPage] API call failed -> fallback to MOCK_PLANS', {
+          name: error?.name,
+          message: error?.message,
+          status: error?.status
+        });
         resolvedPlans = MOCK_PLANS;
         resolvedSource = 'MOCK';
       } finally {
         if (isMounted) {
           setPlans(resolvedPlans);
           setDataSource(resolvedSource);
-          console.log(
+          devLog(
             '[PlanListingPage] final rendered data source:',
             resolvedSource
           );
-          console.log(
+          devLog(
             '[PlanListingPage] final total plans:',
             Array.isArray(resolvedPlans) ? resolvedPlans.length : 0
           );
-          console.log('===================================================\n');
         }
       }
     };

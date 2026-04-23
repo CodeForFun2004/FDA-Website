@@ -1,6 +1,6 @@
 import PageContainer from '@/components/layout/page-container';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import BillingPaymentView from '@/features/billing-payment/views/BillingPaymentView';
+import BillingPaymentView from '@/features/billing-payment/views/billing-payment-view';
 import { Suspense } from 'react';
 
 export const metadata = {

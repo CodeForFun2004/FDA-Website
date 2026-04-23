@@ -44,15 +44,17 @@ export function FloodBarChart({ trendData, isLoading }: FloodBarChartProps) {
   const chartConfig = {
     maxLevel: {
       label: 'Mực max (cm)',
-      color: 'hsl(var(--destructive))'
+      // Use primary (blue) for 30-day bars
+      color: 'var(--primary)'
     },
     avgLevel: {
       label: 'Mực TB (cm)',
-      color: 'hsl(var(--primary))'
+      // Softer primary for comparison
+      color: 'color-mix(in oklch, var(--primary) 65%, white)'
     },
     minLevel: {
       label: 'Mực min (cm)',
-      color: 'hsl(var(--muted))'
+      color: 'var(--muted)'
     }
   } satisfies ChartConfig;
 

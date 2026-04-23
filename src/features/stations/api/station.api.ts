@@ -23,9 +23,9 @@ import type {
 } from '../types/station.type';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import { getPublicApiBaseUrl } from '@/libs/env';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const API_BASE_URL = getPublicApiBaseUrl();
 const API_PREFIX = `${API_BASE_URL}/stations`;
 
 const ENDPOINTS = {

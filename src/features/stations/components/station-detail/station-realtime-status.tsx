@@ -18,6 +18,23 @@ function formatDateTime(iso: string | null | undefined) {
   }
 }
 
+function stationStatusLabel(raw: unknown) {
+  const s = String(raw ?? '').trim();
+  if (!s) return '—';
+  switch (s.toLowerCase()) {
+    case 'maintenance':
+      return 'Maintenance';
+    case 'unknown':
+      return 'Unknown';
+    case 'online':
+      return 'Online';
+    case 'offline':
+      return 'Offline';
+    default:
+      return s;
+  }
+}
+
 function severityBadge(severity: string | null | undefined) {
   const s = String(severity ?? '').toLowerCase();
   if (s === 'critical')
@@ -91,7 +108,7 @@ export function StationRealtimeStatus({ station }: { station: Station }) {
         </Button>
       </CardHeader>
 
-      <CardContent className='p-5'>
+      <CardContent className='p-4 sm:p-5'>
         {error ? (
           <div className='border-destructive/30 bg-destructive/10 text-destructive rounded-lg border p-4 text-sm'>
             {error}
@@ -106,12 +123,12 @@ export function StationRealtimeStatus({ station }: { station: Station }) {
 
         {hasData ? (
           <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-            <div className='rounded-lg border p-5'>
+            <div className='min-w-0 rounded-lg border p-4 sm:p-5'>
               <div className='text-muted-foreground mb-1 flex items-center gap-2 text-[11px] font-medium'>
                 <Waves className='h-3.5 w-3.5' />
                 Mực nước
               </div>
-              <div className='text-foreground text-3xl leading-none font-bold tabular-nums'>
+              <div className='text-foreground text-xl leading-none font-bold tabular-nums sm:text-2xl'>
                 {properties?.waterLevel != null ? properties.waterLevel : '—'}
               </div>
               <div className='text-muted-foreground mt-1 text-[10px] font-semibold sm:text-xs'>
@@ -122,23 +139,26 @@ export function StationRealtimeStatus({ station }: { station: Station }) {
               </div>
             </div>
 
-            <div className='rounded-lg border p-5'>
+            <div className='min-w-0 rounded-lg border p-4 sm:p-5'>
               <div className='text-muted-foreground mb-2 flex items-center gap-2 text-[11px] font-medium'>
                 <Radio className='h-3.5 w-3.5' />
                 {t('station.status')}
               </div>
-              <div className='flex flex-wrap items-center gap-2'>
-                <Badge variant='outline' className='capitalize'>
-                  {properties?.stationStatus ?? '—'}
+              <div className='flex min-w-0 flex-wrap items-center gap-1.5 sm:gap-2'>
+                <Badge
+                  variant='outline'
+                  className='w-fit max-w-full shrink-0 px-1.5 py-0.5 text-[11px] leading-none whitespace-nowrap sm:px-2 sm:py-1'
+                >
+                  {stationStatusLabel(properties?.stationStatus)}
                 </Badge>
                 {severityBadge(properties?.severity)}
               </div>
-              <div className='text-muted-foreground mt-2 text-[11px]'>
+              <div className='text-muted-foreground mt-2 text-[11px] break-words'>
                 alertLevel: {properties?.alertLevel ?? '—'}
               </div>
             </div>
 
-            <div className='rounded-lg border p-5'>
+            <div className='min-w-0 rounded-lg border p-4 sm:p-5'>
               <div className='text-muted-foreground mb-2 flex items-center gap-2 text-[11px] font-medium'>
                 <Clock className='h-3.5 w-3.5' />
                 Đồng bộ

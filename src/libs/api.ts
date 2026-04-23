@@ -22,8 +22,6 @@ const apiKey =
   process.env.VITE_GEMINI_API_KEY ??
   '';
 
-console.log('GEMINI_API_KEY loaded =', apiKey ? 'YES' : 'NO');
-
 const ai = new GoogleGenAI({ apiKey });
 
 // --- Mock Data Generators ---

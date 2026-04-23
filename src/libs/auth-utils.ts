@@ -5,6 +5,7 @@
  */
 
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import { devLog, isDev } from '@/libs/env';
 
 /**
  * Get access token with automatic refresh if expired
@@ -15,7 +16,7 @@ import { useAuthStore } from '@/features/authenticate/store/auth-store';
  */
 export async function getAccessToken(): Promise<string | null> {
   if (typeof window === 'undefined') {
-    console.log('🔒 [Auth] Running on server, no token available');
+    devLog('[Auth] Running on server, no token available');
     return null;
   }
 
@@ -24,7 +25,7 @@ export async function getAccessToken(): Promise<string | null> {
     // All logic is now centralized in the auth store!
     return await useAuthStore.getState().getValidToken();
   } catch (error) {
-    console.error('❌ [Auth] Error getting access token:', error);
+    console.error('[Auth] Error getting access token:', error);
     return null;
   }
 }
@@ -43,7 +44,7 @@ export function getAccessTokenSync(): string | null {
     const store = useAuthStore.getState();
     return store.accessToken;
   } catch (error) {
-    console.error('❌ [Auth] Error getting access token sync:', error);
+    console.error('[Auth] Error getting access token sync:', error);
     return null;
   }
 }
@@ -61,7 +62,7 @@ export async function forceRefreshToken(): Promise<boolean> {
     const { refreshSession } = useAuthStore.getState();
     return await refreshSession();
   } catch (error) {
-    console.error('❌ [Auth] Error forcing token refresh:', error);
+    console.error('[Auth] Error forcing token refresh:', error);
     return false;
   }
 }
@@ -94,9 +95,9 @@ export function clearAuth(): void {
     // Clear localStorage manually to ensure old tokens are removed
     localStorage.removeItem('fda_auth');
 
-    console.log('✅ [Auth] Auth data cleared');
+    devLog('[Auth] Auth data cleared');
   } catch (error) {
-    console.error('❌ [Auth] Error clearing auth:', error);
+    console.error('[Auth] Error clearing auth:', error);
   }
 }
 
@@ -138,12 +139,14 @@ export function isAdminUser(): boolean {
  */
 export function debugAuthState(): void {
   if (typeof window === 'undefined') {
-    console.log('🔒 [Auth Debug] Running on server');
+    devLog('[Auth Debug] Running on server');
     return;
   }
 
+  if (!isDev) return;
+
   const state = useAuthStore.getState();
-  console.group('🔍 [Auth Debug] Current State');
+  console.group('[Auth Debug] Current State');
   console.log('Status:', state.status);
   console.log('User:', state.user?.email || 'None');
   console.log('Has Access Token:', !!state.accessToken);

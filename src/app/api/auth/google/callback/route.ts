@@ -12,7 +12,6 @@
 //   try {
 //     // Gọi backend API để đổi code lấy tokens
 //     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://localhost:7097';
-//     console.log('Backend URL:', backendUrl);
 //     const response = await fetch(
 //       `${backendUrl}/auth/google/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`,
 //       {
@@ -24,7 +23,7 @@
 //     );
 
 //     const data = await response.json();
-//     console.log('OAuth callback response data:', data);
+//     // debug logs removed
 
 //     if (!response.ok || !data.success) {
 //       return NextResponse.redirect(
@@ -34,11 +33,11 @@
 
 //     // Lấy returnUrl từ state hoặc mặc định
 //     const returnUrl = data.returnUrl || '/dashboard';
-//     console.log('Return URL:', returnUrl);
+//     // debug logs removed
 
 //     // Redirect về trang callback với tokens trong fragment
 //     const callbackUrl = new URL('/auth/callback', request.url);
-//     console.log('Callback URL before adding hash:', callbackUrl.toString());
+//     // debug logs removed
 //     callbackUrl.hash = `access_token=${encodeURIComponent(data.accessToken)}&refresh_token=${encodeURIComponent(data.refreshToken)}&return_url=${encodeURIComponent(returnUrl)}`;
 
 //     return NextResponse.redirect(callbackUrl.toString());
@@ -75,7 +74,7 @@
 //   try {
 //     const backendBase =
 //       process.env.NEXT_PUBLIC_API_BASE_URL || "https://localhost:7097";
-//     console.log("Backend URL:", backendBase);
+//     // debug logs removed
 
 //     const url = new URL(`${backendBase.replace(/\/$/, "")}/auth/google/callback`);
 //     url.searchParams.set("code", code);
@@ -98,8 +97,7 @@
 //       data = null;
 //     }
 
-//     console.log("OAuth callback response raw:", text);
-//     console.log("OAuth callback response data:", data);
+//     // debug logs removed
 
 //     if (!response.ok || !data?.success) {
 //       const msg = data?.message || `oauth_failed_${response.status}`;
@@ -109,7 +107,7 @@
 //     }
 
 //     const returnUrl = safeReturnUrl(data.returnUrl);
-//     console.log("Return URL:", returnUrl);
+//     // debug logs removed
 
 //     const callbackUrl = new URL("/auth/callback", request.url);
 //     callbackUrl.hash =
@@ -130,6 +128,7 @@
 // }
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getPublicApiBaseUrl } from '@/libs/env';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -145,9 +144,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Gọi backend API để đổi code lấy tokens
-    const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || 'https://localhost:7097';
-    console.log('Backend URL:', backendUrl);
+    const backendUrl = getPublicApiBaseUrl();
 
     const response = await fetch(
       `${backendUrl}/auth/google/callback?code=${encodeURIComponent(
@@ -163,7 +160,6 @@ export async function GET(request: NextRequest) {
     );
 
     const data = await response.json();
-    console.log('OAuth callback response data:', data);
 
     if (!response.ok || !data.success) {
       return NextResponse.redirect(
@@ -174,31 +170,31 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Lấy returnUrl từ state hoặc mặc định
-    // Lấy returnUrl từ BE hoặc mặc định (nhưng ưu tiên theo role)
-    let returnUrl = data.returnUrl || '/dashboard';
+    // Lấy returnUrl từ BE; nếu không có sẽ tính theo role để tránh ép sai portal.
+    let returnUrl = data.returnUrl || '/';
 
     const roles: string[] = data?.user?.roles ?? [];
 
-    // ✅ Check role-based access
-    // SUPERADMIN và ADMIN đều vào /admin
     if (roles.includes('SUPERADMIN') || roles.includes('ADMIN')) {
       returnUrl = '/admin';
-    } else if (roles.includes('MODERATOR')) returnUrl = '/moderator';
-    else if (roles.includes('USER') || roles.length === 0) {
-      // ❌ USER role không được phép truy cập hệ thống admin
+    } else if (roles.includes('MODERATOR')) {
+      returnUrl = '/moderator';
+    } else if (roles.includes('USER') || roles.length === 0) {
       returnUrl = '/auth/forbidden';
     }
 
     // (optional) chặn open-redirect: chỉ cho phép path nội bộ
-    if (!returnUrl.startsWith('/') || returnUrl.startsWith('//'))
-      returnUrl = '/admin';
-
-    console.log('Return URL:', returnUrl);
+    if (!returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+      returnUrl =
+        roles.includes('SUPERADMIN') || roles.includes('ADMIN')
+          ? '/admin'
+          : roles.includes('MODERATOR')
+            ? '/moderator'
+            : '/auth/forbidden';
+    }
 
     // Redirect về trang callback với tokens trong fragment
     const callbackUrl = new URL('/auth/callback', request.url);
-    console.log('Callback URL before adding hash:', callbackUrl.toString());
     // ✅ thêm user vào hash (encode JSON)
     const userStr = encodeURIComponent(JSON.stringify(data.user));
 

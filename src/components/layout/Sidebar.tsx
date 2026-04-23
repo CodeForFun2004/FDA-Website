@@ -115,7 +115,7 @@ const navItemsModerator: NavItem[] = [
   {
     type: 'link',
     label: 'Cộng Đồng',
-    href: '/moderator/community',
+    href: '/moderator/community-report',
     icon: MessagesSquare
   },
   {

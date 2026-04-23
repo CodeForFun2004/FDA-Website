@@ -4,9 +4,9 @@ import type {
   ResolveComplaintResponse
 } from '../types/subscription-dispute.type';
 import { getAccessToken } from '@/libs/auth-utils';
+import { getPublicApiBaseUrl } from '@/libs/env';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const API_BASE_URL = getPublicApiBaseUrl();
 
 const ENDPOINTS = {
   adminComplaints: `${API_BASE_URL}/admin/complaints`,

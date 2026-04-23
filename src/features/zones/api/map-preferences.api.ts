@@ -1,9 +1,9 @@
 import type { MapLayerPrefs } from '../map/map.type';
 import { sanitizePrefs } from '../map/storage';
 import { DEFAULT_MAP_PREFS } from '../map/defaults';
+import { getPublicApiBaseUrl } from '@/libs/env';
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://fda.id.vn/api/v1';
+const API_BASE = getPublicApiBaseUrl();
 
 export async function getUserMapPreferences(
   jwt: string

@@ -314,8 +314,8 @@ export default function FloodHistoryPage() {
         </div>
       </div>
 
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
-        <div className='space-y-4 lg:col-span-1'>
+      <div className='grid grid-cols-1 gap-6 xl:grid-cols-[minmax(320px,380px)_minmax(0,1fr)]'>
+        <div className='min-w-0 space-y-4'>
           <div className='space-y-4'>
             <div className='flex items-center gap-3 px-1'>
               <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20'>
@@ -334,7 +334,7 @@ export default function FloodHistoryPage() {
                 <h3 className='text-sm font-medium'>Danh sách trạm</h3>
               </div>
 
-              <div className='grid max-h-[360px] gap-2 overflow-y-auto pr-1'>
+              <div className='grid max-h-[360px] min-w-0 gap-2 overflow-x-hidden overflow-y-auto pr-1'>
                 {stationList.map((station) => {
                   const isSelected = filters.stationId === station.stationId;
                   const statusInfo = getStationStatus(station.stationId);
@@ -347,14 +347,14 @@ export default function FloodHistoryPage() {
                       key={station.stationId}
                       onClick={() => handleStationClick(station.stationId)}
                       className={cn(
-                        'group cursor-pointer rounded-lg border p-3 transition-all hover:border-blue-300 hover:shadow-sm',
+                        'group min-w-0 cursor-pointer rounded-lg border p-3 transition-all hover:border-blue-300 hover:shadow-sm',
                         isSelected
                           ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500 dark:bg-blue-900/20'
                           : 'bg-card hover:bg-accent/50'
                       )}
                     >
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
+                      <div className='flex min-w-0 items-center justify-between gap-2'>
+                        <div className='flex min-w-0 items-center gap-2'>
                           <div
                             className={cn(
                               'rounded-md p-1.5',
@@ -387,7 +387,10 @@ export default function FloodHistoryPage() {
                         </div>
                         <Badge
                           variant={statusInfo.variant}
-                          className='h-5 text-[10px]'
+                          className={cn(
+                            'h-5 shrink-0 text-[10px]',
+                            statusInfo.status === 'Mất kết nối' && 'text-white'
+                          )}
                         >
                           {statusInfo.status}
                         </Badge>
@@ -449,7 +452,7 @@ export default function FloodHistoryPage() {
           </Card>
         </div>
 
-        <div className='flex min-h-0 flex-col gap-4 lg:col-span-2'>
+        <div className='flex min-h-0 min-w-0 flex-col gap-4'>
           <div className={FLOOD_KPI_STRIP_CLASS}>
             <div className='bg-card rounded-lg border p-3'>
               <div className='mb-1 flex items-center gap-2'>

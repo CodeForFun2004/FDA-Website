@@ -1,4 +1,5 @@
 import { getAccessToken } from '@/libs/auth-utils';
+import { getPublicApiBaseUrl } from '@/libs/env';
 import type {
   AggregateFrequencyApiBody,
   AggregateHotspotsApiBody,
@@ -14,8 +15,7 @@ import type {
   SeverityAnalyticsResponse
 } from '../types/analytics.dashboard.types';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const API_BASE_URL = getPublicApiBaseUrl();
 
 /** GET /analytics/hotspots — BE (FE17): `areaLevel` hợp lệ ward | district. Gửi `street` thường bị 400. */
 export const HOTSPOT_RANKINGS_AREA_LEVEL = 'district' as const;

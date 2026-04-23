@@ -1,1 +1,1 @@
-export { default as OperationalLogsView } from './OperationalLogsView';
+export { default as OperationalLogsView } from './operational-logs-view';

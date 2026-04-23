@@ -5,7 +5,7 @@ import { PanelLeft, Sun, Moon, Bell } from 'lucide-react';
 import { useAppStore } from '../../libs/store';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 import { Button } from '../../components/ui/common';
-import { clearSessionCookie } from '@/helpers/auth-session';
+import { clearAuthSessionCookies } from '@/helpers/auth-session';
 import { toast } from 'sonner';
 import {
   updateUserProfileApi,
@@ -34,7 +34,7 @@ export const Header = () => {
 
   const handleLogout = () => {
     authLogout(); // clear auth zustand (token/user)
-    clearSessionCookie(); // clear cookie fda_session (nếu bạn vẫn dùng)
+    clearAuthSessionCookies();
     router.replace('/auth/login');
   };
 

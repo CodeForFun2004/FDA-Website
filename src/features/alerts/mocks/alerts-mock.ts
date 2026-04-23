@@ -4,7 +4,7 @@ import type { Alert } from '../types';
 export const generateAlerts = (): Alert[] => [
   {
     id: 'al-1',
-    title: '⚠️ Mực nước vượt ngưỡng cảnh báo',
+    title: 'Mực nước vượt ngưỡng cảnh báo',
     description:
       'Mực nước tại trạm Cầu Rồng đã tăng 0.5m trong 30 phút qua, vượt ngưỡng cảnh báo. Cần theo dõi và chuẩn bị phương án ứng phó.',
     severity: 'High',
@@ -23,7 +23,7 @@ export const generateAlerts = (): Alert[] => [
   },
   {
     id: 'al-2',
-    title: '🌧️ Cảnh báo mưa lớn tại khu vực',
+    title: 'Cảnh báo mưa lớn tại khu vực',
     description:
       'Lượng mưa lớn kéo dài tại khu vực Hòa Vang, có nguy cơ gây ngập cục bộ. Đề nghị người dân chuẩn bị phương án di tản.',
     severity: 'Medium',
@@ -44,7 +44,7 @@ export const generateAlerts = (): Alert[] => [
   },
   {
     id: 'al-3',
-    title: '🔴 NGUY HIỂM: Mực nước sắp đạt mức báo động đỏ',
+    title: 'NGUY HIỂM: Mực nước sắp đạt mức báo động đỏ',
     description:
       'Mực nước tại trạm Cẩm Lệ đang tiếp tục tăng nhanh và sắp chạm ngưỡng báo động đỏ. Cần sơ tán dân cư vùng trũng ngay lập tức.',
     severity: 'Critical',
@@ -63,7 +63,7 @@ export const generateAlerts = (): Alert[] => [
   },
   {
     id: 'al-4',
-    title: '📊 Cập nhật mực nước trạm Sơn Trà',
+    title: 'Cập nhật mực nước trạm Sơn Trà',
     description:
       'Mực nước đã giảm xuống mức an toàn sau đợt mưa. Tình hình đã ổn định.',
     severity: 'Low',
@@ -83,7 +83,7 @@ export const generateAlerts = (): Alert[] => [
   },
   {
     id: 'al-5',
-    title: '⚡ Thiết bị mất kết nối tại trạm Liên Chiểu',
+    title: 'Thiết bị mất kết nối tại trạm Liên Chiểu',
     description:
       'Cảm biến mực nước tại trạm Liên Chiểu đã mất tín hiệu. Đội kỹ thuật đang kiểm tra.',
     severity: 'Medium',

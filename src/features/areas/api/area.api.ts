@@ -5,9 +5,9 @@ import type {
   GetAreaByIdResponse,
   AreaListFilters
 } from '../types/area.type';
+import { getPublicApiBaseUrl } from '@/libs/env';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const API_BASE_URL = getPublicApiBaseUrl();
 
 const API_PREFIX = `${API_BASE_URL}/areas`;
 

@@ -61,11 +61,17 @@ export function StationSummaryCards({
 }: StationSummaryCardsProps) {
   const isActive =
     station.status === 'online' || (station.status as string) === 'active';
+  const isMaintenance = station.status === 'maintenance';
   const statusText = isActive
     ? 'Online'
-    : station.status === 'maintenance'
+    : isMaintenance
       ? 'Maintenance'
       : 'Offline';
+  const statusSubtextClass = isActive
+    ? 'text-green-600 dark:text-green-400'
+    : isMaintenance
+      ? 'text-amber-700 dark:text-amber-300'
+      : 'text-red-600 dark:text-red-400';
 
   const { batteryLevel, rssi, signalLabel } = connectionSummary(
     station,
@@ -79,13 +85,13 @@ export function StationSummaryCards({
         <CardContent className='p-4'>
           <div className='mb-2 flex items-center justify-between'>
             <span className='text-muted-foreground text-sm font-medium'>
-              Device Status
+              Trạng thái
             </span>
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full ${
                 isActive
                   ? 'bg-green-500/10'
-                  : station.status === 'maintenance'
+                  : isMaintenance
                     ? 'bg-yellow-500/10'
                     : 'bg-red-500/10'
               }`}
@@ -94,7 +100,7 @@ export function StationSummaryCards({
                 className={`h-4 w-4 ${
                   isActive
                     ? 'text-green-600 dark:text-green-400'
-                    : station.status === 'maintenance'
+                    : isMaintenance
                       ? 'text-yellow-600 dark:text-yellow-400'
                       : 'text-red-600 dark:text-red-400'
                 }`}
@@ -104,7 +110,7 @@ export function StationSummaryCards({
           <div className='text-foreground text-xl font-bold capitalize'>
             {statusText}
           </div>
-          <div className='mt-1 text-xs text-green-600 dark:text-green-400'>
+          <div className={`mt-1 text-xs ${statusSubtextClass}`}>
             {isActive
               ? 'Uptime: 99.8%'
               : stationStatus?.offlineDurationMinutes
@@ -119,7 +125,7 @@ export function StationSummaryCards({
         <CardContent className='p-4'>
           <div className='mb-2 flex items-center justify-between'>
             <span className='text-muted-foreground text-sm font-medium'>
-              Alert Threshold
+              Ngưỡng cảnh báo
             </span>
             <div className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10'>
               <Info className='h-4 w-4 text-blue-600 dark:text-blue-400' />

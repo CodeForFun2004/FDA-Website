@@ -6,31 +6,7 @@ import type { Component } from '@/features/stations/types/station.type';
 import { stationsApi } from '@/features/stations/api/station.api';
 import { getAccessToken } from '@/libs/auth-utils';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Cpu, RefreshCw } from 'lucide-react';
-
-function statusBadge(status: string) {
-  const s = String(status ?? '').toLowerCase();
-  if (s === 'active')
-    return (
-      <Badge className='border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'>
-        Hoạt động
-      </Badge>
-    );
-  if (s === 'faulty')
-    return (
-      <Badge className='border border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400'>
-        Lỗi
-      </Badge>
-    );
-  if (s === 'inactive')
-    return (
-      <Badge className='border border-slate-500/20 bg-slate-500/10 text-slate-600 dark:text-slate-300'>
-        Không hoạt động
-      </Badge>
-    );
-  return <Badge variant='outline'>{status}</Badge>;
-}
 
 function typeLabel(t: string) {
   const map: Record<string, string> = {
@@ -147,9 +123,7 @@ export function StationComponentsReadonly({
                   </div>
                 </div>
 
-                <div className='flex items-center justify-between gap-3 md:justify-end'>
-                  {statusBadge(c.status)}
-                </div>
+                <div className='hidden md:block' aria-hidden='true' />
               </div>
             ))}
           </div>

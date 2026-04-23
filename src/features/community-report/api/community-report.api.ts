@@ -1,4 +1,5 @@
 import { apiFetch } from '@/libs/api/client';
+import { getPublicApiBaseUrl } from '@/libs/env';
 import type {
   CommunityFloodReport,
   CommunityFloodReportMedia,
@@ -6,8 +7,7 @@ import type {
   CommunityFloodReportsResponse
 } from '../types/community-report.type';
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://fda.id.vn/api/v1';
+const API_BASE = getPublicApiBaseUrl();
 
 function pick<T = unknown>(
   raw: Record<string, unknown>,

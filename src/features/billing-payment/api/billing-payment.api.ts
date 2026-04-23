@@ -1,8 +1,8 @@
 import type { GetAdminPaymentsResponse } from '../types/billing-payment.type';
 import { getAccessToken } from '@/libs/auth-utils';
+import { getPublicApiBaseUrl } from '@/libs/env';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const API_BASE_URL = getPublicApiBaseUrl();
 
 const ENDPOINTS = {
   adminPayments: `${API_BASE_URL}/admin/payments`

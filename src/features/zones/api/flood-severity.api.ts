@@ -1,5 +1,6 @@
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://fda.id.vn/api/v1';
+import { getPublicApiBaseUrl } from '@/libs/env';
+
+const API_BASE = getPublicApiBaseUrl();
 
 export type FloodStationProperties = {
   id?: string | null;

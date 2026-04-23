@@ -60,7 +60,7 @@ export default function StationDetailView({
       setStationStatus(statusRes);
     } catch (err: unknown) {
       console.warn(
-        '⚠️ Station Status API unavailable',
+        'Station Status API unavailable',
         err instanceof Error ? err.message : err
       );
       setStationStatus(null);

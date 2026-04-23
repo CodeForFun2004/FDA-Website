@@ -2,6 +2,7 @@
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
 import { debugAuthState } from '@/libs/auth-utils';
 import { toast } from 'sonner';
+import { devLog, devWarn, getPublicApiBaseUrl } from '@/libs/env';
 
 export class ApiError extends Error {
   status: number;
@@ -14,7 +15,7 @@ export class ApiError extends Error {
   }
 }
 
-const BASE = process.env.NEXT_PUBLIC_API_BASE_URL; // https://fda.id.vn/api/v1
+const BASE = getPublicApiBaseUrl();
 
 type ApiOptions = RequestInit & { auth?: boolean; skipRefresh?: boolean };
 
@@ -39,7 +40,7 @@ async function tryRefreshToken(): Promise<boolean> {
   const { refreshToken, logout } = useAuthStore.getState();
 
   if (!refreshToken) {
-    console.warn('[API Client] No refresh token available');
+    devWarn('[API Client] No refresh token available');
     return false;
   }
 
@@ -47,7 +48,7 @@ async function tryRefreshToken(): Promise<boolean> {
 
   refreshPromise = (async () => {
     try {
-      console.log('[API Client] Attempting to refresh token...');
+      devLog('[API Client] Attempting to refresh token...');
 
       const res = await fetch(`${BASE}/auth/refresh-token`, {
         method: 'POST',
@@ -57,7 +58,7 @@ async function tryRefreshToken(): Promise<boolean> {
       });
 
       if (!res.ok) {
-        console.warn('[API Client] Refresh token request failed:', res.status);
+        devWarn('[API Client] Refresh token request failed:', res.status);
         logout();
         return false;
       }
@@ -65,7 +66,7 @@ async function tryRefreshToken(): Promise<boolean> {
       const data = await res.json();
 
       if (!data.success) {
-        console.warn('[API Client] Refresh token failed:', data.message);
+        devWarn('[API Client] Refresh token failed:', data.message);
         logout();
         return false;
       }
@@ -77,7 +78,7 @@ async function tryRefreshToken(): Promise<boolean> {
         expiresAt: data.expiresAt
       });
 
-      console.log('[API Client] Token refreshed successfully');
+      devLog('[API Client] Token refreshed successfully');
       return true;
     } catch (error) {
       console.error('[API Client] Error refreshing token:', error);
@@ -141,7 +142,7 @@ export async function apiFetch<T>(
 
   // Handle 401 Unauthorized - attempt token refresh
   if (res.status === 401 && needAuth && !options.skipRefresh) {
-    console.log('[API Client] Received 401, attempting token refresh...');
+    devLog('[API Client] Received 401, attempting token refresh...');
 
     const refreshSuccess = await tryRefreshToken();
 
@@ -152,7 +153,7 @@ export async function apiFetch<T>(
         headers.set('Authorization', `Bearer ${newToken}`);
       }
 
-      console.log('[API Client] Retrying request with new token...');
+      devLog('[API Client] Retrying request with new token...');
       res = await fetch(url, {
         ...options,
         headers,
@@ -160,7 +161,7 @@ export async function apiFetch<T>(
       });
     } else {
       // Refresh failed - redirect to login
-      console.warn('[API Client] Token refresh failed, redirecting to login');
+      devWarn('[API Client] Token refresh failed, redirecting to login');
       if (typeof window !== 'undefined') {
         window.location.href = '/auth/login';
       }

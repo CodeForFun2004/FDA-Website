@@ -5,6 +5,7 @@
  */
 
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import { devLog, devWarn, isDev } from '@/libs/env';
 
 /**
  * Clear all auth-related data from localStorage
@@ -12,7 +13,7 @@ import { useAuthStore } from '@/features/authenticate/store/auth-store';
  */
 export function clearAllAuthData(): void {
   if (typeof window === 'undefined') {
-    console.warn('Cannot clear auth data on server side');
+    devWarn('Cannot clear auth data on server side');
     return;
   }
 
@@ -39,12 +40,12 @@ export function clearAllAuthData(): void {
     // Also clear from zustand store
     useAuthStore.getState().logout();
 
-    console.log('✅ [Clear Tokens] All auth data cleared successfully');
-    console.log('Removed keys:', ['fda_auth', ...keysToRemove]);
+    devLog('[Clear Tokens] All auth data cleared successfully');
+    devLog('Removed keys:', ['fda_auth', ...keysToRemove]);
 
     return;
   } catch (error) {
-    console.error('❌ [Clear Tokens] Error clearing auth data:', error);
+    console.error('[Clear Tokens] Error clearing auth data:', error);
   }
 }
 
@@ -54,7 +55,7 @@ export function clearAllAuthData(): void {
  */
 export function cleanExpiredTokens(): void {
   if (typeof window === 'undefined') {
-    console.warn('Cannot clean tokens on server side');
+    devWarn('Cannot clean tokens on server side');
     return;
   }
 
@@ -62,7 +63,7 @@ export function cleanExpiredTokens(): void {
     const authData = localStorage.getItem('fda_auth');
 
     if (!authData) {
-      console.log('[Clean Tokens] No auth data found in localStorage');
+      devLog('[Clean Tokens] No auth data found in localStorage');
       return;
     }
 
@@ -70,7 +71,7 @@ export function cleanExpiredTokens(): void {
     const expiresAt = parsed.state?.expiresAt;
 
     if (!expiresAt) {
-      console.warn('[Clean Tokens] No expiration date found, clearing data...');
+      devWarn('[Clean Tokens] No expiration date found, clearing data...');
       clearAllAuthData();
       return;
     }
@@ -79,20 +80,16 @@ export function cleanExpiredTokens(): void {
     const now = Date.now();
 
     if (now >= expiry) {
-      console.warn('[Clean Tokens] Token is expired, clearing...');
+      devWarn('[Clean Tokens] Token is expired, clearing...');
       clearAllAuthData();
       return;
     }
 
-    console.log('✅ [Clean Tokens] Token is still valid');
-    console.log(
-      'Expires in:',
-      Math.floor((expiry - now) / 1000 / 60),
-      'minutes'
-    );
+    devLog('[Clean Tokens] Token is still valid');
+    devLog('Expires in:', Math.floor((expiry - now) / 1000 / 60), 'minutes');
   } catch (error) {
-    console.error('❌ [Clean Tokens] Error validating tokens:', error);
-    console.log('Clearing all auth data due to parsing error...');
+    console.error('[Clean Tokens] Error validating tokens:', error);
+    devLog('Clearing all auth data due to parsing error...');
     clearAllAuthData();
   }
 }
@@ -102,11 +99,13 @@ export function cleanExpiredTokens(): void {
  */
 export function debugLocalStorageAuth(): void {
   if (typeof window === 'undefined') {
-    console.warn('Cannot debug localStorage on server side');
+    devWarn('Cannot debug localStorage on server side');
     return;
   }
 
-  console.group('🔍 [Debug] localStorage Auth Data');
+  if (!isDev) return;
+
+  console.group('[Debug] localStorage Auth Data');
 
   try {
     const authData = localStorage.getItem('fda_auth');
@@ -148,8 +147,8 @@ export function debugLocalStorageAuth(): void {
 
 // Export a function to run all cleanup operations
 export function runAuthCleanup(): void {
-  console.log('🧹 [Auth Cleanup] Starting cleanup process...');
+  devLog('[Auth Cleanup] Starting cleanup process...');
   debugLocalStorageAuth();
   cleanExpiredTokens();
-  console.log('✅ [Auth Cleanup] Cleanup complete');
+  devLog('[Auth Cleanup] Cleanup complete');
 }

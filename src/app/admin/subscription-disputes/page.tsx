@@ -1,6 +1,6 @@
 import PageContainer from '@/components/layout/page-container';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import SubscriptionDisputesView from '@/features/subscription-disputes/views/SubscriptionDisputesView';
+import SubscriptionDisputesView from '@/features/subscription-disputes/views/subscription-disputes-view';
 import { Suspense } from 'react';
 
 export const metadata = {

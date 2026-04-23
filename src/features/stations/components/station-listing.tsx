@@ -33,7 +33,7 @@ export default async function StationListingPage() {
     totalCount = data.totalCount;
   } catch (error: any) {
     // Fallback to mock data when API is unavailable
-    console.warn('⚠️ API unavailable, using mock data:', error.message);
+    console.warn('API unavailable, using mock data:', error.message);
     const mockStations = generateMockStations();
 
     // Client-side filter mock data

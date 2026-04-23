@@ -5,15 +5,15 @@
  */
 
 export function fixAuthTokens() {
-  console.log('🔧 [Auth Fix] Starting token cleanup...');
+  console.log('[Auth Fix] Starting token cleanup...');
   console.log('');
 
   // Step 1: Check current state
-  console.log('📊 Step 1/3: Checking current state...');
+  console.log('[Auth Fix] Step 1/3: Checking current state...');
   const authData = localStorage.getItem('fda_auth');
 
   if (!authData) {
-    console.log('✅ No auth data found - nothing to clean');
+    console.log('[Auth Fix] No auth data found - nothing to clean');
     return;
   }
 
@@ -36,17 +36,17 @@ export function fixAuthTokens() {
       console.log('Minutes remaining:', minutesRemaining);
 
       if (isExpired) {
-        console.log('⚠️ Token is expired!');
+        console.log('[Auth Fix] Token is expired');
       }
     }
 
     console.log('');
   } catch (error) {
-    console.error('❌ Error parsing auth data:', error);
+    console.error('[Auth Fix] Error parsing auth data:', error);
   }
 
   // Step 2: Clear old data
-  console.log('🧹 Step 2/3: Clearing old auth data...');
+  console.log('[Auth Fix] Step 2/3: Clearing old auth data...');
   localStorage.removeItem('fda_auth');
 
   // Clear any other auth-related keys
@@ -63,26 +63,26 @@ export function fixAuthTokens() {
     console.log('Removed:', key);
   });
 
-  console.log('✅ Cleared', keysToRemove.length + 1, 'items from localStorage');
+  console.log('Cleared', keysToRemove.length + 1, 'items from localStorage');
   console.log('');
 
   // Step 3: Next steps
-  console.log('✅ Step 3/3: Cleanup complete!');
+  console.log('[Auth Fix] Step 3/3: Cleanup complete');
   console.log('');
-  console.log('📝 Next steps:');
+  console.log('Next steps:');
   console.log('1. Refresh the page (or run: location.reload())');
   console.log('2. Login again with your credentials');
   console.log('3. Your tokens will now be managed correctly!');
   console.log('');
   console.log(
-    '💡 Tip: Add useAuthRefresh() hook to your layout for automatic token refresh'
+    'Tip: Add useAuthRefresh() hook to your layout for automatic token refresh'
   );
 }
 
 // Make it globally available in browser console
 if (typeof window !== 'undefined') {
   (window as any).fixAuthTokens = fixAuthTokens;
-  console.log('🔧 Auth fix loaded! Run: fixAuthTokens()');
+  console.log('Auth fix loaded. Run: fixAuthTokens()');
 }
 
 export default fixAuthTokens;

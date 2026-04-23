@@ -1,4 +1,5 @@
 import { apiFetch } from '@/libs/api/client';
+import { getPublicApiBaseUrl } from '@/libs/env';
 import type {
   GetFloodHistoryParams,
   GetFloodHistoryResponse,
@@ -8,8 +9,7 @@ import type {
   GetFloodTrendsResponse
 } from '../types/flood-history.type';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const API_BASE_URL = getPublicApiBaseUrl();
 
 const ENDPOINTS = {
   history: `${API_BASE_URL}/flood-history`,

@@ -11,7 +11,7 @@ let mockTemplates: AlertTemplate[] = [
     name: 'Critical Push Notification',
     channel: 'Push',
     severity: 'critical',
-    titleTemplate: '⚠️ Cảnh báo ngập lụt nghiêm trọng - {{station_name}}',
+    titleTemplate: 'Cảnh báo ngập lụt nghiêm trọng - {{station_name}}',
     bodyTemplate:
       'Mức nước tại {{station_name}} đã đạt {{water_level}} lúc {{time}}. Vượt ngưỡng {{threshold}}m. Vui lòng kiểm tra ngay!',
     isActive: true,

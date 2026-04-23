@@ -9,9 +9,9 @@ import type {
   UpdatePlanPayload
 } from '../types/plan-subscription.type';
 import { getAccessToken } from '@/libs/auth-utils';
+import { getPublicApiBaseUrl } from '@/libs/env';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const API_BASE_URL = getPublicApiBaseUrl();
 
 const ENDPOINTS = {
   list: `${API_BASE_URL}/admin/plans`,
@@ -51,15 +51,6 @@ async function fetchJson<T>(
   if (resolvedAccessToken)
     headers['Authorization'] = `Bearer ${resolvedAccessToken}`;
 
-  console.log('\n================ API DEBUG ================');
-  console.log('[fetchJson] request:', {
-    url,
-    method,
-    hasBody,
-    hasAccessToken: !!resolvedAccessToken,
-    headers
-  });
-
   const res = await fetch(url, {
     method,
     headers,
@@ -72,30 +63,13 @@ async function fetchJson<T>(
     ? await res.json().catch(() => null)
     : await res.text().catch(() => null);
 
-  console.log('[fetchJson] response meta:', {
-    status: res.status,
-    ok: res.ok,
-    contentType
-  });
-  console.log('[fetchJson] raw response body:', data);
-
   if (!res.ok) {
     const msg =
       (data && (data.message || data.error || data.msg)) ||
       `Request failed (${res.status})`;
 
-    console.error('[fetchJson] request failed:', {
-      status: res.status,
-      message: msg,
-      payload: data
-    });
-    console.log('==========================================\n');
-
     throw new ApiError(msg, res.status, data);
   }
-
-  console.log('[fetchJson] request success');
-  console.log('==========================================\n');
 
   return data as T;
 }

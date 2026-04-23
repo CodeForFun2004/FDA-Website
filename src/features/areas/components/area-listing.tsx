@@ -28,7 +28,7 @@ export default async function AreaListingPage() {
     });
   }
 
-  console.log('📊 Areas Listing:', {
+  console.log('Areas Listing:', {
     total: data.areas.length,
     filtered: filteredAreas.length,
     searchTerm

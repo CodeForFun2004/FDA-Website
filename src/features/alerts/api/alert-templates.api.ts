@@ -5,9 +5,9 @@ import {
 } from '../types/alert-template.type';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/features/authenticate/store/auth-store';
+import { getPublicApiBaseUrl } from '@/libs/env';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://fda.id.vn/api/v1';
+const API_BASE_URL = getPublicApiBaseUrl();
 const BASE_URL = `${API_BASE_URL}/admin/alert-templates`;
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';

@@ -252,7 +252,7 @@ export function EditStationDialog({
                   <FormInput
                     control={formControl}
                     name='roadName'
-                    label='Tên đường'
+                    label='Tuyến đường'
                     placeholder='Đường 2 Tháng 9'
                     disabled={isLoading}
                   />

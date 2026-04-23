@@ -13,6 +13,7 @@ import type {
 } from '@/features/stations/types/station.type';
 import { getAccessToken } from '@/features/stations/utils/auth';
 import { generateMockStations } from '@/features/stations/mocks/stations-mock';
+import { useHasRole } from '@/components/guards/RoleGuard';
 
 import {
   StationSummaryCards,
@@ -30,6 +31,7 @@ export default function StationDetailView({
 }: StationDetailViewProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const isModerator = useHasRole('MODERATOR');
   const stationsIndexPath = pathname.startsWith('/moderator')
     ? '/moderator/stations'
     : '/admin/stations';
@@ -185,7 +187,9 @@ export default function StationDetailView({
       </div>
 
       <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
-        <div className='space-y-6 lg:col-span-2'>
+        <div
+          className={`space-y-6 ${isModerator ? 'lg:col-span-3' : 'lg:col-span-2'}`}
+        >
           <StationSummaryCards
             station={station}
             stationStatus={stationStatus}
@@ -195,10 +199,12 @@ export default function StationDetailView({
           <StationLocationSection station={station} />
         </div>
 
-        <aside className='space-y-6 lg:sticky lg:top-6 lg:col-span-1 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto'>
-          <StationRealtimeStatus station={station} />
-          <StationComponentsReadonly stationId={station.id} />
-        </aside>
+        {!isModerator ? (
+          <aside className='space-y-6 lg:sticky lg:top-6 lg:col-span-1 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto'>
+            <StationRealtimeStatus station={station} />
+            <StationComponentsReadonly stationId={station.id} />
+          </aside>
+        ) : null}
       </div>
     </div>
   );

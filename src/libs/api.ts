@@ -487,14 +487,14 @@ export const analyzeRouteWithGemini = async (
   const prompt = `
     Context: You are a flood safety assistant for Da Nang city, Vietnam.
     Current Flood Status: The following areas are currently flooded or at risk: ${floodedZones}.
-    
+
     Task: The user wants to go from "${start}" to "${end}".
     Google Maps found these potential routes:
     ${routesContext}
 
     Requirement:
     1. Analyze each route against the flood status.
-    2. Assign a "type" to each route: "Safest", "Fastest", or "Alternative". 
+    2. Assign a "type" to each route: "Safest", "Fastest", or "Alternative".
     - The "Safest" route must avoid flood zones if possible.
     - The "Fastest" route is usually the one with shortest duration, but flag it if risky.
     3. Return valid JSON.

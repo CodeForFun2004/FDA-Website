@@ -92,7 +92,7 @@ export default function LoginViewPage() {
     <div className='space-y-6'>
       <div className='space-y-2 text-center'>
         <h1 className='text-3xl font-bold'>Chào mừng quay lại</h1>
-        <p className='text-muted-foreground'>
+        <p className='text-muted-foreground text-balance'>
           Nhập email/số điện thoại để đăng nhập bằng OTP hoặc mật khẩu.
         </p>
       </div>

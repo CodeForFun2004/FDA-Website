@@ -46,7 +46,7 @@ type NavItem = NavLink | NavGroup;
 
 const adminNavUsersLink: NavLink = {
   type: 'link',
-  label: 'Người Dùng & Vai Trò',
+  label: 'Quản Lý Người Dùng',
   href: '/admin/users',
   icon: Users
 };

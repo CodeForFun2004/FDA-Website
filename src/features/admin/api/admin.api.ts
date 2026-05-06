@@ -204,7 +204,7 @@ export async function getAdministrativeAreasApi(params?: {
   return normalizeAdministrativeAreasResponse(raw);
 }
 
-const ADMIN_AREAS_COUNT_PAGE_SIZE = 500;
+const ADMIN_AREAS_COUNT_PAGE_SIZE = 100;
 
 /** Trùng với `fetchAllAdministrativeAreas({ level: 'ward' })` trên Map & Zones. */
 export const ADMINISTRATIVE_AREA_MAP_LEVEL = 'ward';

@@ -266,11 +266,13 @@ function StationStatusItem({ station }: { station: FloodStationProperties }) {
 // ── Main View ────────────────────────────────────────────────────────
 
 export type DashboardViewProps = {
+  basePath?: '/admin' | '/moderator';
   onViewFloodMap?: () => void;
   onViewStations?: () => void;
 };
 
 export function DashboardView({
+  basePath = '/admin',
   onViewFloodMap,
   onViewStations
 }: DashboardViewProps) {
@@ -317,9 +319,33 @@ export function DashboardView({
 
   const stationStatusItems: FloodStationProperties[] = React.useMemo(() => {
     const features = floodStatusQ.data?.features ?? [];
-    return features
-      .map((f) => f.properties)
-      .filter((p) => p.waterLevel != null)
+    const uniqueByStation = new Map<string, FloodStationProperties>();
+
+    for (const feature of features) {
+      const properties = feature.properties;
+      if (properties.waterLevel == null) continue;
+
+      const stationId = String(
+        properties.stationId ??
+          properties.id ??
+          properties.stationCode ??
+          properties.code ??
+          ''
+      ).trim();
+      if (!stationId) continue;
+
+      const existing = uniqueByStation.get(stationId);
+      if (!existing) {
+        uniqueByStation.set(stationId, properties);
+        continue;
+      }
+
+      if ((properties.severityLevel ?? 0) >= (existing.severityLevel ?? 0)) {
+        uniqueByStation.set(stationId, properties);
+      }
+    }
+
+    return Array.from(uniqueByStation.values())
       .sort((a, b) => (b.severityLevel ?? 0) - (a.severityLevel ?? 0))
       .slice(0, 6);
   }, [floodStatusQ.data]);
@@ -346,7 +372,7 @@ export function DashboardView({
           </p>
         </div>
         <div className='flex gap-3'>
-          <Link href='/admin/zones'>
+          <Link href={`${basePath}/zones`}>
             <Button
               variant='outline'
               className='rounded-full'
@@ -355,7 +381,7 @@ export function DashboardView({
               <MapIcon className='mr-2 h-4 w-4' /> Mở bản đồ ngập
             </Button>
           </Link>
-          <Link href='/admin/stations'>
+          <Link href={`${basePath}/stations`}>
             <Button
               className='rounded-full shadow-lg shadow-blue-500/20'
               onClick={onViewStations}
@@ -505,7 +531,7 @@ export function DashboardView({
               ) : stationStatusItems.length > 0 ? (
                 stationStatusItems.map((s) => (
                   <StationStatusItem
-                    key={s.stationId ?? s.stationCode}
+                    key={String(s.stationId ?? s.id ?? s.stationCode ?? s.code)}
                     station={s}
                   />
                 ))

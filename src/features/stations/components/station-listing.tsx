@@ -21,16 +21,25 @@ export default async function StationListingPage() {
 
   let stations: ReturnType<typeof generateMockStations> = [];
   let totalCount = 0;
+  let onlineCount = 0;
+  let offlineCount = 0;
 
   try {
-    const data = await stationsApi.getStations({
-      page,
-      perPage,
-      name: search,
-      status: apiStatus
-    });
-    stations = data.stations;
-    totalCount = data.totalCount;
+    const [listData, onlineData, offlineData] = await Promise.all([
+      stationsApi.getStations({
+        page,
+        perPage,
+        name: search,
+        status: apiStatus
+      }),
+      stationsApi.getOnlineStations().catch(() => ({ total: 0, items: [] })),
+      stationsApi.getOfflineStations().catch(() => ({ total: 0, items: [] }))
+    ]);
+
+    stations = listData.stations;
+    totalCount = listData.totalCount;
+    onlineCount = (onlineData as any).total || 0;
+    offlineCount = (offlineData as any).total || 0;
   } catch (error: any) {
     // Fallback to mock data when API is unavailable
     console.warn('API unavailable, using mock data:', error.message);
@@ -55,7 +64,11 @@ export default async function StationListingPage() {
 
     stations = filtered;
     totalCount = filtered.length;
+    onlineCount = filtered.filter((st) => st.status === 'online').length;
+    offlineCount = filtered.filter((st) => st.status === 'offline').length;
   }
+
+  const maintenanceCount = Math.max(0, totalCount - onlineCount - offlineCount);
 
   // Client-side filter when multiple statuses selected
   let filteredStations = stations;
@@ -67,7 +80,11 @@ export default async function StationListingPage() {
 
   return (
     <div className='space-y-6'>
-      <StationOverview />
+      <StationOverview
+        onlineCount={onlineCount}
+        offlineCount={offlineCount}
+        maintenanceCount={maintenanceCount}
+      />
       <StationTable
         data={filteredStations}
         totalItems={totalCount || filteredStations.length}

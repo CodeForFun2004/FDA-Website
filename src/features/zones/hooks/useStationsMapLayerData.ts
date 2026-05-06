@@ -5,10 +5,7 @@ import type maplibregl from 'maplibre-gl';
 import type { FeatureCollection } from 'geojson';
 import { getFloodSeverityGeoJSON } from '../api/flood-severity.api';
 import type { FloodGeoJsonFeature } from '../api/flood-severity.api';
-import { useMapStationsList } from './useMapStationsList';
-import type { StationExtended } from '@/features/stations/types/station.type';
 import {
-  mergeStationsWithFloodGeojson,
   metersToPixels,
   resolveRadiusMeters
 } from '../lib/stations-flood-geojson-merge';
@@ -25,7 +22,6 @@ type Status = 'idle' | 'loading' | 'success' | 'error';
 const DEFAULT_ZOOM = 12;
 
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
-const EMPTY_STATIONS: StationExtended[] = [];
 
 const toNumber = (value: unknown) => {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
@@ -90,44 +86,12 @@ export function useStationsMapLayerData({
   const [status, setStatus] = React.useState<Status>('idle');
   const [error, setError] = React.useState<string | null>(null);
 
-  const { data: stations, isSuccess: stationsReady } =
-    useMapStationsList(enabled);
-
-  const stationList = stations ?? EMPTY_STATIONS;
-
   const merged = React.useMemo(() => {
     if (!enabled) return EMPTY;
+    if (!floodGeojson) return EMPTY;
 
-    // Fast-path: when `/stations/stations` is still loading, render Point features
-    // directly from `/map/current-status` so hover/click works immediately.
-    const points =
-      stationsReady && stationList.length > 0
-        ? mergeStationsWithFloodGeojson(
-            stationList,
-            floodGeojson,
-            zoomRef.current
-          )
-        : ({
-            type: 'FeatureCollection',
-            features: (
-              (floodGeojson?.features ?? []) as FloodGeoJsonFeature[]
-            ).filter((f) => (f as any)?.geometry?.type === 'Point')
-          } as FeatureCollection);
-
-    // Keep polygon coverage features from `/map/current-status` (mobile already uses these).
-    const polygonFeatures = (
-      (floodGeojson?.features ?? []) as FloodGeoJsonFeature[]
-    ).filter((f) => {
-      const t = (f as any)?.geometry?.type;
-      return t === 'Polygon' || t === 'MultiPolygon';
-    });
-
-    if (!polygonFeatures.length) return points;
-    return {
-      ...points,
-      features: [...(points.features ?? []), ...polygonFeatures]
-    } as FeatureCollection;
-  }, [enabled, stationsReady, stationList, floodGeojson]);
+    return floodGeojson;
+  }, [enabled, floodGeojson]);
 
   React.useEffect(() => {
     onData?.(merged);

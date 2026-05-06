@@ -1,30 +1,17 @@
-import { stationsApi } from '../api/station.api';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertTriangle, Activity, Wrench } from 'lucide-react';
 
-export async function StationOverview() {
-  let onlineCount = 0;
-  let offlineCount = 0;
-  let maintenanceCount = 0;
+type StationOverviewProps = {
+  onlineCount: number;
+  offlineCount: number;
+  maintenanceCount: number;
+};
 
-  try {
-    const [online, offline, allStations] = await Promise.all([
-      stationsApi.getOnlineStations().catch(() => ({ total: 0, items: [] })),
-      stationsApi.getOfflineStations().catch(() => ({ total: 0, items: [] })),
-      stationsApi
-        .getStations({ page: 1, perPage: 1 })
-        .catch(() => ({ totalCount: 0 }))
-    ]);
-    onlineCount = (online as any).total || 0;
-    offlineCount = (offline as any).total || 0;
-
-    const totalCount = (allStations as any).totalCount || 0;
-    maintenanceCount = Math.max(0, totalCount - onlineCount - offlineCount);
-  } catch (error) {
-    console.warn('⚠️ Status APIs unavailable for overview', error);
-  }
-
-  // If all counts are 0, hide the dashboard to avoid showing empty stuff on error
+export function StationOverview({
+  onlineCount,
+  offlineCount,
+  maintenanceCount
+}: StationOverviewProps) {
   if (onlineCount === 0 && offlineCount === 0 && maintenanceCount === 0) {
     return null;
   }

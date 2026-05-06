@@ -72,8 +72,7 @@ export default function StationDetailView({
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      await refreshStation();
-      await refreshStationStatus();
+      await Promise.all([refreshStation(), refreshStationStatus()]);
       setLoading(false);
     }
     void fetchData();

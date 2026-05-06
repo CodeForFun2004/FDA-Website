@@ -131,7 +131,7 @@ export default function LayerPanel({
         (prefs.overlays.communityReports &&
           !appliedPrefs.overlays.communityReports) ? (
           <p className='text-muted-foreground text-[11px] leading-snug'>
-            Lưu cài đặt để hiển thị stations / phản ánh cộng đồng trên bản đồ.
+            Lưu cài đặt để đồng bộ stations / phản ánh cộng đồng lên tài khoản.
           </p>
         ) : null}
       </div>

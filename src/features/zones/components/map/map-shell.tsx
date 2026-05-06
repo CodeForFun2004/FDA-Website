@@ -33,12 +33,12 @@ function Inner() {
       ...prefs,
       overlays: {
         ...prefs.overlays,
-        adminAreas: appliedPrefs.overlays.adminAreas,
-        stations: appliedPrefs.overlays.stations,
-        communityReports: appliedPrefs.overlays.communityReports
+        adminAreas: prefs.overlays.adminAreas,
+        stations: prefs.overlays.stations,
+        communityReports: prefs.overlays.communityReports
       }
     }),
-    [prefs, appliedPrefs]
+    [prefs]
   );
 
   return (

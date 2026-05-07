@@ -1,0 +1,19 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "spratlys_outline" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [112.12, 7.22],
+          [117.38, 7.22],
+          [117.38, 12.38],
+          [112.12, 12.38],
+          [112.12, 7.22]
+        ]
+      }
+    }
+  ]
+}

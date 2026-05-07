@@ -1,0 +1,21 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "paracels_mask" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [110.8, 15.6],
+            [113.3, 15.6],
+            [113.3, 17.7],
+            [110.8, 17.7],
+            [110.8, 15.6]
+          ]
+        ]
+      }
+    }
+  ]
+}

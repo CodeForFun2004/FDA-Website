@@ -1,0 +1,19 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "paracels_outline" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [110.92, 15.72],
+          [113.18, 15.72],
+          [113.18, 17.58],
+          [110.92, 17.58],
+          [110.92, 15.72]
+        ]
+      }
+    }
+  ]
+}

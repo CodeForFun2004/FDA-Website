@@ -1,0 +1,21 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "spratlys_mask" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [111.9, 7.0],
+            [117.6, 7.0],
+            [117.6, 12.6],
+            [111.9, 12.6],
+            [111.9, 7.0]
+          ]
+        ]
+      }
+    }
+  ]
+}

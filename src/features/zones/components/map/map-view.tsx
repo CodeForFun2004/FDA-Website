@@ -5,7 +5,17 @@ import * as React from 'react';
 import type maplibregl from 'maplibre-gl';
 import type { FeatureCollection } from 'geojson';
 import type { MapLayerPrefs } from '../../map/map.type';
-import { getBaseStyle } from '../../map/styles';
+import {
+  applyVietnameseNameOverlay,
+  getBaseStyle,
+  setVietnameseNameOverlayVisible
+} from '../../map/styles';
+import {
+  ensureDisputedSeasIllustrativeLayers,
+  restackDisputedSeasMaskLayers,
+  setDisputedSeasIllustrativeVisible,
+  viewportIntersectsDisputedSeas
+} from '../../map/disputed-seas-illustrative';
 import {
   addOrUpdateRasterOverlay,
   removeOverlay,
@@ -259,15 +269,37 @@ export default function MapView({ prefs }: Props) {
       });
 
       mapRef.current = map;
+      // Dev helper: lấy lng/lat bằng click trong console.
+      if (process.env.NODE_ENV !== 'production') {
+        (window as any)._map = map;
+      }
 
       map.addControl(
         new maplibre.NavigationControl({ visualizePitch: true }),
         'bottom-right'
       );
 
+      const syncDisputedSeasIllustration = () => {
+        const isStandard = prefsRef.current.baseMap === 'standard';
+        if (!isStandard) {
+          setDisputedSeasIllustrativeVisible(map, false);
+          setVietnameseNameOverlayVisible(map, false);
+          return;
+        }
+        const show = viewportIntersectsDisputedSeas(map);
+        setDisputedSeasIllustrativeVisible(map, show);
+        setVietnameseNameOverlayVisible(map, show);
+      };
+
       map.on('load', () => {
         applyOverlays(map, prefsRef.current);
+        ensureDisputedSeasIllustrativeLayers(map);
+        applyVietnameseNameOverlay(map);
+        restackDisputedSeasMaskLayers(map);
+        syncDisputedSeasIllustration();
       });
+
+      map.on('moveend', syncDisputedSeasIllustration);
 
       const onMouseEnter = () => {
         map.getCanvas().style.cursor = 'pointer';
@@ -311,6 +343,14 @@ export default function MapView({ prefs }: Props) {
 
     const onStyleLoad = () => {
       applyOverlays(map, prefsRef.current);
+      ensureDisputedSeasIllustrativeLayers(map);
+      applyVietnameseNameOverlay(map);
+      restackDisputedSeasMaskLayers(map);
+      const show =
+        prefsRef.current.baseMap === 'standard' &&
+        viewportIntersectsDisputedSeas(map);
+      setDisputedSeasIllustrativeVisible(map, show);
+      setVietnameseNameOverlayVisible(map, show);
     };
 
     map.once('style.load', onStyleLoad);

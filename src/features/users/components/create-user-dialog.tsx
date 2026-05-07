@@ -41,12 +41,10 @@ export type CreateUserDialogProps = {
   onSuccess?: () => void;
 };
 
-// Available roles for selection
 const ROLE_OPTIONS = [
   { value: 'USER', label: 'User' },
   { value: 'MODERATOR', label: 'Moderator' },
-  { value: 'ADMIN', label: 'Admin' },
-  { value: 'SUPERADMIN', label: 'Super Admin' }
+  { value: 'ADMIN', label: 'Admin' }
 ];
 
 const STATUS_OPTIONS = [

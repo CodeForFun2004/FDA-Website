@@ -74,9 +74,19 @@ const SEVERITY_STYLES: Record<
     ring: 'ring-orange-500/20'
   },
   warning: {
-    bg: 'bg-gradient-to-br from-yellow-500 to-amber-500',
+    bg: 'bg-gradient-to-br from-orange-400 to-orange-500',
     text: 'text-white',
-    ring: 'ring-yellow-500/20'
+    ring: 'ring-orange-400/20'
+  },
+  caution: {
+    bg: 'bg-gradient-to-br from-yellow-400 to-yellow-500',
+    text: 'text-white',
+    ring: 'ring-yellow-400/20'
+  },
+  info: {
+    bg: 'bg-gradient-to-br from-blue-400 to-blue-500',
+    text: 'text-white',
+    ring: 'ring-blue-400/20'
   },
   safe: {
     bg: 'bg-gradient-to-br from-emerald-500 to-green-600',
@@ -221,17 +231,46 @@ function DischargeTooltip({ active, label, payload }: any) {
   );
 }
 
-const SEVERITY_VI: Record<string, string> = {
-  critical: 'Nguy kịch',
-  alarm: 'Báo động',
-  warning: 'Cảnh báo',
-  safe: 'An toàn',
-  unknown: 'Chưa rõ'
+const SEVERITY_EN: Record<string, string> = {
+  critical: 'Critical',
+  alarm: 'Alarm',
+  warning: 'Warning',
+  caution: 'Caution',
+  info: 'Info',
+  safe: 'Safe',
+  unknown: 'Unknown'
 };
 
+function getStandardSeverity(raw: string) {
+  const norm = raw.trim().toLowerCase();
+  if (norm === 'critical' || norm === 'nghiêm trọng' || norm === 'nguy kịch')
+    return 'critical';
+  if (norm === 'alarm' || norm === 'báo động') return 'alarm';
+  if (norm === 'warning' || norm === 'cảnh báo') return 'warning';
+  if (norm === 'caution' || norm === 'cảnh giác') return 'caution';
+  if (norm === 'info' || norm === 'thông tin') return 'info';
+  if (norm === 'safe' || norm === 'an toàn') return 'safe';
+  return 'unknown';
+}
+
+function getCalculatedSeverity(waterLevel: number | undefined | null): string {
+  if (waterLevel == null) return 'unknown';
+  if (waterLevel < 10) return 'safe';
+  if (waterLevel < 20) return 'caution';
+  if (waterLevel < 40) return 'warning';
+  return 'critical';
+}
+
 function StationStatusItem({ station }: { station: FloodStationProperties }) {
-  const severity = station.severity ?? 'unknown';
+  const severity = getCalculatedSeverity(station.waterLevel);
   const style = SEVERITY_STYLES[severity] ?? SEVERITY_STYLES.unknown;
+
+  const displayUnit =
+    !station.unit || String(station.unit).trim() === 'undefined'
+      ? 'cm'
+      : station.unit;
+  // Fallback in case there is some other custom string
+  const displayText = SEVERITY_EN[severity] ?? station.severity ?? 'Unknown';
 
   return (
     <div className='hover:bg-accent/50 flex cursor-pointer items-start gap-3 rounded-xl p-2 transition-colors'>
@@ -243,9 +282,9 @@ function StationStatusItem({ station }: { station: FloodStationProperties }) {
       <div className='min-w-0 flex-1'>
         <p className='text-foreground line-clamp-1 text-sm leading-snug font-semibold'>
           {station.waterLevel != null
-            ? `${station.waterLevel.toFixed(2)} ${station.unit}`
-            : 'Không có số liệu'}{' '}
-          — {SEVERITY_VI[severity] ?? severity}
+            ? `${station.waterLevel.toFixed(2)} ${displayUnit}`
+            : 'No data'}{' '}
+          — {displayText}
         </p>
         <p className='text-muted-foreground line-clamp-1 text-xs'>
           {station.stationName} ({station.stationCode})
@@ -317,9 +356,34 @@ export function DashboardView({
 
   const stationStatusItems: FloodStationProperties[] = React.useMemo(() => {
     const features = floodStatusQ.data?.features ?? [];
-    return features
-      .map((f) => f.properties)
-      .filter((p) => p.waterLevel != null)
+    const uniqueByStation = new Map<string, FloodStationProperties>();
+
+    for (const feature of features) {
+      // 1. Chặn tuyệt đối: Bỏ qua hoàn toàn các feature không phải là Trạm (Points).
+      // Vùng ngập (Polygons) sẽ bị loại bỏ ở đây để không hiện 'undefined'.
+      if (feature.geometry?.type !== 'Point') continue;
+
+      const properties = feature.properties;
+
+      // 2. Kiểm tra có mức nước thì mới hiển thị
+      if (properties.waterLevel == null) continue;
+
+      const stationId = String(
+        properties.stationId ?? properties.stationCode ?? ''
+      ).trim();
+
+      if (!stationId) continue;
+
+      const existing = uniqueByStation.get(stationId);
+      if (
+        !existing ||
+        (properties.severityLevel ?? 0) >= (existing.severityLevel ?? 0)
+      ) {
+        uniqueByStation.set(stationId, properties);
+      }
+    }
+
+    return Array.from(uniqueByStation.values())
       .sort((a, b) => (b.severityLevel ?? 0) - (a.severityLevel ?? 0))
       .slice(0, 6);
   }, [floodStatusQ.data]);

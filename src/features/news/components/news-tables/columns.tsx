@@ -103,14 +103,14 @@ export const getNewsColumns = (
           label: 'Bản nháp'
         },
         pending: {
-          variant: 'default',
+          variant: 'outline',
           className:
             'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
           icon: Clock,
           label: 'Chờ duyệt'
         },
         published: {
-          variant: 'default',
+          variant: 'outline',
           className:
             'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
           icon: Globe,
@@ -176,21 +176,21 @@ export const getNewsColumns = (
           label: 'Thấp'
         },
         normal: {
-          variant: 'default',
+          variant: 'outline',
           className:
             'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
           icon: Text,
           label: 'Bình thường'
         },
         high: {
-          variant: 'default',
+          variant: 'outline',
           className:
             'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20',
           icon: AlertTriangle,
           label: 'Cao'
         },
         urgent: {
-          variant: 'default',
+          variant: 'outline',
           className:
             'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
           icon: AlertTriangle,

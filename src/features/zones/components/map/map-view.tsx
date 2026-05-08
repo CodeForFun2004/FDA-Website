@@ -892,7 +892,7 @@ export default function MapView({ prefs }: Props) {
       )}
 
       {canFetchAdminAreas && isLoadingAdminAreas && (
-        <div className='bg-background/90 text-muted-foreground absolute bottom-14 left-3 z-50 rounded-lg border px-3 py-1.5 text-xs shadow-md backdrop-blur'>
+        <div className='bg-background/90 text-muted-foreground absolute top-3 left-3 z-50 rounded-lg border px-3 py-1.5 text-xs shadow-md backdrop-blur'>
           Đang tải ranh giới phường/xã (admin areas)…
         </div>
       )}

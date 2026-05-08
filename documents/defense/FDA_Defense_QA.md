@@ -2715,7 +2715,7 @@
 ## Từ khóa kỹ thuật nên nhắc
 
 - FastEndpoints, JWT Bearer, Hangfire, HostedService, EF migrations  
-- SignalR groups `station_`* / `area_*`, LongPolling, automatic reconnect  
+- SignalR groups `station_`* / `area_`*, LongPolling, automatic reconnect  
 - Redux Toolkit + redux-persist, Zustand, TanStack Query, `mergeRealtimeIntoGeoJSON`  
 - `IDistributedCache`, Redis, Gemini `responseMimeType: application/json`, deferred retry  
 - RBAC `Roles(...)`, `RoleGuard`, operational logs AUTHORITY filter

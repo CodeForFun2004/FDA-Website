@@ -38,11 +38,11 @@ interface AlertTemplatePreviewDialogProps {
 }
 
 const DEFAULT_TEST_DATA = {
-  areaName: 'Trạm thủy văn Cần Thơ',
-  stationName: 'Trạm thủy văn Cần Thơ',
+  areaName: 'Trạm thủy văn Đà Nẵng',
+  stationName: 'Trạm thủy văn Đà Nẵng',
   waterLevel: '4.12',
   threshold: '3.50',
-  address: 'Quận Ninh Kiều, TP. Cần Thơ'
+  address: 'Phường An Khê, TP. Đà Nẵng'
 };
 
 const CHANNEL_TABS = [

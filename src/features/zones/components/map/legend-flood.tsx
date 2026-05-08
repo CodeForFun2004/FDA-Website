@@ -7,7 +7,7 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
 
   const items = [
     {
-      label: 'An toàn (< 10 cm)',
+      label: 'Safe (< 10 cm)',
       key: 'safe',
       color: 'text-[#16A34A]',
       bg: 'bg-[#16A34A]',
@@ -15,7 +15,7 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
       ping: false
     },
     {
-      label: 'Cảnh giác (10–20 cm)',
+      label: 'Caution (10–20 cm)',
       key: 'caution',
       color: 'text-[#CA8A04]',
       bg: 'bg-[#CA8A04]',
@@ -23,7 +23,7 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
       ping: false
     },
     {
-      label: 'Cảnh báo (20–40 cm)',
+      label: 'Warning (20–40 cm)',
       key: 'warning',
       color: 'text-[#EA580C]',
       bg: 'bg-[#EA580C]',
@@ -31,7 +31,7 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
       ping: false
     },
     {
-      label: 'Nghiêm trọng (≥ 40 cm)',
+      label: 'Critical (≥ 40 cm)',
       key: 'critical',
       color: 'text-[#DC2626]',
       bg: 'bg-[#DC2626]',
@@ -42,7 +42,9 @@ export default function LegendFlood({ visible }: { visible: boolean }) {
 
   return (
     <div className='animate-in slide-in-from-bottom-2 fade-in rounded-2xl border-none bg-white/95 p-4 shadow-xl backdrop-blur-md duration-300'>
-      <div className='mb-3 text-sm font-bold text-slate-800'>Mức độ ngập</div>
+      <div className='mb-3 text-sm font-bold text-slate-800'>
+        Flood Severity
+      </div>
       <div className='space-y-2.5'>
         {items.map((it) => (
           <div key={it.key} className='flex items-center gap-2.5 text-xs'>

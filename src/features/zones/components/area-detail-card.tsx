@@ -18,6 +18,7 @@ import {
   describePredictAreaMismatch,
   type PredictFloodData
 } from '@/features/zones/components/predict-flood-ai-panel';
+import { buildClippedPredictFeatureCollection } from '@/features/zones/lib/predict-geometry-merge';
 
 type Props = {
   feature: any;
@@ -46,6 +47,25 @@ type PredictRoot = {
   message?: string;
   data?: PredictFloodData;
 };
+
+function toPredictUserMessage(error: unknown): string {
+  if (!(error instanceof AiApiError)) {
+    return error instanceof Error ? error.message : 'Lỗi không xác định';
+  }
+  if (error.status === 429) {
+    return 'Hệ thống đang nhận nhiều yêu cầu. Vui lòng chờ vài giây rồi thử lại.';
+  }
+  if (error.status === 403) {
+    return 'Không có quyền truy cập AI. Vui lòng đăng nhập hoặc kiểm tra API key.';
+  }
+  if (error.status === 404) {
+    return 'Không tìm thấy khu vực dự báo. Vui lòng chọn khu vực khác.';
+  }
+  if (error.status >= 500) {
+    return 'Hệ thống AI tạm thời gián đoạn. Vui lòng thử lại sau.';
+  }
+  return `${error.message} (${error.status})`;
+}
 
 export function AreaDetailCard({
   feature,
@@ -83,6 +103,9 @@ export function AreaDetailCard({
   const [predictRoot, setPredictRoot] = React.useState<PredictRoot | null>(
     null
   );
+  const [predictCooldownUntil, setPredictCooldownUntil] = React.useState(0);
+  const [predictCooldownLeftSec, setPredictCooldownLeftSec] = React.useState(0);
+  const lastPredictClickAtRef = React.useRef(0);
 
   const aiPanelScrollRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -101,6 +124,21 @@ export function AreaDetailCard({
     if (!predictRoot?.data) return;
     aiPanelScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
   }, [predictRoot?.data]);
+
+  React.useEffect(() => {
+    if (!predictCooldownUntil) return;
+    const tick = () => {
+      const remainMs = Math.max(0, predictCooldownUntil - Date.now());
+      setPredictCooldownLeftSec(Math.ceil(remainMs / 1000));
+      if (remainMs <= 0) {
+        setPredictCooldownUntil(0);
+        setPredictCooldownLeftSec(0);
+      }
+    };
+    tick();
+    const timer = window.setInterval(tick, 250);
+    return () => window.clearInterval(timer);
+  }, [predictCooldownUntil]);
 
   async function runSatellite() {
     if (!areaId) {
@@ -121,7 +159,21 @@ export function AreaDetailCard({
         onSatelliteGeoJson?.(null);
         return;
       }
-      onSatelliteGeoJson?.(fc);
+
+      // Clip satellite geojson vào admin area bounds (tương tự predict)
+      const satelliteFc = buildClippedPredictFeatureCollection({
+        extracted: fc,
+        adminGeometry: feature?.geometry ?? null,
+        predictTier: 'satellite'
+      });
+
+      if (!satelliteFc) {
+        setSatError('Dữ liệu vệ tinh nằm ngoài ranh giới khu vực.');
+        onSatelliteGeoJson?.(null);
+        return;
+      }
+
+      onSatelliteGeoJson?.(satelliteFc);
     } catch (e) {
       const msg =
         e instanceof AiApiError
@@ -141,6 +193,10 @@ export function AreaDetailCard({
       setPredError('Không có id khu vực.');
       return;
     }
+
+    const now = Date.now();
+    if (now - lastPredictClickAtRef.current < 600) return;
+    lastPredictClickAtRef.current = now;
 
     // Toggle off: nếu đã có kết quả dự đoán -> tắt luôn layer + panel dữ liệu
     if (predictRoot?.data && !predLoading) {
@@ -183,12 +239,10 @@ export function AreaDetailCard({
 
       onPredictGeoJson?.(predictFc);
     } catch (e) {
-      const msg =
-        e instanceof AiApiError
-          ? `${e.message} (${e.status})`
-          : e instanceof Error
-            ? e.message
-            : 'Lỗi không xác định';
+      const msg = toPredictUserMessage(e);
+      if (e instanceof AiApiError && e.status === 429) {
+        setPredictCooldownUntil(Date.now() + 12_000);
+      }
       setPredError(msg);
       onPredictGeoJson?.(null);
     } finally {
@@ -283,7 +337,9 @@ export function AreaDetailCard({
                   ? 'gap-1.5 border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                   : 'gap-1.5 bg-violet-600 text-white hover:bg-violet-700'
               }
-              disabled={predLoading || !areaId}
+              disabled={
+                predLoading || !areaId || Date.now() < predictCooldownUntil
+              }
               onMouseDown={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -301,7 +357,11 @@ export function AreaDetailCard({
               ) : (
                 <>
                   <Sparkles className='h-3.5 w-3.5' />
-                  {predLoading ? 'Đang gọi AI…' : 'Dự đoán AI'}
+                  {predLoading
+                    ? 'Đang gọi AI…'
+                    : predictCooldownLeftSec > 0
+                      ? `Thử lại sau ${predictCooldownLeftSec}s`
+                      : 'Dự đoán AI'}
                 </>
               )}
             </Button>
@@ -370,20 +430,20 @@ function buildPredictOverlayFeatureCollection(args: {
   fallbackFeature: any;
   tier: string;
 }): FeatureCollection | null {
+  const fallbackGeometry = args.fallbackFeature?.geometry as
+    | Geometry
+    | undefined;
+
   if (args.extracted && args.extracted.features.length > 0) {
-    return {
-      ...args.extracted,
-      features: args.extracted.features.map((f) => ({
-        ...f,
-        properties: {
-          ...(f.properties ?? {}),
-          predictTier: args.tier
-        }
-      }))
-    };
+    const clipped = buildClippedPredictFeatureCollection({
+      extracted: args.extracted,
+      adminGeometry: fallbackGeometry ?? null,
+      predictTier: args.tier
+    });
+    if (clipped) return clipped;
   }
 
-  const geometry = args.fallbackFeature?.geometry as Geometry | undefined;
+  const geometry = fallbackGeometry;
   if (!geometry) return null;
   if (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon') {
     return null;

@@ -191,34 +191,43 @@ export default function FloodHistoryPage() {
         clearStatistics();
       }
 
-      if (shouldFetchTrends(filters.period)) {
-        await fetchTrends({
-          stationId: filters.stationId,
-          period: filters.period
-        });
-      }
-
-      await fetchHistory({
+      const sharedParams = {
         stationId: filters.stationId,
         ...(areaIdForSelectedStation
           ? { areaId: areaIdForSelectedStation }
-          : {}),
-        startDate: dateRange?.startDate,
-        endDate: dateRange?.endDate,
-        granularity: historyGranularityForPeriod(filters.period),
-        limit: FLOOD_HISTORY_PAGE_LIMIT
-      });
+          : {})
+      };
+
+      const requests: Promise<unknown>[] = [
+        fetchHistory({
+          ...sharedParams,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+          granularity: historyGranularityForPeriod(filters.period),
+          limit: FLOOD_HISTORY_PAGE_LIMIT
+        })
+      ];
+
+      if (shouldFetchTrends(filters.period)) {
+        requests.push(
+          fetchTrends({
+            stationId: filters.stationId,
+            period: filters.period
+          })
+        );
+      }
 
       if (!hour) {
-        await fetchStatistics({
-          stationId: filters.stationId,
-          ...(areaIdForSelectedStation
-            ? { areaId: areaIdForSelectedStation }
-            : {}),
-          period: filters.period,
-          includeBreakdown: true
-        });
+        requests.push(
+          fetchStatistics({
+            ...sharedParams,
+            period: filters.period,
+            includeBreakdown: true
+          })
+        );
       }
+
+      await Promise.all(requests);
     } catch (error) {
       console.error('Error loading flood data:', error);
     } finally {

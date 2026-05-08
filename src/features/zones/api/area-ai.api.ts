@@ -2,10 +2,12 @@ import type { Feature, FeatureCollection } from 'geojson';
 
 export class AiApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  requestId?: string;
+  constructor(message: string, status: number, requestId?: string) {
     super(message);
     this.name = 'AiApiError';
     this.status = status;
+    this.requestId = requestId;
   }
 }
 
@@ -21,6 +23,25 @@ export function normalizeAreaId(raw: unknown): string {
 function getAiBaseUrl(): string {
   const raw = process.env.NEXT_PUBLIC_API_AI_BASE_URL || '';
   return raw.replace(/\/+$/, '');
+}
+
+function resolvePredictApiKey(): string | undefined {
+  const key =
+    process.env.NEXT_PUBLIC_API_AI_KEY ||
+    process.env.NEXT_PUBLIC_X_API_KEY ||
+    process.env.NEXT_PUBLIC_API_KEY;
+  const trimmed = key?.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+function createRequestId(): string {
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
+    return crypto.randomUUID();
+  }
+  return `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 async function parseJsonResponse(res: Response): Promise<unknown> {
@@ -65,17 +86,34 @@ export async function fetchSatelliteAnalysis(
 }
 
 /** POST `/area/{uuid}/predict-flood-assemble` — dự báo/tổng hợp AI (ward status, trạm, forecast, Groq, …). */
-export async function fetchPredictFloodAssemble(
-  areaIdRaw: unknown
-): Promise<unknown> {
-  const id = normalizeAreaId(areaIdRaw);
-  if (!id) throw new Error('Thiếu area id');
+const PREDICT_CACHE_TTL_MS = 45_000;
+const PREDICT_MAX_RETRY = 2;
+const PREDICT_RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
+const predictInFlight = new Map<string, Promise<unknown>>();
+const predictCache = new Map<string, { expiresAt: number; value: unknown }>();
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function doPredictFloodAssembleRequest(
+  areaId: string,
+  requestId: string
+): Promise<unknown> {
   const base = getAiBaseUrl();
   if (!base) throw new Error('Chưa cấu hình NEXT_PUBLIC_API_AI_BASE_URL');
 
-  const url = `${base}/area/${id}/predict-flood-assemble`;
-  const res = await fetch(url, { method: 'POST', cache: 'no-store' });
+  const url = `${base}/area/${areaId}/predict-flood-assemble`;
+  const apiKey = resolvePredictApiKey();
+  const res = await fetch(url, {
+    method: 'POST',
+    cache: 'no-store',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Request-ID': requestId,
+      ...(apiKey ? { 'X-API-KEY': apiKey } : {})
+    }
+  });
 
   const body = await parseJsonResponse(res);
   if (!res.ok) {
@@ -83,10 +121,63 @@ export async function fetchPredictFloodAssemble(
       typeof (body as any)?.message === 'string'
         ? (body as any).message
         : `predict-flood-assemble ${res.status}`,
-      res.status
+      res.status,
+      requestId
     );
   }
   return body;
+}
+
+async function withPredictRetry(areaId: string): Promise<unknown> {
+  let attempt = 0;
+  while (true) {
+    const requestId = createRequestId();
+    try {
+      return await doPredictFloodAssembleRequest(areaId, requestId);
+    } catch (error) {
+      attempt += 1;
+      const status = error instanceof AiApiError ? error.status : 0;
+      if (
+        !PREDICT_RETRYABLE_STATUS.has(status) ||
+        attempt > PREDICT_MAX_RETRY
+      ) {
+        throw error;
+      }
+      const baseBackoff = 600 * 2 ** (attempt - 1);
+      const jitter = Math.floor(Math.random() * 200);
+      await delay(baseBackoff + jitter);
+    }
+  }
+}
+
+export async function fetchPredictFloodAssemble(
+  areaIdRaw: unknown
+): Promise<unknown> {
+  const id = normalizeAreaId(areaIdRaw);
+  if (!id) throw new Error('Thiếu area id');
+
+  const now = Date.now();
+  const cached = predictCache.get(id);
+  if (cached && cached.expiresAt > now) {
+    return cached.value;
+  }
+
+  const inFlight = predictInFlight.get(id);
+  if (inFlight) return inFlight;
+
+  const requestPromise = withPredictRetry(id)
+    .then((value) => {
+      predictCache.set(id, {
+        value,
+        expiresAt: Date.now() + PREDICT_CACHE_TTL_MS
+      });
+      return value;
+    })
+    .finally(() => {
+      predictInFlight.delete(id);
+    });
+  predictInFlight.set(id, requestPromise);
+  return requestPromise;
 }
 
 function isFeatureCollection(g: unknown): g is FeatureCollection {

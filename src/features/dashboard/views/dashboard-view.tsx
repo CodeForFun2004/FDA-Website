@@ -305,11 +305,13 @@ function StationStatusItem({ station }: { station: FloodStationProperties }) {
 // ── Main View ────────────────────────────────────────────────────────
 
 export type DashboardViewProps = {
+  basePath?: '/admin' | '/moderator';
   onViewFloodMap?: () => void;
   onViewStations?: () => void;
 };
 
 export function DashboardView({
+  basePath = '/admin',
   onViewFloodMap,
   onViewStations
 }: DashboardViewProps) {
@@ -410,7 +412,7 @@ export function DashboardView({
           </p>
         </div>
         <div className='flex gap-3'>
-          <Link href='/admin/zones'>
+          <Link href={`${basePath}/zones`}>
             <Button
               variant='outline'
               className='rounded-full'
@@ -419,7 +421,7 @@ export function DashboardView({
               <MapIcon className='mr-2 h-4 w-4' /> Mở bản đồ ngập
             </Button>
           </Link>
-          <Link href='/admin/stations'>
+          <Link href={`${basePath}/stations`}>
             <Button
               className='rounded-full shadow-lg shadow-blue-500/20'
               onClick={onViewStations}
@@ -569,7 +571,7 @@ export function DashboardView({
               ) : stationStatusItems.length > 0 ? (
                 stationStatusItems.map((s) => (
                   <StationStatusItem
-                    key={s.stationId ?? s.stationCode}
+                    key={String(s.stationId ?? s.id ?? s.stationCode ?? s.code)}
                     station={s}
                   />
                 ))

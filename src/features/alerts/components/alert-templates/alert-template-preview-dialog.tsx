@@ -38,10 +38,10 @@ interface AlertTemplatePreviewDialogProps {
 }
 
 const DEFAULT_TEST_DATA = {
+  areaName: 'Trạm thủy văn Cần Thơ',
   stationName: 'Trạm thủy văn Cần Thơ',
   waterLevel: '4.12',
   threshold: '3.50',
-  severity: 'warning',
   address: 'Quận Ninh Kiều, TP. Cần Thơ'
 };
 
@@ -86,6 +86,7 @@ export function AlertTemplatePreviewDialog({
         titleTemplate: template.titleTemplate,
         bodyTemplate: template.bodyTemplate,
         ...testData,
+        severity: template.severity || 'warning',
         waterLevel: Number(testData.waterLevel) || 0,
         threshold: Number(testData.threshold) || 0
       });
@@ -144,19 +145,57 @@ export function AlertTemplatePreviewDialog({
             </div>
 
             <div className='space-y-4'>
-              {Object.entries(testData).map(([key, value]) => (
-                <div key={key} className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold text-slate-600 dark:text-slate-400'>
-                    {`{{${key}}}`}
-                  </Label>
-                  <Input
-                    value={value}
-                    onChange={(e) => handleTestChange(key, e.target.value)}
-                    className='h-9 text-sm'
-                    placeholder={`Nhập ${key}…`}
-                  />
-                </div>
-              ))}
+              <div className='flex flex-col gap-1.5'>
+                <Label className='text-xs font-semibold text-slate-600 dark:text-slate-400'>
+                  Tên Trạm
+                </Label>
+                <Input
+                  value={testData.areaName || ''}
+                  onChange={(e) => {
+                    handleTestChange('areaName', e.target.value);
+                    handleTestChange('stationName', e.target.value);
+                  }}
+                  className='h-9 text-sm'
+                  placeholder='Nhập tên trạm…'
+                />
+              </div>
+
+              <div className='flex flex-col gap-1.5'>
+                <Label className='text-xs font-semibold text-slate-600 dark:text-slate-400'>
+                  Mực Nước
+                </Label>
+                <Input
+                  value={testData.waterLevel || ''}
+                  onChange={(e) =>
+                    handleTestChange('waterLevel', e.target.value)
+                  }
+                  className='h-9 text-sm'
+                  placeholder='Nhập mực nước…'
+                />
+              </div>
+
+              <div className='flex flex-col gap-1.5'>
+                <Label className='text-xs font-semibold text-slate-600 dark:text-slate-400'>
+                  Ngưỡng
+                </Label>
+                <Input
+                  value={testData.threshold || ''}
+                  disabled
+                  className='bg-muted text-muted-foreground h-9 text-sm'
+                  placeholder='Nhập ngưỡng cảnh báo…'
+                />
+              </div>
+
+              <div className='flex flex-col gap-1.5'>
+                <Label className='text-xs font-semibold text-slate-600 dark:text-slate-400'>
+                  Mức độ
+                </Label>
+                <Input
+                  value={template?.severity || 'warning'}
+                  disabled
+                  className='bg-muted text-muted-foreground h-9 text-sm'
+                />
+              </div>
             </div>
 
             {/* Action Buttons */}
@@ -191,7 +230,7 @@ export function AlertTemplatePreviewDialog({
             <Tabs defaultValue={activeChannel} className='w-full'>
               <TabsList className='bg-muted/50 mb-6 grid h-auto w-full grid-cols-4 gap-1 rounded-lg p-1'>
                 {CHANNEL_TABS.map(({ value: ch, label }) => {
-                  const enabled = true;
+                  const enabled = ch === activeChannel;
                   return (
                     <TabsTrigger
                       key={ch}
@@ -223,8 +262,9 @@ export function AlertTemplatePreviewDialog({
 
               <TabsContent value='Email'>
                 <EmailPreview
-                  title={previewResult?.title ?? null}
-                  body={previewResult?.body ?? null}
+                  title={previewText?.title ?? null}
+                  body={previewText?.body ?? null}
+                  severity={template?.severity ?? null}
                 />
               </TabsContent>
 

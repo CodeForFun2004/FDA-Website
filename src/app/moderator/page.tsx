@@ -1,5 +1,7 @@
-import { DashboardView } from '@/features/dashboard';
+'use client';
+
+import { ModeratorDashboardView } from '@/features/dashboard';
 
 export default function ModeratorDashboard() {
-  return <DashboardView basePath='/moderator' />;
+  return <ModeratorDashboardView />;
 }

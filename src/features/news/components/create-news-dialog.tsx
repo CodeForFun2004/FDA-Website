@@ -89,12 +89,12 @@ export function CreateNewsDialog({ open, onOpenChange, onSuccess }: Props) {
     title: '',
     content: '',
     summary: null,
-    imageUrl: null,
+    imageUrl: 'https://megatechco.vn/wp-content/uploads/bao-tri.jpg',
     attachments: null,
     scheduledAt: null,
     target: 'all',
     targetValue: null,
-    priority: 'normal'
+    priority: 'high'
   });
 
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
@@ -127,8 +127,6 @@ export function CreateNewsDialog({ open, onOpenChange, onSuccess }: Props) {
     if (!form.content.trim()) newErrors.content = 'Nội dung là bắt buộc';
     if (form.content.length > 10000)
       newErrors.content = 'Nội dung tối đa 10,000 ký tự';
-    if (selectedImageFile && !form.imageUrl)
-      newErrors.imageUrl = 'Ảnh đang được chọn nhưng chưa upload thành công.';
     if (scheduleEnabled && !scheduleDateTime)
       newErrors.scheduleDateTime = 'Vui lòng chọn ngày giờ';
     if (scheduleEnabled && scheduleDateTime) {
@@ -190,12 +188,12 @@ export function CreateNewsDialog({ open, onOpenChange, onSuccess }: Props) {
         title: '',
         content: '',
         summary: null,
-        imageUrl: null,
+        imageUrl: 'https://megatechco.vn/wp-content/uploads/bao-tri.jpg',
         attachments: null,
         scheduledAt: null,
         target: 'all',
         targetValue: null,
-        priority: 'normal'
+        priority: 'high'
       });
       setScheduleEnabled(false);
       setScheduleDateTime('');
@@ -224,12 +222,12 @@ export function CreateNewsDialog({ open, onOpenChange, onSuccess }: Props) {
         title: '',
         content: '',
         summary: null,
-        imageUrl: null,
+        imageUrl: 'https://megatechco.vn/wp-content/uploads/bao-tri.jpg',
         attachments: null,
         scheduledAt: null,
         target: 'all',
         targetValue: null,
-        priority: 'normal'
+        priority: 'high'
       });
       setScheduleEnabled(false);
       setScheduleDateTime('');
@@ -327,199 +325,6 @@ export function CreateNewsDialog({ open, onOpenChange, onSuccess }: Props) {
                   <span className='text-muted-foreground text-xs'>
                     {form.summary?.length ?? 0}/500
                   </span>
-                </div>
-
-                <div className='space-y-2'>
-                  <Label>Hình ảnh đại diện</Label>
-
-                  <div className='flex gap-4'>
-                    <label className='flex cursor-pointer items-center gap-1.5'>
-                      <input
-                        type='radio'
-                        name='imageMode'
-                        value='url'
-                        checked={imageMode === 'url'}
-                        onChange={() => {
-                          setImageMode('url');
-                          resetImageState();
-                        }}
-                        className='accent-primary'
-                      />
-                      <span className='text-sm'>Nhập URL</span>
-                    </label>
-                    <label className='flex cursor-pointer items-center gap-1.5'>
-                      <input
-                        type='radio'
-                        name='imageMode'
-                        value='upload'
-                        checked={imageMode === 'upload'}
-                        onChange={() => {
-                          setImageMode('upload');
-                          setForm((prev) => ({ ...prev, imageUrl: null }));
-                        }}
-                        className='accent-primary'
-                      />
-                      <span className='text-sm'>Upload file</span>
-                    </label>
-                  </div>
-
-                  {imageMode === 'url' ? (
-                    <div className='space-y-1'>
-                      <Input
-                        id='imageUrl'
-                        type='url'
-                        value={form.imageUrl ?? ''}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            imageUrl: e.target.value || null
-                          }))
-                        }
-                        placeholder='https://example.com/image.jpg'
-                      />
-                      {form.imageUrl && (
-                        <img
-                          src={form.imageUrl}
-                          alt='Preview'
-                          className='h-36 w-full rounded-md border object-cover'
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display =
-                              'none';
-                          }}
-                        />
-                      )}
-                    </div>
-                  ) : (
-                    <div className='space-y-2'>
-                      <div className='flex flex-wrap items-center gap-2'>
-                        <Input
-                          type='file'
-                          accept='image/*'
-                          onChange={handleImageFileChange}
-                          disabled={uploadingImage}
-                          className='max-w-xs'
-                        />
-                        {selectedImageFile && (
-                          <Button
-                            type='button'
-                            variant='outline'
-                            onClick={resetImageState}
-                            disabled={uploadingImage}
-                          >
-                            Bỏ ảnh
-                          </Button>
-                        )}
-                      </div>
-
-                      {selectedImageFile && (
-                        <div className='text-muted-foreground text-xs'>
-                          File: {selectedImageFile.name}
-                          {uploadingImage ? ' • Đang upload...' : ''}
-                        </div>
-                      )}
-
-                      {localImagePreview && (
-                        <img
-                          src={localImagePreview}
-                          alt='News image preview'
-                          className='h-36 w-full rounded-md border object-cover'
-                        />
-                      )}
-
-                      {form.imageUrl && (
-                        <Input
-                          value={form.imageUrl}
-                          readOnly
-                          placeholder='URL sau khi upload'
-                        />
-                      )}
-
-                      {errors.imageUrl && (
-                        <span className='text-destructive text-xs'>
-                          {errors.imageUrl}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className='space-y-1.5'>
-                  <Label>
-                    Đối tượng nhận <span className='text-destructive'>*</span>
-                  </Label>
-                  <div className='flex flex-col gap-2'>
-                    {TARGET_OPTIONS.map((opt) => (
-                      <label
-                        key={opt.value}
-                        className='flex cursor-pointer items-center gap-2'
-                      >
-                        <input
-                          type='radio'
-                          name='target'
-                          value={opt.value}
-                          checked={form.target === opt.value}
-                          onChange={() =>
-                            setForm({
-                              ...form,
-                              target: opt.value,
-                              targetValue: null
-                            })
-                          }
-                          className='accent-primary'
-                        />
-                        <span className='text-sm'>{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {form.target !== 'all' && (
-                  <div className='space-y-1.5'>
-                    <Label htmlFor='targetValue'>
-                      {form.target === 'region' ? 'Mã khu vực' : 'Tên vai trò'}
-                    </Label>
-                    <Input
-                      id='targetValue'
-                      value={form.targetValue ?? ''}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          targetValue: e.target.value || null
-                        })
-                      }
-                      placeholder={
-                        form.target === 'region'
-                          ? 'VD: HCM, HN...'
-                          : 'VD: USER, MODERATOR...'
-                      }
-                    />
-                  </div>
-                )}
-
-                <div className='space-y-1.5'>
-                  <Label>
-                    Độ ưu tiên <span className='text-destructive'>*</span>
-                  </Label>
-                  <div className='flex flex-wrap gap-3'>
-                    {PRIORITY_OPTIONS.map((opt) => (
-                      <label
-                        key={opt.value}
-                        className='flex cursor-pointer items-center gap-1.5'
-                      >
-                        <input
-                          type='radio'
-                          name='priority'
-                          value={opt.value}
-                          checked={form.priority === opt.value}
-                          onChange={() =>
-                            setForm({ ...form, priority: opt.value })
-                          }
-                          className='accent-primary'
-                        />
-                        <span className='text-sm'>{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
                 </div>
 
                 <div className='space-y-2'>

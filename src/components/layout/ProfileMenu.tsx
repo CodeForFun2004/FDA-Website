@@ -154,7 +154,9 @@ export function ProfileMenu({
           <div className='text-sm leading-4 font-medium'>{user.name}</div>
           <div className='text-muted-foreground text-xs leading-4'>
             {user.roles && user.roles.length > 0
-              ? user.roles.join(', ')
+              ? user.roles
+                  .map((r) => (r === 'SUPERADMIN' ? 'SUPER ADMIN' : r))
+                  .join(', ')
               : 'Thành viên'}
           </div>
         </div>

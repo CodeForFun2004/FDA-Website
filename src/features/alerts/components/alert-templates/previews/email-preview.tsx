@@ -12,9 +12,21 @@ import {
 interface EmailPreviewProps {
   title: string | null;
   body: string | null;
+  severity?: string | null;
 }
 
-export function EmailPreview({ title, body }: EmailPreviewProps) {
+function getVietnameseSeverity(sev: string | null) {
+  if (!sev) return 'Cảnh báo';
+  const norm = sev.toLowerCase().trim();
+  if (norm === 'critical' || norm === 'nguy kịch') return 'Nguy kịch';
+  if (norm === 'alarm' || norm === 'báo động') return 'Báo động';
+  if (norm === 'warning' || norm === 'cảnh báo') return 'Cảnh báo';
+  if (norm === 'info' || norm === 'thông báo') return 'Thông báo';
+  if (norm === 'safe' || norm === 'an toàn') return 'An toàn';
+  return 'Thông báo';
+}
+
+export function EmailPreview({ title, body, severity }: EmailPreviewProps) {
   return (
     <div className='flex flex-col py-4'>
       {/* Desktop Email Client Mockup */}
@@ -69,27 +81,18 @@ export function EmailPreview({ title, body }: EmailPreviewProps) {
             {/* Email Body */}
             <div className='flex-1 overflow-y-auto bg-slate-100 p-5 dark:bg-slate-900'>
               <div className='mx-auto max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
-                {/* FDA Logo */}
-                <div className='mb-5 flex justify-center'>
-                  <div className='flex size-10 items-center justify-center rounded-xl bg-blue-500 text-white'>
-                    <IconWaveSine className='size-6' />
-                  </div>
-                </div>
-
-                {/* Email Main Title */}
-                <h2 className='mb-4 text-center text-base font-bold text-slate-900 dark:text-white'>
-                  THÔNG BÁO CẢNH BÁO NGẬP
-                </h2>
-
                 {/* Email Content */}
-                <div className='space-y-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300'>
+                <div className='space-y-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300'>
                   <p className='whitespace-pre-wrap'>{body}</p>
 
                   {/* Alert details box */}
                   <div className='my-3 rounded border-l-4 border-amber-500 bg-amber-50 p-3 dark:bg-amber-900/20'>
                     <ul className='space-y-1 text-[11px]'>
                       <li>
-                        • Mức độ: <span className='font-bold'>Cảnh báo</span>
+                        • Mức độ:{' '}
+                        <span className='font-bold'>
+                          {getVietnameseSeverity(severity ?? null)}
+                        </span>
                       </li>
                     </ul>
                   </div>

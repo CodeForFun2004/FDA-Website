@@ -37,6 +37,7 @@ import {
   useUpdateAlertTemplate
 } from '../../hooks/useAlertTemplates';
 import { toast } from 'sonner';
+import { stripHtmlToText } from '@/libs/strip-html';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Tên là bắt buộc'),
@@ -84,12 +85,21 @@ export function AlertTemplateDialog({
 
   useEffect(() => {
     if (template && open) {
+      let cleanBody = stripHtmlToText(template.bodyTemplate);
+      // Clean up common automated footer lines to shorten UI
+      cleanBody = cleanBody
+        .replace(/💡\s*Tiếp tục theo dõi tình hình.*?(?=\n|$)/g, '')
+        .replace(/📍\s*Gửi từ FloodGuard.*?(?=\n|$)/g, '')
+        .replace(/Không trả lời thư này.*?noreply@floodguard\.vn/g, '')
+        .replace(/\n\s*\n/g, '\n') // Remove extra blank lines left over
+        .trim();
+
       form.reset({
         name: template.name,
         channel: template.channel,
         severity: template.severity,
         titleTemplate: template.titleTemplate,
-        bodyTemplate: template.bodyTemplate,
+        bodyTemplate: cleanBody,
         isActive: template.isActive,
         sortOrder: template.sortOrder
       });
@@ -123,164 +133,182 @@ export function AlertTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[600px]'>
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Sửa mẫu cảnh báo' : 'Tạo mẫu cảnh báo'}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className='max-h-[85vh] overflow-hidden p-0 sm:max-w-[600px]'>
+        <div className='flex max-h-[85vh] flex-col'>
+          <DialogHeader className='border-b px-6 py-4'>
+            <DialogTitle>
+              {isEditing ? 'Sửa mẫu cảnh báo' : 'Tạo mẫu cảnh báo'}
+            </DialogTitle>
+          </DialogHeader>
 
-        <Form
-          form={form as any}
-          onSubmit={form.handleSubmit(onSubmit as any)}
-          className='space-y-4'
-        >
-          <FormField
-            control={form.control as any}
-            name='name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tên</FormLabel>
-                <FormControl>
-                  <Input placeholder='VD: Mẫu Push khẩn cấp' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <Form
+            form={form as any}
+            onSubmit={form.handleSubmit(onSubmit as any)}
+            className='flex min-h-0 flex-1 flex-col'
+          >
+            <div className='min-h-0 flex-1 overflow-y-auto px-6 py-4'>
+              <div className='space-y-4'>
+                <FormField
+                  control={form.control as any}
+                  name='name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tên</FormLabel>
+                      <FormControl>
+                        <Input placeholder='VD: Mẫu Push khẩn cấp' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <div className='grid grid-cols-2 gap-4'>
-            <FormField
-              control={form.control as any}
-              name='channel'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Kênh</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Chọn kênh' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value='Push'>Push</SelectItem>
-                      <SelectItem value='Email'>Email</SelectItem>
-                      <SelectItem value='SMS'>SMS</SelectItem>
-                      <SelectItem value='InApp'>InApp</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control as any}
-              name='severity'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mức độ (tùy chọn)</FormLabel>
-                  <Select
-                    onValueChange={(val) =>
-                      field.onChange(val === 'null' ? null : val)
-                    }
-                    value={field.value || 'null'}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Tất cả' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value='null'>Tất cả (mặc định)</SelectItem>
-                      <SelectItem value='info'>Thông tin</SelectItem>
-                      <SelectItem value='caution'>Cảnh giác</SelectItem>
-                      <SelectItem value='warning'>Cảnh báo</SelectItem>
-                      <SelectItem value='critical'>Khẩn cấp</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control as any}
-            name='titleTemplate'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mẫu tiêu đề</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder='VD: Cảnh báo - {{station_name}}'
-                    {...field}
+                <div className='grid grid-cols-2 gap-4'>
+                  <FormField
+                    control={form.control as any}
+                    name='channel'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kênh</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Chọn kênh' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='Push'>Push</SelectItem>
+                            <SelectItem value='Email'>Email</SelectItem>
+                            <SelectItem value='SMS'>SMS</SelectItem>
+                            <SelectItem value='InApp'>InApp</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-                <FormDescription className='text-xs'>
-                  Hỗ trợ biến như {`{{station_name}}`}, {`{{water_level}}`}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control as any}
-            name='bodyTemplate'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mẫu nội dung</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder='VD: Mực nước tại {{station_name}} đã đạt {{water_level}}.'
-                    rows={4}
-                    {...field}
+                  <FormField
+                    control={form.control as any}
+                    name='severity'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mức độ (tùy chọn)</FormLabel>
+                        <Select
+                          onValueChange={(val) =>
+                            field.onChange(val === 'null' ? null : val)
+                          }
+                          value={field.value || 'null'}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Tất cả' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='null'>
+                              Tất cả (mặc định)
+                            </SelectItem>
+                            <SelectItem value='info'>Thông tin</SelectItem>
+                            <SelectItem value='caution'>Cảnh giác</SelectItem>
+                            <SelectItem value='warning'>Cảnh báo</SelectItem>
+                            <SelectItem value='critical'>Khẩn cấp</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control as any}
-            name='isActive'
-            render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm'>
-                <div className='space-y-0.5'>
-                  <FormLabel>Trạng thái hoạt động</FormLabel>
-                  <FormDescription>Bật hoặc tắt mẫu này</FormDescription>
                 </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
 
-          <DialogFooter>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => onOpenChange(false)}
-            >
-              Hủy
-            </Button>
-            <Button
-              type='submit'
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {isEditing ? 'Lưu thay đổi' : 'Tạo'}
-            </Button>
-          </DialogFooter>
-        </Form>
+                <FormField
+                  control={form.control as any}
+                  name='titleTemplate'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mẫu tiêu đề</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='VD: Cảnh báo - {{station_name}}'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription className='text-xs'>
+                        Hỗ trợ biến như {`{{station_name}}`},{' '}
+                        {`{{water_level}}`}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control as any}
+                  name='bodyTemplate'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mẫu nội dung</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder='VD: Cập nhật ngập nhẹ tại trạm {{station_name}}, mực nước là {{water_level}} cm.'
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription className='text-[11px] text-amber-600 dark:text-amber-500'>
+                        Chỉ nhập văn bản thuần túy, không dùng thẻ HTML. Giao
+                        diện Email/App sẽ tự động được hệ thống thiết kế và bọc
+                        xung quanh nội dung này.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control as any}
+                  name='isActive'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm'>
+                      <div className='space-y-0.5'>
+                        <FormLabel>Trạng thái hoạt động</FormLabel>
+                        <FormDescription>Bật hoặc tắt mẫu này</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className='border-t px-6 py-4'>
+              <DialogFooter>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => onOpenChange(false)}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={
+                    createMutation.isPending || updateMutation.isPending
+                  }
+                >
+                  {isEditing ? 'Lưu thay đổi' : 'Tạo'}
+                </Button>
+              </DialogFooter>
+            </div>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

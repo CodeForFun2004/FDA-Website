@@ -81,7 +81,7 @@ export const columns: ColumnDef<AlertTemplate>[] = [
         info: 'bg-blue-100 text-blue-700 border-blue-200'
       };
       return (
-        <Badge className={variants[severity] || ''}>
+        <Badge variant='outline' className={variants[severity] || ''}>
           {labels[severity] ?? severity}
         </Badge>
       );
